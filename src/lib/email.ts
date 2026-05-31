@@ -37,7 +37,7 @@ export interface WelcomeEmailData {
   password?: string;
 }
 
-export interface School LeadNotificationData {
+export interface ReferralNotificationData {
   associationName: string;
   leadName: string;
   leadEmail: string;
@@ -47,7 +47,7 @@ export interface School LeadNotificationData {
 
 export interface ApprovalEmailData {
   associationName: string;
-  school-leadId: string;
+  referralId: string;
   leadName: string;
   incentiveAmount: number;
   status: 'approved' | 'rejected';
@@ -199,8 +199,8 @@ class EmailService {
         <p>Your account is currently pending approval. Our admin team will review your application and activate your account within 24-48 hours.</p>
         <p>Once approved, you'll be able to:</p>
         <ul>
-          <li>Generate unique school-lead links</li>
-          <li>Submit manual school-leads</li>
+          <li>Generate unique referral links</li>
+          <li>Submit manual referrals</li>
           <li>Track your incentives and earnings</li>
           <li>Access marketing materials</li>
         </ul>
@@ -209,7 +209,7 @@ class EmailService {
         <p>You can now:</p>
         <ul>
           <li>Manage association applications</li>
-          <li>Review and approve school-leads</li>
+          <li>Review and approve referrals</li>
           <li>Process incentive payments</li>
           <li>Access platform analytics</li>
         </ul>
@@ -240,13 +240,13 @@ class EmailService {
     `;
   }
 
-  private generateSchool LeadNotificationHTML(data: School LeadNotificationData, _symbol?: string): string {
+  private generateReferralNotificationHTML(data: ReferralNotificationData, _symbol?: string): string {
     return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
-      <title>New School Lead Submission</title>
+      <title>New Referral Submission</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -257,14 +257,14 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>New School Lead Submission 📋</h1>
+        <h1>New Referral Submission 📋</h1>
       </div>
       <div class="content">
         <h2>Hello Admin!</h2>
-        <p>A new school-lead has been submitted and requires your review.</p>
+        <p>A new referral has been submitted and requires your review.</p>
         
         <div class="details">
-          <h3>School Lead Details:</h3>
+          <h3>Referral Details:</h3>
           <p><strong>Association:</strong> ${this.escapeHtml(data.associationName)}</p>
           <p><strong>Lead Name:</strong> ${this.escapeHtml(data.leadName)}</p>
           <p><strong>Lead Email:</strong> ${this.escapeHtml(data.leadEmail)}</p>
@@ -273,10 +273,10 @@ class EmailService {
         </div>
         
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" class="button">Review School Lead</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" class="button">Review Referral</a>
         </div>
         
-        <p>Please review this school-lead in the admin dashboard and approve or reject it accordingly.</p>
+        <p>Please review this referral in the admin dashboard and approve or reject it accordingly.</p>
         
         <p>Best regards,<br>The SkillHeed System</p>
       </div>
@@ -296,7 +296,7 @@ class EmailService {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>School Lead ${statusText}</title>
+      <title>Referral ${statusText}</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: ${statusColor}; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -307,14 +307,14 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>School Lead ${statusText} ${emoji}</h1>
+        <h1>Referral ${statusText} ${emoji}</h1>
       </div>
       <div class="content">
         <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
-        <p>Your school-lead submission has been <strong>${statusText.toLowerCase()}</strong>.</p>
+        <p>Your referral submission has been <strong>${statusText.toLowerCase()}</strong>.</p>
         
         <div class="details">
-          <h3>School Lead Details:</h3>
+          <h3>Referral Details:</h3>
           <p><strong>Lead Name:</strong> ${this.escapeHtml(data.leadName)}</p>
           <p><strong>Status:</strong> ${statusText}</p>
           ${isApproved ? `<p><strong>Incentive Amount:</strong> $${(data.incentiveAmount / 100).toFixed(2)}</p>` : ''}
@@ -322,9 +322,9 @@ class EmailService {
         </div>
         
         ${isApproved ? `
-        <p>🎉 Congratulations! Your school-lead has been approved and the incentive has been added to your account.</p>
+        <p>🎉 Congratulations! Your referral has been approved and the incentive has been added to your account.</p>
         ` : `
-        <p>Unfortunately, this school-lead did not meet our approval criteria. Please review the feedback and feel free to submit future school-leads.</p>
+        <p>Unfortunately, this referral did not meet our approval criteria. Please review the feedback and feel free to submit future referrals.</p>
         `}
         
         <div style="text-align: center;">
@@ -394,7 +394,7 @@ class EmailService {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>School Lead Converted!</title>
+      <title>Referral Converted!</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -405,7 +405,7 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>🎉 School Lead Converted!</h1>
+        <h1>🎉 Referral Converted!</h1>
       </div>
       <div class="content">
         <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
@@ -523,7 +523,7 @@ class EmailService {
     });
   }
 
-  async sendSchool LeadNotification(data: School LeadNotificationData): Promise<{ success: boolean; message: string }> {
+  async sendReferralNotification(data: ReferralNotificationData): Promise<{ success: boolean; message: string }> {
     const adminEmails = process.env.ADMIN_EMAILS?.split(',') || ['admin@yourdomain.com'];
     const symbol = await this.getCurrencySymbol();
 
@@ -531,10 +531,10 @@ class EmailService {
       adminEmails.map(email =>
         this.sendTemplatedEmail({
           to: email.trim(),
-          templateType: 'NEW_SCHOOL_LEAD',
-          fallbackSubject: `New School Lead Submission from ${data.associationName}`,
+          templateType: 'NEW_REFERRAL',
+          fallbackSubject: `New Referral Submission from ${data.associationName}`,
           variables: { ...data, symbol },
-          generateFallbackHtml: () => this.generateSchool LeadNotificationHTML(data, symbol),
+          generateFallbackHtml: () => this.generateReferralNotificationHTML(data, symbol),
         })
       )
     );
@@ -542,7 +542,7 @@ class EmailService {
     const success = results.every(r => r.success);
     return {
       success,
-      message: success ? 'School Lead notifications sent' : 'Some notifications failed'
+      message: success ? 'Referral notifications sent' : 'Some notifications failed'
     };
   }
 
@@ -552,7 +552,7 @@ class EmailService {
     return this.sendTemplatedEmail({
       to: associationEmail,
       templateType: data.status === 'approved' ? 'PARTNER_APPROVAL' : 'PARTNER_DECLINED',
-      fallbackSubject: `School Lead ${statusText} - ${data.leadName}`,
+      fallbackSubject: `Referral ${statusText} - ${data.leadName}`,
       variables: { ...data, statusText, symbol }, // Pass statusText and symbol for template variables
       generateFallbackHtml: () => this.generateApprovalEmailHTML(data, symbol),
     });
@@ -574,8 +574,8 @@ class EmailService {
     const symbol = await this.getCurrencySymbol();
     return this.sendTemplatedEmail({
       to: data.associationEmail,
-      templateType: 'SCHOOL_LEAD_CONVERTED',
-      fallbackSubject: `🎉 Your School Lead for ${data.leadName} Converted!`,
+      templateType: 'REFERRAL_CONVERTED',
+      fallbackSubject: `🎉 Your Referral for ${data.leadName} Converted!`,
       variables: { ...data, symbol },
       generateFallbackHtml: () => this.generateConversionNotificationHTML(data, symbol),
     });

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Get all associations to find their userIds
-        const associations = await prisma.association.findMany({
+        const associations = await prisma.affiliate.findMany({
           where: { id: { in: associationIds } }
         });
 
@@ -102,12 +102,12 @@ export async function POST(request: NextRequest) {
 
         // Update association metadata with group
         for (const associationId of associationIds) {
-          await prisma.association.update({
+          await prisma.affiliate.update({
             where: { id: associationId },
             data: {
               payoutDetails: {
                 // Preserve existing data and add/update group
-                ...(await prisma.association.findUnique({
+                ...(await prisma.affiliate.findUnique({
                   where: { id: associationId },
                   select: { payoutDetails: true }
                 }).then(a => a?.payoutDetails as any) || {}),
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 
       case 'delete':
         // Get all associations to find their userIds
-        const associationsToDelete = await prisma.association.findMany({
+        const associationsToDelete = await prisma.affiliate.findMany({
           where: { id: { in: associationIds } },
           include: { user: true }
         });

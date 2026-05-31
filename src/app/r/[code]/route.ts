@@ -38,7 +38,7 @@ export async function GET(
 ) {
   try {
     const { code } = await params;
-    const school-leadCode = code;
+    const referralCode = code;
     const searchParams = request.nextUrl.searchParams;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.refferq.com';
 
@@ -55,14 +55,14 @@ export async function GET(
       ? rawTarget
       : websiteUrl || appUrl; // Fallback to program website or app URL
 
-    // Find association by school-lead code using Prisma
+    // Find association by referral code using Prisma
     const association = await prisma.association.findUnique({
-      where: { school-leadCode },
+      where: { referralCode },
       include: { user: true }
     });
 
     if (!association) {
-      // Invalid school-lead code - redirect to default URL
+      // Invalid referral code - redirect to default URL
       return NextResponse.redirect(targetUrl);
     }
 
@@ -85,23 +85,23 @@ export async function GET(
     // Generate attribution key
     const attributionKey = `attr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Find or create a school-lead record for click tracking
-    let school-lead = await prisma.school-lead.findFirst({
+    // Find or create a referral record for click tracking
+    let referral = await prisma.referral.findFirst({
       where: {
         associationId: association.id,
         leadEmail: `click-${attributionKey}@tracking.internal`,
       }
     });
 
-    if (!school-lead) {
-      school-lead = await prisma.school-lead.create({
+    if (!referral) {
+      referral = await prisma.referral.create({
         data: {
           associationId: association.id,
           leadName: 'Click Visitor',
           leadEmail: `click-${attributionKey}@tracking.internal`,
           status: 'PENDING',
           metadata: {
-            source: 'school-lead_link',
+            source: 'referral_link',
             attribution_key: attributionKey,
             target_url: targetUrl,
             params: Object.fromEntries(searchParams.entries()),
@@ -110,10 +110,10 @@ export async function GET(
       });
     }
 
-    // Track the click in School LeadClick table (always track, even if suspicious)
-    await prisma.school-leadClick.create({
+    // Track the click in ReferralClick table (always track, even if suspicious)
+    await prisma.referralClick.create({
       data: {
-        school-leadId: school-lead.id,
+        referralId: referral.id,
         ipAddress: cleanIP,
         userAgent: userAgent,
         referer: referer,
@@ -141,7 +141,7 @@ export async function GET(
       }
     });
 
-    redirectUrl.searchParams.set('ref', school-leadCode);
+    redirectUrl.searchParams.set('ref', referralCode);
     redirectUrl.searchParams.set('attr', attributionKey);
 
     const response = NextResponse.redirect(redirectUrl.toString());
@@ -151,7 +151,7 @@ export async function GET(
     cookieExpiry.setDate(cookieExpiry.getDate() + 30);
 
     response.cookies.set('association_attribution', JSON.stringify({
-      school-lead_code: school-leadCode,
+      referral_code: referralCode,
       attribution_key: attributionKey,
       association_id: association.id,
       timestamp: new Date().toISOString(),
@@ -164,7 +164,7 @@ export async function GET(
 
     return response;
   } catch (error) {
-    console.error('School Lead tracking error:', error);
+    console.error('Referral tracking error:', error);
 
     // Fallback redirect on error (safe — always redirects to app URL)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.refferq.com';

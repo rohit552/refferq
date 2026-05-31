@@ -45,11 +45,11 @@ export default function NotificationCenter() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'school-lead_submitted':
+      case 'referral_submitted':
         return '📝';
-      case 'school-lead_approved':
+      case 'referral_approved':
         return '✅';
-      case 'school-lead_rejected':
+      case 'referral_rejected':
         return '❌';
       case 'incentive_approved':
         return '💰';

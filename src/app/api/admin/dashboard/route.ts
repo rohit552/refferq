@@ -26,16 +26,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate platform stats
-    const totalAssociations = await prisma.association.count();
+    const totalAssociations = await prisma.affiliate.count();
     const totalUsers = await prisma.user.count();
-    const totalSchool Leads = await prisma.school-lead.count();
+    const totalReferrals = await prisma.referral.count();
     const totalConversions = await prisma.conversion.count();
     
-    const pendingSchool Leads = await prisma.school-lead.count({
+    const pendingReferrals = await prisma.referral.count({
       where: { status: 'PENDING' }
     });
     
-    const approvedSchool Leads = await prisma.school-lead.count({
+    const approvedReferrals = await prisma.referral.count({
       where: { status: 'APPROVED' }
     });
     
@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
       _sum: { amountCents: true }
     });
     
-    // Calculate ESTIMATED revenue from school-leads (leads)
-    const school-leads = await prisma.school-lead.findMany({
+    // Calculate ESTIMATED revenue from referrals (leads)
+    const referrals = await prisma.referral.findMany({
       include: {
         association: true
       }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     let totalEstimatedRevenue = 0;
     let totalEstimatedIncentive = 0;
     
-    school-leads.forEach((ref) => {
+    referrals.forEach((ref) => {
       const metadata = ref.metadata as any;
       const estimatedValue = Number(metadata?.estimated_value) || 0;
       const valueInCents = estimatedValue * 100;
@@ -80,10 +80,10 @@ export async function GET(request: NextRequest) {
     const stats = {
       totalAssociations,
       totalUsers,
-      totalSchool Leads,
+      totalReferrals,
       totalConversions,
-      pendingSchool Leads,
-      approvedSchool Leads,
+      pendingReferrals,
+      approvedReferrals,
       totalRevenue: totalRevenue._sum?.amountCents || 0, // Actual transaction revenue
       totalEstimatedRevenue, // Estimated revenue from all leads
       totalEstimatedIncentive, // Total incentive to be paid

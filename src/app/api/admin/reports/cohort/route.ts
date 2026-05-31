@@ -29,11 +29,11 @@ export async function GET(request: NextRequest) {
     const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
     // Get all associations created within the period
-    const associations = await prisma.association.findMany({
+    const associations = await prisma.affiliate.findMany({
       where: { createdAt: { gte: startDate } },
       include: {
         user: { select: { name: true, email: true, status: true, createdAt: true } },
-        school-leads: {
+        referrals: {
           select: { id: true, status: true, createdAt: true },
         },
         incentives: {
@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
       label: string;
       startDate: Date;
       associationCount: number;
-      totalSchool Leads: number;
-      approvedSchool Leads: number;
+      totalReferrals: number;
+      approvedReferrals: number;
       totalIncentives: number;
       totalEarnings: number;
       retention: Record<string, number>; // period label → active count
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
           label: cohortLabel,
           startDate: cohortStart,
           associationCount: 0,
-          totalSchool Leads: 0,
-          approvedSchool Leads: 0,
+          totalReferrals: 0,
+          approvedReferrals: 0,
           totalIncentives: 0,
           totalEarnings: 0,
           retention: {},
@@ -89,14 +89,14 @@ export async function GET(request: NextRequest) {
 
       const cohort = cohorts.get(cohortKey)!;
       cohort.associationCount++;
-      cohort.totalSchool Leads += association.school-leads.length;
-      cohort.approvedSchool Leads += association.school-leads.filter((r) => r.status === 'APPROVED').length;
+      cohort.totalReferrals += association.referrals.length;
+      cohort.approvedReferrals += association.referrals.filter((r) => r.status === 'APPROVED').length;
       cohort.totalIncentives += association.incentives.length;
       cohort.totalEarnings += association.incentives.reduce((sum, c) => sum + c.amountCents, 0);
 
       // Calculate retention: which periods after joining did this association have activity?
-      for (const school-lead of association.school-leads) {
-        const refDate = new Date(school-lead.createdAt);
+      for (const referral of association.referrals) {
+        const refDate = new Date(referral.createdAt);
         const monthsAfterJoin = Math.floor(
           (refDate.getTime() - cohortStart.getTime()) / (30 * 24 * 60 * 60 * 1000)
         );
@@ -113,10 +113,10 @@ export async function GET(request: NextRequest) {
       label: cohort.label,
       startDate: cohort.startDate,
       associationCount: cohort.associationCount,
-      totalSchool Leads: cohort.totalSchool Leads,
-      approvedSchool Leads: cohort.approvedSchool Leads,
-      conversionRate: cohort.totalSchool Leads > 0
-        ? ((cohort.approvedSchool Leads / cohort.totalSchool Leads) * 100).toFixed(1)
+      totalReferrals: cohort.totalReferrals,
+      approvedReferrals: cohort.approvedReferrals,
+      conversionRate: cohort.totalReferrals > 0
+        ? ((cohort.approvedReferrals / cohort.totalReferrals) * 100).toFixed(1)
         : '0',
       totalIncentives: cohort.totalIncentives,
       totalEarningsCents: cohort.totalEarnings,
@@ -128,9 +128,9 @@ export async function GET(request: NextRequest) {
 
     // Overall summary
     const totalAssociations = associations.length;
-    const activeAssociations = associations.filter((a) => a.school-leads.length > 0).length;
-    const avgSchool LeadsPerAssociation = totalAssociations > 0
-      ? (associations.reduce((sum, a) => sum + a.school-leads.length, 0) / totalAssociations).toFixed(1)
+    const activeAssociations = associations.filter((a) => a.referrals.length > 0).length;
+    const avgReferralsPerAssociation = totalAssociations > 0
+      ? (associations.reduce((sum, a) => sum + a.referrals.length, 0) / totalAssociations).toFixed(1)
       : '0';
 
     return NextResponse.json({
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
           activationRate: totalAssociations > 0
             ? ((activeAssociations / totalAssociations) * 100).toFixed(1)
             : '0',
-          avgSchool LeadsPerAssociation,
+          avgReferralsPerAssociation,
         },
         cohorts: cohortData,
       },

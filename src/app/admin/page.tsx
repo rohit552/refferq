@@ -46,16 +46,16 @@ interface DashboardStats {
   totalLeads: number;
   totalReferredCustomers: number;
   totalAssociations: number;
-  pendingSchool Leads: number;
+  pendingReferrals: number;
 }
 
 interface TopAssociation {
   id: string;
   name: string;
   email: string;
-  school-leadCode: string;
+  referralCode: string;
   totalRevenue: number;
-  totalSchool Leads: number;
+  totalReferrals: number;
 }
 
 interface RecentCustomer {
@@ -85,16 +85,16 @@ export default function AdminDashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, analyticsRes, school-leadsRes] = await Promise.all([
+      const [statsRes, analyticsRes, referralsRes] = await Promise.all([
         fetch('/api/admin/dashboard'),
         fetch('/api/admin/analytics?days=30'),
-        fetch('/api/admin/school-leads'),
+        fetch('/api/admin/referrals'),
       ]);
 
-      const [statsData, analyticsData, school-leadsData] = await Promise.all([
+      const [statsData, analyticsData, referralsData] = await Promise.all([
         statsRes.json(),
         analyticsRes.json(),
-        school-leadsRes.json(),
+        referralsRes.json(),
       ]);
 
       if (statsData.success) {
@@ -103,10 +103,10 @@ export default function AdminDashboardPage() {
           totalEstimatedRevenue: statsData.stats.totalEstimatedRevenue || 0,
           totalEstimatedIncentive: statsData.stats.totalEstimatedIncentive || 0,
           totalClicks: 0,
-          totalLeads: statsData.stats.totalSchool Leads || 0,
-          totalReferredCustomers: statsData.stats.approvedSchool Leads || 0,
+          totalLeads: statsData.stats.totalReferrals || 0,
+          totalReferredCustomers: statsData.stats.approvedReferrals || 0,
           totalAssociations: statsData.stats.totalAssociations || 0,
-          pendingSchool Leads: statsData.stats.pendingSchool Leads || 0,
+          pendingReferrals: statsData.stats.pendingReferrals || 0,
         });
       }
 
@@ -114,8 +114,8 @@ export default function AdminDashboardPage() {
         setTopAssociations(analyticsData.analytics.topAssociations.slice(0, 5));
       }
 
-      if (school-leadsData.success) {
-        const recent = school-leadsData.school-leads.slice(0, 10).map((ref: any) => ({
+      if (referralsData.success) {
+        const recent = referralsData.referrals.slice(0, 10).map((ref: any) => ({
           id: ref.id,
           leadName: ref.leadName,
           leadEmail: ref.leadEmail,
@@ -191,7 +191,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: 'Customers',
-      description: 'View school-leads',
+      description: 'View referrals',
       icon: UserCheck,
       href: '/admin/customers',
       color: 'text-emerald-600',
@@ -263,10 +263,10 @@ export default function AdminDashboardPage() {
                   <Clock className="h-5 w-5 text-amber-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-2xl font-bold">{stats?.pendingSchool Leads || 0}</p>
+                  <p className="text-2xl font-bold">{stats?.pendingReferrals || 0}</p>
                   <p className="text-sm text-muted-foreground">Pending Leads</p>
                 </div>
-                {(stats?.pendingSchool Leads || 0) > 0 && (
+                {(stats?.pendingReferrals || 0) > 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push('/admin/customers')}>
@@ -373,11 +373,11 @@ export default function AdminDashboardPage() {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{association.name}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{association.school-leadCode}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{association.referralCode}</p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-sm font-semibold">₹{(association.totalRevenue / 100).toFixed(2)}</p>
-                        <p className="text-[11px] text-muted-foreground">{association.totalSchool Leads} school-leads</p>
+                        <p className="text-[11px] text-muted-foreground">{association.totalReferrals} referrals</p>
                       </div>
                     </div>
                   ))}

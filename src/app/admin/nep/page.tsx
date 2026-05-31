@@ -124,7 +124,7 @@ export default function AdminNepPage() {
     { label: 'Master Partners', value: s.masterPartners, icon: Crown },
     { label: 'Sub Partners', value: s.subPartners, icon: Layers },
     { label: 'Partners', value: s.partners, icon: UserCheck },
-    { label: 'School Leads (/nep)', value: s.totalSchoolLeads, icon: School },
+    { label: 'Referrals (/nep)', value: s.totalSchoolLeads, icon: School },
     { label: 'Conversions', value: s.conversions, icon: TrendingUp },
     { label: 'Page Views', value: s.pageViews, icon: Eye },
     { label: 'CTA Clicks', value: s.ctaClicks, icon: MousePointerClick },

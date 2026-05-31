@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get association statistics
-    const school-leads = await prisma.school-lead.findMany({
+    const referrals = await prisma.referral.findMany({
       where: { associationId: association.id },
       orderBy: { createdAt: 'desc' }
     });
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     const totalIncentives = incentives.length;
     const pendingIncentivesCount = pendingIncentivesList.length;
     const totalConversions = conversions.length;
-    const totalClicks = school-leads.reduce((sum, r) => {
+    const totalClicks = referrals.reduce((sum, r) => {
       const metadata = r.metadata as any;
       return sum + (metadata?.clicks || 0);
     }, 0);
@@ -86,8 +86,8 @@ export async function GET(request: NextRequest) {
       conversionRate
     };
 
-    // Map school-leads to include estimatedValue from metadata
-    const mappedSchool Leads = school-leads.map(ref => {
+    // Map referrals to include estimatedValue from metadata
+    const mappedReferrals = referrals.map(ref => {
       const metadata = ref.metadata as any;
       return {
         ...ref,
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       },
       association: association,
       stats,
-      school-leads: mappedSchool Leads,
+      referrals: mappedReferrals,
       conversions,
       incentives,
       currencySymbol,
@@ -188,7 +188,7 @@ export async function PUT(request: NextRequest) {
       if (paymentMethod) payoutDetails.paymentMethod = paymentMethod;
       if (paymentEmail) payoutDetails.paymentEmail = paymentEmail.trim();
 
-      await prisma.association.update({
+      await prisma.affiliate.update({
         where: { id: user.association.id },
         data: {
           payoutDetails: payoutDetails

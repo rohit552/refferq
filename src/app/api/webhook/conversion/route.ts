@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       currency = 'USD',
       customer_email,
       attribution_key,
-      school-lead_code,
+      referral_code,
       event_metadata = {},
     } = body;
 
@@ -80,15 +80,15 @@ export async function POST(request: NextRequest) {
     if (attribution_key) {
       // In a real implementation, this would be stored in Redis
       // For this simulation, we'll comment out the problematic call
-      // const recentClicks = await db.getClicksBySchool LeadId('some-school-lead-id');
-      // For demo purposes, we'll use school-lead_code method
+      // const recentClicks = await db.getClicksByReferralId('some-referral-id');
+      // For demo purposes, we'll use referral_code method
       attributionMethod = 'attribution_key';
     }
 
-    // Fallback to school-lead code
-    if (!association && school-lead_code) {
-      association = await db.getAssociationBySchool LeadCode(school-lead_code);
-      attributionMethod = 'school-lead_code';
+    // Fallback to referral code
+    if (!association && referral_code) {
+      association = await db.getAssociationByReferralCode(referral_code);
+      attributionMethod = 'referral_code';
     }
 
     // If no association found, log the conversion but don't create incentive
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         event_type,
         customer_email,
         attribution_key,
-        school-lead_code,
+        referral_code,
       });
 
       return NextResponse.json({
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         customerEmail: customer_email,
         attributionMethod,
         attributionKey: attribution_key,
-        school-leadCode: school-lead_code,
+        referralCode: referral_code,
       },
     });
 

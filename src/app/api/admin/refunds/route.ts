@@ -80,12 +80,12 @@ export async function POST(request: NextRequest) {
       results.reversedAmountCents = matchingIncentive.amountCents;
 
       // 3. Deduct from association balance if applicable
-      const association = await prisma.association.findUnique({
+      const association = await prisma.affiliate.findUnique({
         where: { id: transaction.associationId },
       });
 
       if (association && association.balanceCents >= matchingIncentive.amountCents) {
-        await prisma.association.update({
+        await prisma.affiliate.update({
           where: { id: transaction.associationId },
           data: {
             balanceCents: { decrement: matchingIncentive.amountCents },

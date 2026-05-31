@@ -43,7 +43,7 @@ export async function PATCH(
     }
 
     // Get association to find userId
-    const association = await prisma.association.findUnique({
+    const association = await prisma.affiliate.findUnique({
       where: { id: params.id },
       include: { user: true }
     });
@@ -119,7 +119,7 @@ export async function DELETE(
     }
 
     // Get association to find userId
-    const association = await prisma.association.findUnique({
+    const association = await prisma.affiliate.findUnique({
       where: { id: params.id },
       include: { user: true }
     });
@@ -146,7 +146,7 @@ export async function DELETE(
         payload: {
           associationName: association.user.name,
           associationEmail: association.user.email,
-          school-leadCode: association.school-leadCode
+          referralCode: association.referralCode
         }
       }
     });

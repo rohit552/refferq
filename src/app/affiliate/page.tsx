@@ -59,13 +59,13 @@ interface AssociationStats {
   totalReferredCustomers: number;
   totalConversions: number;
   conversionRate: number;
-  school-leadLink: string;
-  school-leadCode: string;
+  referralLink: string;
+  referralCode: string;
   currencySymbol: string;
   nextMaturesAt: string | null;
 }
 
-interface School Lead {
+interface Referral {
   id: string;
   leadName: string;
   leadEmail: string;
@@ -78,13 +78,13 @@ interface School Lead {
 export default function AssociationDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<AssociationStats | null>(null);
-  const [school-leads, setSchool Leads] = useState<School Lead[]>([]);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
   const [currencySymbol, setCurrencySymbol] = useState('₹');
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [copied, setCopied] = useState<'link' | 'code' | null>(null);
 
-  // School Lead form state
+  // Referral form state
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitForm, setSubmitForm] = useState({
@@ -110,16 +110,16 @@ export default function AssociationDashboard() {
           totalEarnings: data.association?.balanceCents || 0,
           pendingEarnings: data.stats?.pendingEarnings || 0,
           totalClicks: data.stats?.totalClicks || 0,
-          totalLeads: data.school-leads?.length || 0,
-          totalReferredCustomers: data.school-leads?.filter((r: any) => r.status === 'APPROVED').length || 0,
+          totalLeads: data.referrals?.length || 0,
+          totalReferredCustomers: data.referrals?.filter((r: any) => r.status === 'APPROVED').length || 0,
           totalConversions: data.stats?.totalConversions || 0,
           conversionRate: data.stats?.conversionRate || 0,
-          school-leadLink: `${window.location.origin}/r/${data.association?.school-leadCode}`,
-          school-leadCode: data.association?.school-leadCode || '',
+          referralLink: `${window.location.origin}/r/${data.association?.referralCode}`,
+          referralCode: data.association?.referralCode || '',
           currencySymbol: data.currencySymbol || '₹',
           nextMaturesAt: data.stats?.nextMaturesAt || null,
         });
-        setSchool Leads(data.school-leads || []);
+        setReferrals(data.referrals || []);
         setCurrencySymbol(data.currencySymbol || '₹');
       }
     } catch (error) {
@@ -134,7 +134,7 @@ export default function AssociationDashboard() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch('/api/association/school-leads', {
+      const response = await fetch('/api/association/referrals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -313,51 +313,51 @@ export default function AssociationDashboard() {
         ))}
       </div>
 
-      {/* School Lead Links */}
+      {/* Referral Links */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Link className="h-4 w-4" />
-            Your School Lead Links
+            Your Referral Links
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!stats?.school-leadCode ? (
+          {!stats?.referralCode ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-4">
                 <Link className="h-6 w-6 text-muted-foreground" />
               </div>
-              <p className="font-medium">No school-lead code found</p>
+              <p className="font-medium">No referral code found</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Generate your school-lead code to start earning incentives
+                Generate your referral code to start earning incentives
               </p>
               <Button className="mt-4" onClick={handleGenerateCode}>
-                Generate School Lead Code
+                Generate Referral Code
               </Button>
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label>School Lead Link</Label>
+                <Label>Referral Link</Label>
                 <div className="flex gap-2">
-                  <Input readOnly value={stats?.school-leadLink || ''} className="font-mono text-sm" />
+                  <Input readOnly value={stats?.referralLink || ''} className="font-mono text-sm" />
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => copyToClipboard(stats?.school-leadLink || '', 'link')}
+                    onClick={() => copyToClipboard(stats?.referralLink || '', 'link')}
                   >
                     {copied === 'link' ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>School Lead Code</Label>
+                <Label>Referral Code</Label>
                 <div className="flex gap-2">
-                  <Input readOnly value={stats?.school-leadCode || ''} className="font-mono text-sm" />
+                  <Input readOnly value={stats?.referralCode || ''} className="font-mono text-sm" />
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => copyToClipboard(stats?.school-leadCode || '', 'code')}
+                    onClick={() => copyToClipboard(stats?.referralCode || '', 'code')}
                   >
                     {copied === 'code' ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
                   </Button>
@@ -368,24 +368,24 @@ export default function AssociationDashboard() {
         </CardContent>
       </Card>
 
-      {/* Recent School Leads */}
+      {/* Recent Referrals */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Recent School Leads</CardTitle>
-            <CardDescription>Latest 5 school-leads</CardDescription>
+            <CardTitle className="text-base">Recent Referrals</CardTitle>
+            <CardDescription>Latest 5 referrals</CardDescription>
           </div>
-          {school-leads.length > 5 && (
+          {referrals.length > 5 && (
             <Button variant="ghost" size="sm" asChild>
-              <a href="/association/school-leads" className="gap-1">
+              <a href="/association/referrals" className="gap-1">
                 View All <ArrowRight className="h-3.5 w-3.5" />
               </a>
             </Button>
           )}
         </CardHeader>
         <CardContent className="p-0">
-          {school-leads.length === 0 ? (
-            <EmptyState icon={Users} message="No school-leads yet" />
+          {referrals.length === 0 ? (
+            <EmptyState icon={Users} message="No referrals yet" />
           ) : (
             <Table>
               <TableHeader>
@@ -398,7 +398,7 @@ export default function AssociationDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {school-leads.slice(0, 5).map((ref) => (
+                {referrals.slice(0, 5).map((ref) => (
                   <TableRow key={ref.id}>
                     <TableCell className="font-medium">{ref.leadName}</TableCell>
                     <TableCell className="text-muted-foreground">{ref.leadEmail}</TableCell>
@@ -417,11 +417,11 @@ export default function AssociationDashboard() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/association/school-leads'}>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/association/referrals'}>
           <CardContent className="p-5 flex items-center gap-3">
             <Users className="h-5 w-5 text-blue-600" />
             <div>
-              <p className="font-medium">Manage School Leads</p>
+              <p className="font-medium">Manage Referrals</p>
               <p className="text-xs text-muted-foreground">View all your submissions</p>
             </div>
             <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground" />

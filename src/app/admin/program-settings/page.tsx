@@ -526,10 +526,10 @@ export default function ProgramSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Code2 className="h-5 w-5" />
-            School Lead Tracking Widget
+            Referral Tracking Widget
           </CardTitle>
           <CardDescription>
-            Embed this script on <strong>{settings.websiteUrl || 'your website'}</strong> to automatically track school-lead visits and conversions
+            Embed this script on <strong>{settings.websiteUrl || 'your website'}</strong> to automatically track referral visits and conversions
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -546,7 +546,7 @@ export default function ProgramSettingsPage() {
             <TabsList>
               <TabsTrigger value="script">Tracking Script</TabsTrigger>
               <TabsTrigger value="conversion">Conversion Tracking</TabsTrigger>
-              <TabsTrigger value="school-lead">School Lead Links</TabsTrigger>
+              <TabsTrigger value="referral">Referral Links</TabsTrigger>
             </TabsList>
 
             {/* ── Tab: Tracking Script ── */}
@@ -571,10 +571,10 @@ export default function ProgramSettingsPage() {
               <div className="rounded-md border p-4 space-y-3">
                 <h4 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4" />How it works</h4>
                 <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                  <li>A visitor arrives on <strong>{settings.websiteUrl || 'your site'}</strong> via a school-lead link (e.g. <code className="rounded bg-muted px-1 py-0.5 text-xs">?ref=CODE</code>)</li>
+                  <li>A visitor arrives on <strong>{settings.websiteUrl || 'your site'}</strong> via a referral link (e.g. <code className="rounded bg-muted px-1 py-0.5 text-xs">?ref=CODE</code>)</li>
                   <li>The script automatically detects the <code className="rounded bg-muted px-1 py-0.5 text-xs">ref</code> parameter and stores a 30-day cookie</li>
                   <li>When the visitor converts (signup, purchase, etc.), you call <code className="rounded bg-muted px-1 py-0.5 text-xs">SkillHeed.trackConversion()</code></li>
-                  <li>The school-lead and incentive are recorded in your dashboard automatically</li>
+                  <li>The referral and incentive are recorded in your dashboard automatically</li>
                 </ol>
               </div>
             </TabsContent>
@@ -605,24 +605,24 @@ SkillHeed.trackConversion({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-sm font-medium">Other helpers</Label>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('helpers', `// Get the current school-lead code (or null)\nconst code = SkillHeed.getSchool LeadCode();\n\n// Clear the stored school-lead code\nSkillHeed.clearSchool LeadCode();`)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('helpers', `// Get the current referral code (or null)\nconst code = SkillHeed.getReferralCode();\n\n// Clear the stored referral code\nSkillHeed.clearReferralCode();`)}>
                     {copiedSnippet === 'helpers' ? <><CheckCircle2 className="mr-1 h-3.5 w-3.5 text-green-600" />Copied</> : <><Copy className="mr-1 h-3.5 w-3.5" />Copy</>}
                   </Button>
                 </div>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm overflow-x-auto whitespace-pre">
-                  {`// Get the current school-lead code (or null)
-const code = SkillHeed.getSchool LeadCode();
+                  {`// Get the current referral code (or null)
+const code = SkillHeed.getReferralCode();
 
-// Clear the stored school-lead code
-SkillHeed.clearSchool LeadCode();`}
+// Clear the stored referral code
+SkillHeed.clearReferralCode();`}
                 </div>
               </div>
             </TabsContent>
 
-            {/* ── Tab: School Lead Links ── */}
-            <TabsContent value="school-lead" className="space-y-4">
+            {/* ── Tab: Referral Links ── */}
+            <TabsContent value="referral" className="space-y-4">
               <div className="rounded-md border p-4 space-y-3">
-                <h4 className="text-sm font-medium">School Lead link format</h4>
+                <h4 className="text-sm font-medium">Referral link format</h4>
                 <p className="text-sm text-muted-foreground">
                   Associations share links to your website with a <code className="rounded bg-muted px-1 py-0.5 text-xs">ref</code> query parameter.
                   The tracking script picks this up automatically.
@@ -631,12 +631,12 @@ SkillHeed.clearSchool LeadCode();`}
                   {settings.websiteUrl || 'https://yoursite.com'}/<span className="text-blue-600">?ref=</span><span className="text-green-600">PARTNER-CODE</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  The script also recognizes <code className="rounded bg-muted px-1 py-0.5 text-xs">?school-lead=</code> and <code className="rounded bg-muted px-1 py-0.5 text-xs">?association=</code> parameters.
+                  The script also recognizes <code className="rounded bg-muted px-1 py-0.5 text-xs">?referral=</code> and <code className="rounded bg-muted px-1 py-0.5 text-xs">?association=</code> parameters.
                 </p>
               </div>
 
               <div className="rounded-md border p-4 space-y-3">
-                <h4 className="text-sm font-medium">Direct school-lead route</h4>
+                <h4 className="text-sm font-medium">Direct referral route</h4>
                 <p className="text-sm text-muted-foreground">
                   You can also use the built-in redirect route to send visitors through SkillHeed first:
                 </p>

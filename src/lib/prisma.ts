@@ -75,20 +75,20 @@ export class DatabaseService {
   // Association operations
   async createAssociation(associationData: {
     userId: string;
-    school-leadCode: string;
+    referralCode: string;
     payoutDetails?: any;
   }) {
-    return await prisma.association.create({
+    return await prisma.affiliate.create({
       data: {
         userId: associationData.userId,
-        school-leadCode: associationData.school-leadCode,
+        referralCode: associationData.referralCode,
         payoutDetails: associationData.payoutDetails || {},
       },
     });
   }
 
   async getAssociationByUserId(userId: string) {
-    return await prisma.association.findUnique({
+    return await prisma.affiliate.findUnique({
       where: { userId },
       include: {
         user: true,
@@ -96,9 +96,9 @@ export class DatabaseService {
     });
   }
 
-  async getAssociationBySchool LeadCode(code: string) {
-    return await prisma.association.findUnique({
-      where: { school-leadCode: code },
+  async getAssociationByReferralCode(code: string) {
+    return await prisma.affiliate.findUnique({
+      where: { referralCode: code },
       include: {
         user: true,
       },
@@ -106,40 +106,40 @@ export class DatabaseService {
   }
 
   async getAllAssociations() {
-    return await prisma.association.findMany({
+    return await prisma.affiliate.findMany({
       include: {
         user: true,
       },
     });
   }
 
-  async updateAssociation(id: string, updates: Parameters<typeof prisma.association.update>[0]['data']) {
-    return await prisma.association.update({
+  async updateAssociation(id: string, updates: Parameters<typeof prisma.affiliate.update>[0]['data']) {
+    return await prisma.affiliate.update({
       where: { id },
       data: updates,
     });
   }
 
-  // School Lead operations
-  async createSchool Lead(school-leadData: {
+  // Referral operations
+  async createSchoolLead(schoolLeadData: {
     associationId: string;
     leadName: string;
     leadEmail: string;
     metadata?: any;
   }) {
-    return await prisma.school-lead.create({
+    return await prisma.referral.create({
       data: {
-        associationId: school-leadData.associationId,
-        leadName: school-leadData.leadName,
-        leadEmail: school-leadData.leadEmail,
-        metadata: school-leadData.metadata || {},
+        associationId: schoolLeadData.associationId,
+        leadName: schoolLeadData.leadName,
+        leadEmail: schoolLeadData.leadEmail,
+        metadata: schoolLeadData.metadata || {},
         status: 'PENDING',
       },
     });
   }
 
-  async getSchool LeadById(id: string) {
-    return await prisma.school-lead.findUnique({
+  async getSchoolLeadById(id: string) {
+    return await prisma.referral.findUnique({
       where: { id },
       include: {
         association: {
@@ -151,15 +151,15 @@ export class DatabaseService {
     });
   }
 
-  async getSchool LeadsByAssociation(associationId: string) {
-    return await prisma.school-lead.findMany({
+  async getSchoolLeadsByAssociation(associationId: string) {
+    return await prisma.referral.findMany({
       where: { associationId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async getPendingSchool Leads() {
-    return await prisma.school-lead.findMany({
+  async getPendingSchoolLeads() {
+    return await prisma.referral.findMany({
       where: { status: 'PENDING' },
       include: {
         association: {
@@ -172,8 +172,8 @@ export class DatabaseService {
     });
   }
 
-  async updateSchool Lead(id: string, updates: Parameters<typeof prisma.school-lead.update>[0]['data']) {
-    return await prisma.school-lead.update({
+  async updateSchoolLead(id: string, updates: Parameters<typeof prisma.referral.update>[0]['data']) {
+    return await prisma.referral.update({
       where: { id },
       data: updates,
     });
@@ -182,7 +182,7 @@ export class DatabaseService {
   // Conversion operations
   async createConversion(conversionData: {
     associationId: string;
-    school-leadId?: string;
+    referralId?: string;
     eventType: 'SIGNUP' | 'PURCHASE' | 'TRIAL' | 'LEAD';
     amountCents: number;
     currency?: string;
@@ -191,7 +191,7 @@ export class DatabaseService {
     return await prisma.conversion.create({
       data: {
         associationId: conversionData.associationId,
-        school-leadId: conversionData.school-leadId,
+        referralId: conversionData.referralId,
         eventType: conversionData.eventType,
         amountCents: conversionData.amountCents,
         currency: conversionData.currency || 'USD',
@@ -320,16 +320,16 @@ export class DatabaseService {
   }
 
   // Tracking operations
-  async createSchool LeadClick(clickData: {
-    school-leadId: string;
+  async createReferralClick(clickData: {
+    referralId: string;
     ipAddress: string;
     userAgent?: string;
     referer?: string;
     metadata?: any;
   }) {
-    return await prisma.school-leadClick.create({
+    return await prisma.referralClick.create({
       data: {
-        school-leadId: clickData.school-leadId,
+        referralId: clickData.referralId,
         ipAddress: clickData.ipAddress,
         userAgent: clickData.userAgent,
         referer: clickData.referer,
@@ -338,9 +338,9 @@ export class DatabaseService {
     });
   }
 
-  async getClicksBySchool LeadId(school-leadId: string) {
-    return await prisma.school-leadClick.findMany({
-      where: { school-leadId },
+  async getClicksByReferralId(referralId: string) {
+    return await prisma.referralClick.findMany({
+      where: { referralId },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -401,9 +401,9 @@ export class DatabaseService {
     }
 
     const [clicks, conversions, incentives] = await Promise.all([
-      prisma.school-leadClick.count({
+      prisma.referralClick.count({
         where: {
-          school-lead: {
+          referral: {
             associationId: association.id
           }
         },
@@ -436,9 +436,9 @@ export class DatabaseService {
       totalAssociations,
       activeAssociations,
       pendingAssociations,
-      totalSchool Leads,
-      pendingSchool Leads,
-      approvedSchool Leads,
+      totalReferrals,
+      pendingReferrals,
+      approvedReferrals,
       totalConversions,
       totalIncentives,
       clicks,
@@ -446,12 +446,12 @@ export class DatabaseService {
       prisma.user.count({ where: { role: 'ASSOCIATION' } }),
       prisma.user.count({ where: { role: 'ASSOCIATION', status: 'ACTIVE' } }),
       prisma.user.count({ where: { role: 'ASSOCIATION', status: 'INACTIVE' } }),
-      prisma.school-lead.count(),
-      prisma.school-lead.count({ where: { status: 'PENDING' } }),
-      prisma.school-lead.count({ where: { status: 'APPROVED' } }),
+      prisma.referral.count(),
+      prisma.referral.count({ where: { status: 'PENDING' } }),
+      prisma.referral.count({ where: { status: 'APPROVED' } }),
       prisma.conversion.count(),
       prisma.incentive.count(),
-      prisma.school-leadClick.count(),
+      prisma.referralClick.count(),
     ]);
 
     const conversions = await prisma.conversion.findMany({
@@ -464,9 +464,9 @@ export class DatabaseService {
       totalAssociations,
       activeAssociations,
       pendingAssociations,
-      totalSchool Leads,
-      pendingSchool Leads,
-      approvedSchool Leads,
+      totalReferrals,
+      pendingReferrals,
+      approvedReferrals,
       totalConversions,
       totalIncentives,
       totalRevenue,
@@ -514,7 +514,7 @@ export class DatabaseService {
       // Create association profiles
       const association1 = await this.createAssociation({
         userId: association1User.id,
-        school-leadCode: 'SARAH-TECH',
+        referralCode: 'SARAH-TECH',
         payoutDetails: {
           method: 'bank_transfer',
           bankAccount: '*****1234',
@@ -524,7 +524,7 @@ export class DatabaseService {
 
       const association2 = await this.createAssociation({
         userId: association2User.id,
-        school-leadCode: 'DAVID-SALES',
+        referralCode: 'DAVID-SALES',
         payoutDetails: {
           method: 'stripe_connect',
           stripeAccountId: 'acct_1234567890',
@@ -552,13 +552,13 @@ export class DatabaseService {
         value: 25,
         conditions: {
           tierRequirements: {
-            minMonthlySchool Leads: 10,
+            minMonthlyReferrals: 10,
           },
         },
       });
 
-      // Create sample school-leads
-      const school-lead1 = await this.createSchool Lead({
+      // Create sample school leads
+      const schoolLead1 = await this.createSchoolLead({
         associationId: association1.id,
         leadName: 'John Smith',
         leadEmail: 'john@techcorp.com',
@@ -569,7 +569,7 @@ export class DatabaseService {
         },
       });
 
-      const school-lead2 = await this.createSchool Lead({
+      const schoolLead2 = await this.createSchoolLead({
         associationId: association2.id,
         leadName: 'Maria Garcia',
         leadEmail: 'maria@startup.io',
@@ -580,15 +580,15 @@ export class DatabaseService {
         },
       });
 
-      // Approve one school-lead and create conversion
-      await this.updateSchool Lead(school-lead2.id, {
+      // Approve one school lead and create conversion
+      await this.updateSchoolLead(schoolLead2.id, {
         status: 'APPROVED',
         reviewedBy: adminUser.id,
         reviewedAt: new Date(),
         reviewNotes: 'Approved - verified lead quality',
       });
 
-      // Create conversion for approved school-lead
+      // Create conversion for approved school lead
       const conversion = await this.createConversion({
         associationId: association1.id,
         eventType: 'PURCHASE',
@@ -616,11 +616,11 @@ export class DatabaseService {
       });
 
       // Create sample clicks
-      await this.createSchool LeadClick({
-        school-leadId: school-lead1.id, // Use school-lead ID instead of school-lead code
+      await this.createReferralClick({
+        referralId: schoolLead1.id,
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        metadata: { attributionKey: `attr_${Date.now()} ` },
+        metadata: { attributionKey: `attr_${Date.now()}` },
       });
 
       console.log('Database seeded successfully with sample data');

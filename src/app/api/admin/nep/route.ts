@@ -6,7 +6,7 @@ import { tierFromGroupName, PARTNER_TIERS, type PartnerTier } from '@/lib/partne
  * GET /api/admin/nep
  *
  * Aggregates SkillHeed NEP analytics from the existing data model
- * (Association, PartnerGroup, School Lead, School LeadClick) — no schema changes.
+ * (Association, PartnerGroup, Referral, ReferralClick) — no schema changes.
  * Admin-only (enforced by middleware + the role check below).
  */
 export async function GET(request: NextRequest) {
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Partner hierarchy counts ──────────────────────────────
-    const associations = await prisma.association.findMany({
+    const associations = await prisma.affiliate.findMany({
       include: { partnerGroup: true, user: { select: { name: true, email: true } } },
     });
 
@@ -27,10 +27,10 @@ export async function GET(request: NextRequest) {
       tierCounts[tierFromGroupName(a.partnerGroup?.name)]++;
     }
 
-    // ── NEP landing events (stored as School LeadClick with channel '/nep') ──
-    const nepClicks = await prisma.school-leadClick.findMany({
+    // ── NEP landing events (stored as ReferralClick with channel '/nep') ──
+    const nepClicks = await prisma.referralClick.findMany({
       where: { metadata: { path: ['channel'], equals: '/nep' } },
-      select: { metadata: true, createdAt: true, school-lead: { select: { associationId: true } } },
+      select: { metadata: true, createdAt: true, referral: { select: { associationId: true } } },
     });
 
     let pageViews = 0;
@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
       if (district) byDistrict[district] = (byDistrict[district] || 0) + 1;
     }
 
-    // ── NEP leads / school onboarding (School Lead with source 'nep_landing') ──
-    const nepLeads = await prisma.school-lead.findMany({
+    // ── NEP leads / school onboarding (Referral with source 'nep_landing') ──
+    const nepLeads = await prisma.referral.findMany({
       where: { metadata: { path: ['source'], equals: 'nep_landing' } },
       include: { association: { include: { user: { select: { name: true } } } } },
       orderBy: { createdAt: 'desc' },
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     for (const a of associations) {
       perfMap[a.id] = {
         name: a.user.name,
-        code: a.school-leadCode,
+        code: a.referralCode,
         leads: 0,
         tier: tierFromGroupName(a.partnerGroup?.name),
       };

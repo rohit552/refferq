@@ -24,14 +24,14 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - days);
 
     // Top performing associations
-    const topAssociations = await prisma.association.findMany({
+    const topAssociations = await prisma.affiliate.findMany({
       take: 10,
       orderBy: {
         balanceCents: 'desc'
       },
       include: {
         user: true,
-        school-leads: {
+        referrals: {
           where: {
             status: 'APPROVED'
           }
@@ -44,21 +44,21 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // School Lead conversion rate
-    const totalSchool Leads = await prisma.school-lead.count({
+    // Referral conversion rate
+    const totalReferrals = await prisma.referral.count({
       where: {
         createdAt: { gte: startDate }
       }
     });
 
-    const approvedSchool Leads = await prisma.school-lead.count({
+    const approvedReferrals = await prisma.referral.count({
       where: {
         status: 'APPROVED',
         createdAt: { gte: startDate }
       }
     });
 
-    const conversionRate = totalSchool Leads > 0 ? (approvedSchool Leads / totalSchool Leads) * 100 : 0;
+    const conversionRate = totalReferrals > 0 ? (approvedReferrals / totalReferrals) * 100 : 0;
 
     // Revenue over time (daily)
     const dailyRevenue = await prisma.conversion.groupBy({
@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // School Lead status breakdown
-    const school-leadsByStatus = await prisma.school-lead.groupBy({
+    // Referral status breakdown
+    const referralsByStatus = await prisma.referral.groupBy({
       by: ['status'],
       _count: true,
       where: {
@@ -100,8 +100,8 @@ export async function GET(request: NextRequest) {
 
     const analytics = {
       overview: {
-        totalSchool Leads,
-        approvedSchool Leads,
+        totalReferrals,
+        approvedReferrals,
         conversionRate: conversionRate.toFixed(2),
         totalRevenue: totalIncentives._sum.amountCents || 0,
         totalIncentivesPaid: paidIncentives._sum.amountCents || 0,
@@ -111,12 +111,12 @@ export async function GET(request: NextRequest) {
         id: association.id,
         name: association.user.name,
         email: association.user.email,
-        school-leadCode: association.school-leadCode,
-        totalSchool Leads: association.school-leads.length,
+        referralCode: association.referralCode,
+        totalReferrals: association.referrals.length,
         totalEarnings: association.balanceCents,
         totalIncentives: association.incentives.length
       })),
-      school-leadsByStatus: school-leadsByStatus.map(item => ({
+      referralsByStatus: referralsByStatus.map(item => ({
         status: item.status,
         count: item._count
       })),

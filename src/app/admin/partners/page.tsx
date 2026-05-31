@@ -70,7 +70,7 @@ interface Partner {
   userId: string;
   name: string;
   email: string;
-  school-leadCode: string;
+  referralCode: string;
   status: string;
   createdAt: string;
   clicks: number;
@@ -134,12 +134,12 @@ export default function PartnersPage() {
           userId: aff.userId,
           name: aff.user.name,
           email: aff.user.email,
-          school-leadCode: aff.school-leadCode,
+          referralCode: aff.referralCode,
           status: aff.user.status,
           createdAt: aff.createdAt,
           clicks: 0,
-          leads: aff._count?.school-leads || 0,
-          customers: aff._count?.school-leads || 0,
+          leads: aff._count?.referrals || 0,
+          customers: aff._count?.referrals || 0,
           revenue: 0,
           earnings: aff.balanceCents || 0,
           groupName: '',
@@ -172,7 +172,7 @@ export default function PartnersPage() {
         (p: Partner) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.school-leadCode.toLowerCase().includes(searchQuery.toLowerCase())
+          p.referralCode.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -219,7 +219,7 @@ export default function PartnersPage() {
 
       if (data.success) {
         alert(
-          `Partner created successfully!\n\nName: ${data.association.name}\nEmail: ${data.association.email}\nSchool Lead Code: ${data.association.school-leadCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
+          `Partner created successfully!\n\nName: ${data.association.name}\nEmail: ${data.association.email}\nReferral Code: ${data.association.referralCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
         );
         setShowCreateModal(false);
         setNewPartner({
@@ -263,10 +263,10 @@ export default function PartnersPage() {
     }
 
     const csv = [
-      ['Name', 'Email', 'School Lead Code', 'Status', 'Signed Up', 'Clicks', 'Leads', 'Customers', 'Revenue', 'Earnings'].join(','),
+      ['Name', 'Email', 'Referral Code', 'Status', 'Signed Up', 'Clicks', 'Leads', 'Customers', 'Revenue', 'Earnings'].join(','),
       ...partnersToExport.map((p: Partner) =>
         [
-          `"${p.name}"`, p.email, p.school-leadCode, p.status,
+          `"${p.name}"`, p.email, p.referralCode, p.status,
           new Date(p.createdAt).toLocaleDateString(), p.clicks, p.leads,
           p.customers, (p.revenue / 100).toFixed(2), (p.earnings / 100).toFixed(2),
         ].join(',')
@@ -472,7 +472,7 @@ export default function PartnersPage() {
                       Partner <SortIcon field="name" />
                     </div>
                   </TableHead>
-                  <TableHead>School Lead Code</TableHead>
+                  <TableHead>Referral Code</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('leads')}>
                     <div className="flex items-center">
                       Leads <SortIcon field="leads" />
@@ -528,7 +528,7 @@ export default function PartnersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{partner.school-leadCode}</code>
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{partner.referralCode}</code>
                       </TableCell>
                       <TableCell>{partner.leads}</TableCell>
                       <TableCell>{partner.customers}</TableCell>

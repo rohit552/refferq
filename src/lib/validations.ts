@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// School Lead Validation
-export const school-leadSchema = z.object({
+// Referral Validation
+export const referralSchema = z.object({
     leadName: z.string().min(2, 'Name must be at least 2 characters'),
     leadEmail: z.string().email('Invalid email address'),
     company: z.string().optional(),

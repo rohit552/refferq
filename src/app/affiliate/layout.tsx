@@ -52,7 +52,7 @@ interface BrandSettings {
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/association', icon: LayoutDashboard },
-  { title: 'School Leads', url: '/association/school-leads', icon: Users },
+  { title: 'Referrals', url: '/association/referrals', icon: Users },
   { title: 'Payouts', url: '/association/payouts', icon: Wallet },
   { title: 'Resources', url: '/association/resources', icon: BookOpen },
   { title: 'Reports', url: '/association/reports', icon: BarChart3, badge: 'BETA' },

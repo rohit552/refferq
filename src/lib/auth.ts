@@ -25,7 +25,7 @@ export interface RegisterData {
 class AuthService {
   private readonly TOKEN_EXPIRY_HOURS = 24;
 
-  private generateSchool LeadCode(name: string): string {
+  private generateReferralCode(name: string): string {
     const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase();
     const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
     return `${cleanName.substr(0, 6)}-${random}`;
@@ -67,12 +67,12 @@ class AuthService {
 
       // If association, create association record
       if (userRoleLower === 'association') {
-        const school-leadCode = this.generateSchool LeadCode(data.name);
+        const referralCode = this.generateReferralCode(data.name);
 
-        await prisma.association.create({
+        await prisma.affiliate.create({
           data: {
             userId: user.id,
-            school-leadCode,
+            referralCode,
             payoutDetails: {},
             balanceCents: 0
           }

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all associations with their user info and counts
-    const associations = await prisma.association.findMany({
+    const associations = await prisma.affiliate.findMany({
       include: {
         user: {
           select: {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            school-leads: true
+            referrals: true
           }
         }
       },
@@ -124,10 +124,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Create association profile
-    const association = await prisma.association.create({
+    const association = await prisma.affiliate.create({
       data: {
         userId: newUser.id,
-        school-leadCode: `AF${Date.now()}${(await import('crypto')).randomBytes(3).toString('hex').toUpperCase().slice(0, 4)}`,
+        referralCode: `AF${Date.now()}${(await import('crypto')).randomBytes(3).toString('hex').toUpperCase().slice(0, 4)}`,
         balanceCents: 0,
         payoutDetails: {}
       }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         userId: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        school-leadCode: association.school-leadCode,
+        referralCode: association.referralCode,
         balanceCents: association.balanceCents,
         createdAt: association.createdAt
       },

@@ -41,7 +41,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [school-leadCode, setSchool LeadCode] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [saving, setSaving] = useState(false);
 
   const [settingsForm, setSettingsForm] = useState({
@@ -64,7 +64,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.success) {
         const pd = data.association?.payoutDetails || {};
-        setSchool LeadCode(data.association?.school-leadCode || '');
+        setReferralCode(data.association?.referralCode || '');
         setSettingsForm({
           name: data.user?.name || user?.name || '',
           company: pd.company || '',
@@ -107,7 +107,7 @@ export default function SettingsPage() {
       const res = await fetch('/api/association/generate-code', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        showNotification('success', 'School Lead code generated!');
+        showNotification('success', 'Referral code generated!');
         loadProfile();
       } else {
         showNotification('error', 'Failed to generate code: ' + data.error);
@@ -118,7 +118,7 @@ export default function SettingsPage() {
   };
 
   const copyCode = () => {
-    navigator.clipboard.writeText(school-leadCode);
+    navigator.clipboard.writeText(referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -151,26 +151,26 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Manage your account and payment preferences</p>
       </div>
 
-      {/* School Lead Code */}
+      {/* Referral Code */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Key className="h-4 w-4" />
-            School Lead Code
+            Referral Code
           </CardTitle>
-          <CardDescription>Your unique school-lead identifier</CardDescription>
+          <CardDescription>Your unique referral identifier</CardDescription>
         </CardHeader>
         <CardContent>
-          {school-leadCode ? (
+          {referralCode ? (
             <div className="flex items-center gap-2">
-              <Input readOnly value={school-leadCode} className="font-mono max-w-xs" />
+              <Input readOnly value={referralCode} className="font-mono max-w-xs" />
               <Button variant="outline" size="icon" onClick={copyCode}>
                 {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">No school-lead code generated yet.</p>
+              <p className="text-sm text-muted-foreground">No referral code generated yet.</p>
               <Button onClick={handleGenerateCode}>Generate Code</Button>
             </div>
           )}

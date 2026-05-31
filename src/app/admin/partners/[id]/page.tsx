@@ -64,7 +64,7 @@ interface Partner {
   id: string;
   name: string;
   email: string;
-  school-leadCode: string;
+  referralCode: string;
   partnerGroup?: string;
   incentiveRate: number;
   status: string;
@@ -146,7 +146,7 @@ export default function PartnerDetailPage() {
             id: association.id,
             name: association.name,
             email: association.email,
-            school-leadCode: association.school-leadCode,
+            referralCode: association.referralCode,
             partnerGroup: association.partnerGroup,
             incentiveRate: association.incentiveRate || 0.20,
             status: association.status,
@@ -166,10 +166,10 @@ export default function PartnerDetailPage() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch('/api/admin/school-leads');
+      const res = await fetch('/api/admin/referrals');
       if (res.ok) {
         const data = await res.json();
-        const partnerCustomers = data.school-leads
+        const partnerCustomers = data.referrals
           ?.filter((r: any) => r.associationId === partnerId)
           .map((r: any) => ({
             id: r.id,
@@ -361,7 +361,7 @@ export default function PartnerDetailPage() {
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="font-mono text-xs gap-1">
                   <Copy className="h-3 w-3" />
-                  {partner.school-leadCode}
+                  {partner.referralCode}
                 </Badge>
                 {partner.partnerGroup && (
                   <Badge variant="secondary" className="text-xs">
@@ -461,7 +461,7 @@ export default function PartnerDetailPage() {
                 {[
                   { label: 'Name', value: partner.name },
                   { label: 'Email', value: partner.email },
-                  { label: 'School Lead Code', value: partner.school-leadCode, mono: true },
+                  { label: 'Referral Code', value: partner.referralCode, mono: true },
                   { label: 'Partner Group', value: partner.partnerGroup || 'Default' },
                   { label: 'Incentive Rate', value: `${(partner.incentiveRate * 100).toFixed(0)}%` },
                   { label: 'Partner Since', value: formatDate(partner.createdAt) },

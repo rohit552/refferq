@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate with Zod
-    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.school-leadSchema.safeParse(body));
+    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.referralSchema.safeParse(body));
 
     if (!success) {
       return NextResponse.json(
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
 
     const { leadName, leadEmail, company, notes, estimatedValue } = data;
 
-    // Create the school-lead
-    const school-lead = await prisma.school-lead.create({
+    // Create the referral
+    const referral = await prisma.referral.create({
       data: {
         associationId: user.association.id,
         leadName: leadName.trim(),
@@ -68,13 +68,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'School Lead submitted successfully',
-      school-lead,
+      message: 'Referral submitted successfully',
+      referral,
     });
   } catch (error) {
-    console.error('Submit school-lead API error:', error);
+    console.error('Submit referral API error:', error);
     return NextResponse.json(
-      { error: 'Failed to submit school-lead' },
+      { error: 'Failed to submit referral' },
       { status: 500 }
     );
   }
@@ -115,13 +115,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const school-leads = await prisma.school-lead.findMany({
+    const referrals = await prisma.referral.findMany({
       where: { associationId: user.association.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Map school-leads to include estimatedValue from metadata
-    const mappedSchool Leads = school-leads.map((ref: any) => {
+    // Map referrals to include estimatedValue from metadata
+    const mappedReferrals = referrals.map((ref: any) => {
       const metadata = ref.metadata as any;
       return {
         ...ref,
@@ -132,12 +132,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      school-leads: mappedSchool Leads,
+      referrals: mappedReferrals,
     });
   } catch (error) {
-    console.error('Get school-leads API error:', error);
+    console.error('Get referrals API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch school-leads' },
+      { error: 'Failed to fetch referrals' },
       { status: 500 }
     );
   }

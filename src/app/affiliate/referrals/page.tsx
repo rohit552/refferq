@@ -51,7 +51,7 @@ import {
   Download,
 } from 'lucide-react';
 
-interface School Lead {
+interface Referral {
   id: string;
   leadName: string;
   leadEmail: string;
@@ -61,9 +61,9 @@ interface School Lead {
   createdAt: string;
 }
 
-export default function School LeadsPage() {
+export default function ReferralsPage() {
   const { user, loading: authLoading } = useAuth();
-  const [school-leads, setSchool Leads] = useState<School Lead[]>([]);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -77,17 +77,17 @@ export default function School LeadsPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && user) fetchSchool Leads();
+    if (!authLoading && user) fetchReferrals();
   }, [authLoading, user]);
 
-  const fetchSchool Leads = async () => {
+  const fetchReferrals = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/association/school-leads');
+      const res = await fetch('/api/association/referrals');
       const data = await res.json();
-      if (data.success) setSchool Leads(data.school-leads || []);
+      if (data.success) setReferrals(data.referrals || []);
     } catch (error) {
-      console.error('Failed to fetch school-leads:', error);
+      console.error('Failed to fetch referrals:', error);
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function School LeadsPage() {
     e.preventDefault();
     setSubmitLoading(true);
     try {
-      const res = await fetch('/api/association/school-leads', {
+      const res = await fetch('/api/association/referrals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -111,7 +111,7 @@ export default function School LeadsPage() {
         showNotification('success', 'Lead submitted successfully!');
         setShowSubmitModal(false);
         setSubmitForm({ leadName: '', leadEmail: '', estimatedValue: '0' });
-        fetchSchool Leads();
+        fetchReferrals();
       } else {
         showNotification('error', data.error || 'Failed to submit lead');
       }
@@ -145,7 +145,7 @@ export default function School LeadsPage() {
     );
   };
 
-  const filteredSchool Leads = school-leads.filter((r) => {
+  const filteredReferrals = referrals.filter((r) => {
     const matchesSearch =
       !searchQuery ||
       r.leadName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -155,15 +155,15 @@ export default function School LeadsPage() {
   });
 
   const stats = {
-    total: school-leads.length,
-    pending: school-leads.filter((r) => r.status === 'PENDING').length,
-    approved: school-leads.filter((r) => r.status === 'APPROVED').length,
-    rejected: school-leads.filter((r) => r.status === 'REJECTED').length,
+    total: referrals.length,
+    pending: referrals.filter((r) => r.status === 'PENDING').length,
+    approved: referrals.filter((r) => r.status === 'APPROVED').length,
+    rejected: referrals.filter((r) => r.status === 'REJECTED').length,
   };
 
   const exportCSV = () => {
     const headers = ['Name', 'Email', 'Company', 'Status', 'Value', 'Date'];
-    const rows = filteredSchool Leads.map((r) => [
+    const rows = filteredReferrals.map((r) => [
       r.leadName,
       r.leadEmail,
       r.company || '',
@@ -176,7 +176,7 @@ export default function School LeadsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `school-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `referrals-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
   };
 
@@ -204,8 +204,8 @@ export default function School LeadsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">School Leads</h1>
-          <p className="text-muted-foreground">Track and manage your school-lead submissions</p>
+          <h1 className="text-2xl font-bold tracking-tight">Referrals</h1>
+          <p className="text-muted-foreground">Track and manage your referral submissions</p>
         </div>
         <Button onClick={() => setShowSubmitModal(true)} className="gap-1.5">
           <Plus className="h-4 w-4" />
@@ -273,14 +273,14 @@ export default function School LeadsPage() {
       {/* Table */}
       <Card>
         <CardContent className="p-0">
-          {filteredSchool Leads.length === 0 ? (
+          {filteredReferrals.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Users className="h-12 w-12 text-muted-foreground/40 mb-3" />
-              <p className="font-medium">No school-leads found</p>
+              <p className="font-medium">No referrals found</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {school-leads.length === 0 ? 'Start submitting leads to earn incentives' : 'Try adjusting your filters'}
+                {referrals.length === 0 ? 'Start submitting leads to earn incentives' : 'Try adjusting your filters'}
               </p>
-              {school-leads.length === 0 && (
+              {referrals.length === 0 && (
                 <Button className="mt-4" onClick={() => setShowSubmitModal(true)}>Submit your first lead</Button>
               )}
             </div>
@@ -297,7 +297,7 @@ export default function School LeadsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSchool Leads.map((ref) => (
+                {filteredReferrals.map((ref) => (
                   <TableRow key={ref.id}>
                     <TableCell className="font-medium">{ref.leadName}</TableCell>
                     <TableCell className="text-muted-foreground">{ref.leadEmail}</TableCell>

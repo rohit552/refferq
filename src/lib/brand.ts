@@ -16,7 +16,7 @@ export const BRAND = {
   tagline: 'NEP-aligned Partner & School Onboarding Platform',
   /** Marketing/landing description for SEO */
   description:
-    'SkillHeed NEP Partner helps Master Partners, Sub Partners, and Partners onboard schools and associations across National, State, and District levels with full school-lead tracking and analytics.',
+    'SkillHeed NEP Partner helps Master Partners, Sub Partners, and Partners onboard schools and associations across National, State, and District levels with full referral tracking and analytics.',
 } as const;
 
 export type Brand = typeof BRAND;

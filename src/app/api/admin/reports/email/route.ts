@@ -122,10 +122,10 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     : {};
 
   if (reportType === 'associations') {
-    const associations = await prisma.association.findMany({
+    const associations = await prisma.affiliate.findMany({
       include: {
         user: true,
-        school-leads: { where: dateFilter },
+        referrals: { where: dateFilter },
         incentives: { where: dateFilter },
       },
     });
@@ -134,24 +134,24 @@ async function generateReportData(reportType: string, startDate?: string, endDat
       data: associations.map((a) => ({
         name: a.user.name,
         email: a.user.email,
-        school-leadCode: a.school-leadCode,
-        totalSchool Leads: a.school-leads.length,
-        approved: a.school-leads.filter((r) => r.status === 'APPROVED').length,
+        referralCode: a.referralCode,
+        totalReferrals: a.referrals.length,
+        approved: a.referrals.filter((r) => r.status === 'APPROVED').length,
         totalEarningsCents: a.incentives.reduce((s, c) => s + c.amountCents, 0),
         joinedDate: a.createdAt.toISOString().slice(0, 10),
       })),
     };
   }
 
-  if (reportType === 'school-leads') {
-    const school-leads = await prisma.school-lead.findMany({
+  if (reportType === 'referrals') {
+    const referrals = await prisma.referral.findMany({
       where: dateFilter,
       include: { association: { include: { user: true } } },
       orderBy: { createdAt: 'desc' },
     });
     return {
-      type: 'School Leads Report',
-      data: school-leads.map((r) => ({
+      type: 'Referrals Report',
+      data: referrals.map((r) => ({
         leadName: r.leadName,
         leadEmail: r.leadEmail,
         status: r.status,
@@ -198,9 +198,9 @@ async function generateReportData(reportType: string, startDate?: string, endDat
   }
 
   // Default: summary
-  const totalAssociations = await prisma.association.count();
-  const totalSchool Leads = await prisma.school-lead.count({ where: dateFilter });
-  const approvedSchool Leads = await prisma.school-lead.count({ where: { ...dateFilter, status: 'APPROVED' } });
+  const totalAssociations = await prisma.affiliate.count();
+  const totalReferrals = await prisma.referral.count({ where: dateFilter });
+  const approvedReferrals = await prisma.referral.count({ where: { ...dateFilter, status: 'APPROVED' } });
   const totalIncentives = await prisma.incentive.aggregate({
     where: dateFilter,
     _sum: { amountCents: true },
@@ -216,9 +216,9 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     type: 'Summary Report',
     summary: {
       totalAssociations,
-      totalSchool Leads,
-      approvedSchool Leads,
-      conversionRate: totalSchool Leads > 0 ? ((approvedSchool Leads / totalSchool Leads) * 100).toFixed(2) + '%' : '0%',
+      totalReferrals,
+      approvedReferrals,
+      conversionRate: totalReferrals > 0 ? ((approvedReferrals / totalReferrals) * 100).toFixed(2) + '%' : '0%',
       totalIncentives: totalIncentives._count,
       totalIncentiveAmountCents: totalIncentives._sum.amountCents || 0,
       totalPayouts: totalPayouts._count,

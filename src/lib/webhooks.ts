@@ -29,9 +29,9 @@ export type WebhookEventType =
   | 'association.created'
   | 'association.approved'
   | 'association.rejected'
-  | 'school-lead.submitted'
-  | 'school-lead.approved'
-  | 'school-lead.rejected'
+  | 'referral.submitted'
+  | 'referral.approved'
+  | 'referral.rejected'
   | 'incentive.created'
   | 'incentive.approved'
   | 'incentive.paid'
@@ -43,9 +43,9 @@ export const AVAILABLE_EVENTS: WebhookEventType[] = [
   'association.created',
   'association.approved',
   'association.rejected',
-  'school-lead.submitted',
-  'school-lead.approved',
-  'school-lead.rejected',
+  'referral.submitted',
+  'referral.approved',
+  'referral.rejected',
   'incentive.created',
   'incentive.approved',
   'incentive.paid',

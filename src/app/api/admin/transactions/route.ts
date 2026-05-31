@@ -27,18 +27,18 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const school-leadId = searchParams.get('school-leadId');
+    const referralId = searchParams.get('referralId');
     const associationId = searchParams.get('associationId');
 
     // Build where clause
     const where: any = {};
-    if (school-leadId) where.school-leadId = school-leadId;
+    if (referralId) where.referralId = referralId;
     if (associationId) where.associationId = associationId;
 
     const transactions = await (prisma as any).transaction.findMany({
       where,
       include: {
-        school-lead: true,
+        referral: true,
         association: {
           include: {
             user: true,
@@ -69,17 +69,17 @@ export async function GET(request: NextRequest) {
           paymentMethod: txn.paymentMethod,
           paidAt: txn.paidAt,
           createdAt: txn.createdAt,
-          school-lead: {
-            id: txn.school-lead.id,
-            leadName: txn.school-lead.leadName,
-            leadEmail: txn.school-lead.leadEmail,
-            status: txn.school-lead.status
+          referral: {
+            id: txn.referral.id,
+            leadName: txn.referral.leadName,
+            leadEmail: txn.referral.leadEmail,
+            status: txn.referral.status
           },
           association: {
             id: association.id,
             name: association.user.name,
             email: association.user.email,
-            school-leadCode: association.school-leadCode,
+            referralCode: association.referralCode,
             partnerGroup: association.partnerGroupId ? 
               (association.partnerGroup?.name || 'Default') : 
               'Default'
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      school-leadId,
+      referralId,
       amount,
       description,
       invoiceId,
@@ -131,30 +131,30 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!school-leadId || !amount) {
+    if (!referralId || !amount) {
       return NextResponse.json(
-        { error: 'School Lead ID and amount are required' },
+        { error: 'Referral ID and amount are required' },
         { status: 400 }
       );
     }
 
-    // Get school-lead with association and partner group
-    const school-lead = await prisma.school-lead.findUnique({
-      where: { id: school-leadId },
+    // Get referral with association and partner group
+    const referral = await prisma.referral.findUnique({
+      where: { id: referralId },
       include: {
         association: true
       }
     });
 
-    if (!school-lead) {
+    if (!referral) {
       return NextResponse.json(
-        { error: 'School Lead not found' },
+        { error: 'Referral not found' },
         { status: 404 }
       );
     }
 
     // Get partner group incentive rate
-    const association = school-lead.association as any;
+    const association = referral.association as any;
     let incentiveRate = 0.20; // Default 20%
 
     if (association.partnerGroupId) {
@@ -173,11 +173,11 @@ export async function POST(request: NextRequest) {
     // Create transaction
     const transaction = await (prisma as any).transaction.create({
       data: {
-        school-leadId,
-        associationId: school-lead.associationId,
-        customerId: school-lead.subscriptionId,
-        customerName: school-lead.leadName,
-        customerEmail: school-lead.leadEmail,
+        referralId,
+        associationId: referral.associationId,
+        customerId: referral.subscriptionId,
+        customerName: referral.leadName,
+        customerEmail: referral.leadEmail,
         amountCents,
         incentiveCents,
         incentiveRate,
@@ -193,8 +193,8 @@ export async function POST(request: NextRequest) {
     // Also create a incentive record for tracking
     await prisma.conversion.create({
       data: {
-        associationId: school-lead.associationId,
-        school-leadId: school-lead.id,
+        associationId: referral.associationId,
+        referralId: referral.id,
         eventType: 'PURCHASE',
         amountCents,
         status: 'APPROVED',
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
         const { emailService } = await import('@/lib/email');
         await emailService.sendTransactionCreatedEmail(associationUser.email, {
           associationName: association.name || associationUser.name || 'Partner',
-          customerName: school-lead.leadName,
+          customerName: referral.leadName,
           amountCents,
           incentiveCents,
           incentiveRate,

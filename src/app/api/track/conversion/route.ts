@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
-      school-leadCode,
+      referralCode,
       customerEmail,
       customerName,
       amount,
@@ -43,16 +43,16 @@ export async function POST(req: NextRequest) {
       timestamp,
     } = body;
 
-    if (!school-leadCode) {
+    if (!referralCode) {
       return NextResponse.json(
-        { success: false, error: 'School Lead code is required' },
+        { success: false, error: 'Referral code is required' },
         { status: 400 }
       );
     }
 
-    // Find association by school-lead code
-    const association = await prisma.association.findUnique({
-      where: { school-leadCode },
+    // Find association by referral code
+    const association = await prisma.affiliate.findUnique({
+      where: { referralCode },
       include: {
         user: {
           select: {
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     if (!association) {
       return NextResponse.json(
-        { success: false, error: 'Invalid school-lead code' },
+        { success: false, error: 'Invalid referral code' },
         { status: 404 }
       );
     }
@@ -79,10 +79,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if school-lead with this email already exists
-    let school-lead;
+    // Check if referral with this email already exists
+    let referral;
     if (customerEmail) {
-      school-lead = await prisma.school-lead.findFirst({
+      referral = await prisma.referral.findFirst({
         where: {
           leadEmail: customerEmail,
           associationId: association.id,
@@ -90,9 +90,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create school-lead if doesn't exist
-    if (!school-lead && customerEmail) {
-      school-lead = await prisma.school-lead.create({
+    // Create referral if doesn't exist
+    if (!referral && customerEmail) {
+      referral = await prisma.referral.create({
         data: {
           leadEmail: customerEmail,
           leadName: customerName || 'Unknown Customer',
@@ -101,14 +101,14 @@ export async function POST(req: NextRequest) {
           metadata: metadata || {},
         },
       });
-    } else if (school-lead && school-lead.status === 'PENDING') {
-      // Update school-lead status to APPROVED
-      school-lead = await prisma.school-lead.update({
-        where: { id: school-lead.id },
+    } else if (referral && referral.status === 'PENDING') {
+      // Update referral status to APPROVED
+      referral = await prisma.referral.update({
+        where: { id: referral.id },
         data: {
           status: 'APPROVED',
           metadata: {
-            ...(school-lead.metadata as object),
+            ...(referral.metadata as object),
             ...metadata,
           },
         },
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     const conversion = await prisma.conversion.create({
       data: {
         associationId: association.id,
-        school-leadId: school-lead?.id || null,
+        referralId: referral?.id || null,
         eventType: 'PURCHASE',
         amountCents,
         currency: currency || 'USD',
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     console.log('✅ Conversion tracked successfully:', {
       conversionId: conversion.id,
       associationId: association.id,
-      school-leadId: school-lead?.id,
+      referralId: referral?.id,
       amount: amountCents / 100,
     });
 
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       },
       association: {
         name: association.user.name,
-        code: association.school-leadCode,
+        code: association.referralCode,
       },
     });
   } catch (error) {

@@ -24,7 +24,7 @@ function verifyWebhookSignature(payload: string, signature: string | null, secre
  * Expected body:
  * {
  *   customer_email: string,         // Email of the customer who refunded
- *   school-lead_code?: string,         // School Lead code (optional, for faster lookup)
+ *   referral_code?: string,         // Referral code (optional, for faster lookup)
  *   amount_cents: number,           // Refund amount in cents
  *   reason?: string,                // Reason for refund
  *   external_id?: string,           // Payment provider's refund ID
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         const body = JSON.parse(rawBody);
         const {
             customer_email,
-            school-lead_code,
+            referral_code,
             amount_cents,
             reason = 'Customer refund',
             external_id,
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
                     });
 
                     // Deduct from association balance
-                    await prisma.association.update({
+                    await prisma.affiliate.update({
                         where: { id: incentive.associationId },
                         data: {
                             balanceCents: { decrement: incentive.amountCents },
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
                     });
 
                     // Create negative balance to offset next payout
-                    await prisma.association.update({
+                    await prisma.affiliate.update({
                         where: { id: incentive.associationId },
                         data: {
                             balanceCents: { decrement: incentive.amountCents },
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
             objectId: external_id || `refund-${Date.now()}`,
             payload: {
                 customer_email,
-                school-lead_code,
+                referral_code,
                 amount_cents,
                 reason,
                 reversedCount,

@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
         info: {
             title: 'SkillHeed NEP Partner API',
             version: '1.1.0',
-            description: 'SkillHeed NEP Partner platform API. Manage partners, school-leads, school onboarding, conversions, incentives, and payouts.',
+            description: 'SkillHeed NEP Partner platform API. Manage partners, referrals, school onboarding, conversions, incentives, and payouts.',
             contact: { email: 'hello@refferq.com' },
             license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
         },
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
                     tags: ['Association'],
                     summary: 'Get association profile & stats',
                     security: [{ BearerAuth: [] }],
-                    responses: { '200': { description: 'Association data, school-leads, stats, currencySymbol' } },
+                    responses: { '200': { description: 'Association data, referrals, stats, currencySymbol' } },
                 },
                 put: {
                     tags: ['Association'],
@@ -65,17 +65,17 @@ export async function GET(request: NextRequest) {
                     responses: { '200': { description: 'Profile updated' } },
                 },
             },
-            '/api/association/school-leads': {
+            '/api/association/referrals': {
                 post: {
                     tags: ['Association'],
-                    summary: 'Submit a new school-lead lead',
+                    summary: 'Submit a new referral lead',
                     security: [{ BearerAuth: [] }],
                     requestBody: {
                         required: true,
-                        content: { 'application/json': { schema: { $ref: '#/components/schemas/School LeadRequest' } } },
+                        content: { 'application/json': { schema: { $ref: '#/components/schemas/ReferralRequest' } } },
                     },
                     responses: {
-                        '201': { description: 'School Lead created' },
+                        '201': { description: 'Referral created' },
                         '400': { description: 'Validation error' },
                     },
                 },
@@ -164,9 +164,9 @@ export async function GET(request: NextRequest) {
             '/r/{code}': {
                 get: {
                     tags: ['Tracking'],
-                    summary: 'School Lead redirect (deep linking supported)',
+                    summary: 'Referral redirect (deep linking supported)',
                     parameters: [
-                        { name: 'code', in: 'path', required: true, schema: { type: 'string' }, description: 'School Lead code' },
+                        { name: 'code', in: 'path', required: true, schema: { type: 'string' }, description: 'Referral code' },
                         { name: 'dest', in: 'query', schema: { type: 'string', format: 'uri' }, description: 'Deep link destination URL' },
                     ],
                     responses: {
@@ -222,7 +222,7 @@ export async function GET(request: NextRequest) {
                         role: { type: 'string', enum: ['ADMIN', 'ASSOCIATION'] },
                     },
                 },
-                School LeadRequest: {
+                ReferralRequest: {
                     type: 'object',
                     required: ['leadName', 'leadEmail'],
                     properties: {
@@ -288,7 +288,7 @@ export async function GET(request: NextRequest) {
                 ConversionWebhook: {
                     type: 'object',
                     properties: {
-                        school-leadCode: { type: 'string' },
+                        referralCode: { type: 'string' },
                         eventType: { type: 'string', enum: ['SIGNUP', 'PURCHASE', 'TRIAL', 'LEAD'] },
                         amountCents: { type: 'integer' },
                         currency: { type: 'string' },

@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
         // Update each association's balance
         for (const [associationId, totalCents] of associationUpdates.entries()) {
-            await prisma.association.update({
+            await prisma.affiliate.update({
                 where: { id: associationId },
                 data: {
                     balanceCents: { increment: totalCents },

@@ -44,7 +44,7 @@ import {
   Eye,
 } from 'lucide-react';
 
-interface School Lead {
+interface Referral {
   id: string;
   leadEmail: string;
   leadName: string;
@@ -58,7 +58,7 @@ interface School Lead {
     id: string;
     name: string;
     email: string;
-    school-leadCode: string;
+    referralCode: string;
     partnerGroup: string;
     incentiveRate: number;
   };
@@ -72,41 +72,41 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
 
 export default function CustomersPage() {
   const router = useRouter();
-  const [school-leads, setSchool Leads] = useState<School Lead[]>([]);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSchool Leads();
+    fetchReferrals();
   }, []);
 
-  const fetchSchool Leads = async () => {
+  const fetchReferrals = async () => {
     try {
-      const res = await fetch('/api/admin/school-leads');
+      const res = await fetch('/api/admin/referrals');
       const data = await res.json();
       if (data.success) {
-        setSchool Leads(data.school-leads);
+        setReferrals(data.referrals);
       }
     } catch (error) {
-      console.error('Failed to fetch school-leads:', error);
+      console.error('Failed to fetch referrals:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAction = async (school-leadIds: string[], action: 'approve' | 'reject') => {
-    setActionLoading(school-leadIds[0]);
+  const handleAction = async (referralIds: string[], action: 'approve' | 'reject') => {
+    setActionLoading(referralIds[0]);
     try {
-      const res = await fetch('/api/admin/school-leads', {
+      const res = await fetch('/api/admin/referrals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ school-leadIds, action }),
+        body: JSON.stringify({ referralIds, action }),
       });
       const data = await res.json();
       if (data.success) {
-        fetchSchool Leads();
+        fetchReferrals();
       }
     } catch (error) {
       console.error('Action failed:', error);
@@ -115,7 +115,7 @@ export default function CustomersPage() {
     }
   };
 
-  const filtered = school-leads.filter((r) => {
+  const filtered = referrals.filter((r) => {
     const matchesSearch =
       r.leadName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.leadEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -125,10 +125,10 @@ export default function CustomersPage() {
   });
 
   const stats = {
-    total: school-leads.length,
-    pending: school-leads.filter((r) => r.status === 'PENDING').length,
-    approved: school-leads.filter((r) => r.status === 'APPROVED').length,
-    rejected: school-leads.filter((r) => r.status === 'REJECTED').length,
+    total: referrals.length,
+    pending: referrals.filter((r) => r.status === 'PENDING').length,
+    approved: referrals.filter((r) => r.status === 'APPROVED').length,
+    rejected: referrals.filter((r) => r.status === 'REJECTED').length,
   };
 
   if (loading) {
@@ -149,7 +149,7 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
-        <p className="text-muted-foreground">Manage school-lead leads and customer conversions</p>
+        <p className="text-muted-foreground">Manage referral leads and customer conversions</p>
       </div>
 
       {/* Stats */}
@@ -198,7 +198,7 @@ export default function CustomersPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>All Leads</CardTitle>
-              <CardDescription>Review and manage school-lead leads from your partners</CardDescription>
+              <CardDescription>Review and manage referral leads from your partners</CardDescription>
             </div>
             <div className="flex gap-2">
               <div className="relative">
@@ -245,35 +245,35 @@ export default function CustomersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((school-lead) => (
-                  <TableRow key={school-lead.id}>
+                {filtered.map((referral) => (
+                  <TableRow key={referral.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs bg-primary/10">
-                            {school-lead.leadName?.charAt(0).toUpperCase()}
+                            {referral.leadName?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-sm">{school-lead.leadName}</p>
+                          <p className="font-medium text-sm">{referral.leadName}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Mail className="h-3 w-3" />
-                            {school-lead.leadEmail}
+                            {referral.leadEmail}
                           </div>
-                          {school-lead.leadPhone && (
+                          {referral.leadPhone && (
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Phone className="h-3 w-3" />
-                              {school-lead.leadPhone}
+                              {referral.leadPhone}
                             </div>
                           )}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {school-lead.company ? (
+                      {referral.company ? (
                         <div className="flex items-center gap-1 text-sm">
                           <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                          {school-lead.company}
+                          {referral.company}
                         </div>
                       ) : (
                         <span className="text-muted-foreground text-sm">—</span>
@@ -281,23 +281,23 @@ export default function CustomersPage() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <p className="font-medium">{school-lead.association.name}</p>
-                        <p className="text-xs text-muted-foreground">{school-lead.association.partnerGroup}</p>
+                        <p className="font-medium">{referral.association.name}</p>
+                        <p className="text-xs text-muted-foreground">{referral.association.partnerGroup}</p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm font-medium">
                         <IndianRupee className="h-3.5 w-3.5" />
-                        {school-lead.estimatedValue.toLocaleString('en-IN')}
+                        {referral.estimatedValue.toLocaleString('en-IN')}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusConfig[school-lead.status]?.variant || 'outline'}>
-                        {statusConfig[school-lead.status]?.label || school-lead.status}
+                      <Badge variant={statusConfig[referral.status]?.variant || 'outline'}>
+                        {statusConfig[referral.status]?.label || referral.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(school-lead.createdAt).toLocaleDateString('en-IN', {
+                      {new Date(referral.createdAt).toLocaleDateString('en-IN', {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric',
@@ -308,18 +308,18 @@ export default function CustomersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => router.push(`/admin/customers/${school-lead.id}`)}
+                          onClick={() => router.push(`/admin/customers/${referral.id}`)}
                         >
                           <Eye className="mr-1 h-3.5 w-3.5" />
                           View
                         </Button>
-                        {school-lead.status === 'PENDING' && (
+                        {referral.status === 'PENDING' && (
                           <>
                             <Button
                               size="sm"
                               variant="default"
-                              onClick={(e) => { e.stopPropagation(); handleAction([school-lead.id], 'approve'); }}
-                              disabled={actionLoading === school-lead.id}
+                              onClick={(e) => { e.stopPropagation(); handleAction([referral.id], 'approve'); }}
+                              disabled={actionLoading === referral.id}
                             >
                               <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
                               Approve
@@ -327,8 +327,8 @@ export default function CustomersPage() {
                             <Button
                               size="sm"
                               variant="destructive"
-                              onClick={(e) => { e.stopPropagation(); handleAction([school-lead.id], 'reject'); }}
-                              disabled={actionLoading === school-lead.id}
+                              onClick={(e) => { e.stopPropagation(); handleAction([referral.id], 'reject'); }}
+                              disabled={actionLoading === referral.id}
                             >
                               <XCircle className="mr-1 h-3.5 w-3.5" />
                               Reject

@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
-function generateSchool LeadCode(name: string): string {
+function generateReferralCode(name: string): string {
   const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase();
   const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
   return `${cleanName.substr(0, 6)}-${random}`;
 }
 
 /**
- * POST /api/association/generate-code - Generate or regenerate school-lead code
+ * POST /api/association/generate-code - Generate or regenerate referral code
  */
 export async function POST(request: NextRequest) {
   try {
@@ -41,12 +41,12 @@ export async function POST(request: NextRequest) {
 
     // If association record doesn't exist, create it
     if (!association) {
-      const school-leadCode = generateSchool LeadCode(user.name);
+      const referralCode = generateReferralCode(user.name);
       
-      association = await prisma.association.create({
+      association = await prisma.affiliate.create({
         data: {
           userId: user.id,
-          school-leadCode,
+          referralCode,
           payoutDetails: {},
           balanceCents: 0
         }
@@ -54,38 +54,38 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Association profile created with school-lead code',
+        message: 'Association profile created with referral code',
         association,
       });
     }
 
-    // If association exists but no school-lead code, generate one
-    if (!association.school-leadCode || association.school-leadCode.trim() === '') {
-      const school-leadCode = generateSchool LeadCode(user.name);
+    // If association exists but no referral code, generate one
+    if (!association.referralCode || association.referralCode.trim() === '') {
+      const referralCode = generateReferralCode(user.name);
       
-      association = await prisma.association.update({
+      association = await prisma.affiliate.update({
         where: { id: association.id },
-        data: { school-leadCode }
+        data: { referralCode }
       });
 
       return NextResponse.json({
         success: true,
-        message: 'School Lead code generated',
+        message: 'Referral code generated',
         association,
       });
     }
 
-    // Association already has a school-lead code
+    // Association already has a referral code
     return NextResponse.json({
       success: true,
-      message: 'School Lead code already exists',
+      message: 'Referral code already exists',
       association,
     });
 
   } catch (error) {
     console.error('Generate code API error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to generate school-lead code' },
+      { success: false, error: 'Failed to generate referral code' },
       { status: 500 }
     );
   }

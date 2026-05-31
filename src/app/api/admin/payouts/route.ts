@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            school-leadCode: true,
+            referralCode: true,
           },
         },
       },
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     const { associationId, incentiveIds, method, notes } = data;
 
     // Verify association exists
-    const association = await prisma.association.findUnique({
+    const association = await prisma.affiliate.findUnique({
       where: { id: associationId },
     });
 

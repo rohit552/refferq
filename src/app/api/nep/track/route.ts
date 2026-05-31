@@ -5,14 +5,14 @@ import { prisma } from '@/lib/prisma';
  * POST /api/nep/track
  *
  * Public, server-side event logging for the shareable SkillHeed NEP landing
- * page. Does NOT touch auth. Reuses the existing School Lead + School LeadClick
- * tables: each partner-attributed event is stored as a School LeadClick with rich
+ * page. Does NOT touch auth. Reuses the existing Referral + ReferralClick
+ * tables: each partner-attributed event is stored as a ReferralClick with rich
  * NEP metadata (event type, level, state, district, school interest, campaign).
  *
  * Accepted event types:
  *   page_view | unique_visit | cta_click | school_interest | signup_intent | conversion
  *
- * Attribution params: partner_id (school-lead code), source, level, state,
+ * Attribution params: partner_id (referral code), source, level, state,
  * district, campaign.
  */
 
@@ -57,11 +57,11 @@ export async function POST(req: NextRequest) {
       partner_id: body.partnerId || null,
     };
 
-    // Resolve the partner (association) by school-lead code if provided.
-    let association = null as Awaited<ReturnType<typeof prisma.association.findUnique>> | null;
+    // Resolve the partner (association) by referral code if provided.
+    let association = null as Awaited<ReturnType<typeof prisma.affiliate.findUnique>> | null;
     if (body.partnerId) {
-      association = await prisma.association.findUnique({
-        where: { school-leadCode: body.partnerId },
+      association = await prisma.affiliate.findUnique({
+        where: { referralCode: body.partnerId },
       });
     }
 
@@ -72,14 +72,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, attributed: false });
     }
 
-    // Find or create a stable per-partner NEP tracking school-lead bucket.
+    // Find or create a stable per-partner NEP tracking referral bucket.
     const trackingEmail = `${NEP_TRACKING_EMAIL_PREFIX}${association.id}@tracking.internal`;
-    let school-lead = await prisma.school-lead.findFirst({
+    let referral = await prisma.referral.findFirst({
       where: { associationId: association.id, leadEmail: trackingEmail },
     });
 
-    if (!school-lead) {
-      school-lead = await prisma.school-lead.create({
+    if (!referral) {
+      referral = await prisma.referral.create({
         data: {
           associationId: association.id,
           leadName: 'NEP Landing Visitor',
@@ -94,16 +94,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // For a school onboarding intent / signup, create a distinct lead school-lead
+    // For a school onboarding intent / signup, create a distinct lead referral
     // so it surfaces as a real lead in the partner pipeline.
     if (
       (eventType === 'school_interest' || eventType === 'signup_intent') &&
       (body.contactEmail || body.schoolName)
     ) {
-      const lead = await prisma.school-lead.create({
+      const lead = await prisma.referral.create({
         data: {
           associationId: association.id,
-          leadName: body.contactName || body.schoolName || 'School Lead',
+          leadName: body.contactName || body.schoolName || 'Referral',
           leadEmail:
             body.contactEmail || `nep-lead-${Date.now()}@tracking.internal`,
           leadPhone: body.contactPhone || null,
@@ -125,14 +125,14 @@ export async function POST(req: NextRequest) {
         success: true,
         attributed: true,
         leadId: lead.id,
-        partner: association.school-leadCode,
+        partner: association.referralCode,
       });
     }
 
     // Otherwise record an interaction click on the partner's NEP bucket.
-    await prisma.school-leadClick.create({
+    await prisma.referralClick.create({
       data: {
-        school-leadId: school-lead.id,
+        referralId: referral.id,
         ipAddress: cleanIP,
         userAgent,
         referer,
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       attributed: true,
-      partner: association.school-leadCode,
+      partner: association.referralCode,
     });
   } catch (error) {
     console.error('POST /api/nep/track error:', error);

@@ -46,7 +46,7 @@ interface ReportStats {
 
 interface MonthlyData {
   month: string;
-  school-leads: number;
+  referrals: number;
   conversions: number;
   earnings: number;
 }
@@ -74,7 +74,7 @@ export default function ReportsPage() {
       const res = await fetch('/api/association/profile');
       const data = await res.json();
       if (data.success) {
-        const school-leads = data.school-leads || [];
+        const referrals = data.referrals || [];
         const incentives = data.incentives || [];
         const conversions = data.conversions || [];
 
@@ -85,7 +85,7 @@ export default function ReportsPage() {
         setStats({
           totalEarnings,
           totalClicks: data.stats?.totalClicks || 0,
-          totalLeads: school-leads.length,
+          totalLeads: referrals.length,
           totalConversions: conversions.length,
           conversionRate: data.stats?.conversionRate || 0,
         });
@@ -99,16 +99,16 @@ export default function ReportsPage() {
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
           months[key] = {
             month: d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
-            school-leads: 0,
+            referrals: 0,
             conversions: 0,
             earnings: 0,
           };
         }
 
-        school-leads.forEach((r: any) => {
+        referrals.forEach((r: any) => {
           const d = new Date(r.createdAt);
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          if (months[key]) months[key].school-leads++;
+          if (months[key]) months[key].referrals++;
         });
 
         conversions.forEach((c: any) => {
@@ -138,8 +138,8 @@ export default function ReportsPage() {
     `\u20B9${(cents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const exportCSV = () => {
-    const headers = ['Month', 'School Leads', 'Conversions', 'Earnings (₹)'];
-    const rows = monthlyData.map((m) => [m.month, m.school-leads, m.conversions, (m.earnings / 100).toFixed(2)]);
+    const headers = ['Month', 'Referrals', 'Conversions', 'Earnings (₹)'];
+    const rows = monthlyData.map((m) => [m.month, m.referrals, m.conversions, (m.earnings / 100).toFixed(2)]);
     const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -249,7 +249,7 @@ export default function ReportsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Monthly Earnings</CardTitle>
-          <CardDescription>Revenue generated from your school-leads</CardDescription>
+          <CardDescription>Revenue generated from your referrals</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-end gap-2 h-48">
@@ -277,7 +277,7 @@ export default function ReportsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Month</TableHead>
-                <TableHead className="text-center">School Leads</TableHead>
+                <TableHead className="text-center">Referrals</TableHead>
                 <TableHead className="text-center">Conversions</TableHead>
                 <TableHead className="text-right">Earnings</TableHead>
               </TableRow>
@@ -286,14 +286,14 @@ export default function ReportsPage() {
               {monthlyData.map((m, i) => (
                 <TableRow key={i}>
                   <TableCell className="font-medium">{m.month}</TableCell>
-                  <TableCell className="text-center">{m.school-leads}</TableCell>
+                  <TableCell className="text-center">{m.referrals}</TableCell>
                   <TableCell className="text-center">{m.conversions}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(m.earnings)}</TableCell>
                 </TableRow>
               ))}
               <TableRow className="bg-muted/50 font-bold">
                 <TableCell>Total</TableCell>
-                <TableCell className="text-center">{monthlyData.reduce((s, m) => s + m.school-leads, 0)}</TableCell>
+                <TableCell className="text-center">{monthlyData.reduce((s, m) => s + m.referrals, 0)}</TableCell>
                 <TableCell className="text-center">{monthlyData.reduce((s, m) => s + m.conversions, 0)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(monthlyData.reduce((s, m) => s + m.earnings, 0))}</TableCell>
               </TableRow>

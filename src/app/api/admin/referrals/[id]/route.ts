@@ -31,7 +31,7 @@ export async function PUT(
       );
     }
 
-    const school-lead = await prisma.school-lead.findUnique({
+    const referral = await prisma.referral.findUnique({
       where: { id: params.id },
       include: {
         association: {
@@ -40,18 +40,18 @@ export async function PUT(
       }
     });
 
-    if (!school-lead) {
+    if (!referral) {
       return NextResponse.json(
-        { error: 'School Lead not found' },
+        { error: 'Referral not found' },
         { status: 404 }
       );
     }
 
-    // Get estimated value from school-lead metadata
-    const metadata = school-lead.metadata as Record<string, any> || {};
+    // Get estimated value from referral metadata
+    const metadata = referral.metadata as Record<string, any> || {};
     const estimatedValueCents = Number(metadata?.estimated_value) * 100 || 10000;
 
-    const updatedSchool Lead = await prisma.school-lead.update({
+    const updatedReferral = await prisma.referral.update({
       where: { id: params.id },
       data: {
         status: action === 'approve' ? 'APPROVED' : 'REJECTED',
@@ -64,14 +64,14 @@ export async function PUT(
     // If approved, create conversion and incentive
     if (action === 'approve') {
       // Get incentive rate from partner group or use default 10%
-      const incentiveRate = school-lead.association.partnerGroup?.incentiveRate
-        ? school-lead.association.partnerGroup.incentiveRate / 100
+      const incentiveRate = referral.association.partnerGroup?.incentiveRate
+        ? referral.association.partnerGroup.incentiveRate / 100
         : 0.1;
 
       const conversion = await prisma.conversion.create({
         data: {
-          associationId: school-lead.associationId,
-          school-leadId: school-lead.id,
+          associationId: referral.associationId,
+          referralId: referral.id,
           eventType: 'PURCHASE',
           amountCents: estimatedValueCents,
           status: 'PENDING'
@@ -82,9 +82,9 @@ export async function PUT(
 
       await prisma.incentive.create({
         data: {
-          associationId: school-lead.associationId,
+          associationId: referral.associationId,
           conversionId: conversion.id,
-          userId: school-lead.association.userId,
+          userId: referral.association.userId,
           rate: incentiveRate,
           amountCents: incentiveAmount,
           status: 'PENDING'
@@ -94,20 +94,20 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      message: `School Lead ${action}d successfully`,
-      school-lead: updatedSchool Lead
+      message: `Referral ${action}d successfully`,
+      referral: updatedReferral
     });
 
   } catch (error) {
-    console.error('School Lead approval error:', error);
+    console.error('Referral approval error:', error);
     return NextResponse.json(
-      { error: 'Failed to process school-lead' },
+      { error: 'Failed to process referral' },
       { status: 500 }
     );
   }
 }
 
-// Add PATCH method for updating school-lead/customer details
+// Add PATCH method for updating referral/customer details
 export async function PATCH(
   request: NextRequest, 
   context: { params: Promise<{ id: string }> }
@@ -130,22 +130,22 @@ export async function PATCH(
     const body = await request.json();
     const { action, leadName, leadEmail, status, reviewNotes } = body;
 
-    // Check if school-lead exists
-    const school-lead = await prisma.school-lead.findUnique({
+    // Check if referral exists
+    const referral = await prisma.referral.findUnique({
       where: { id: params.id },
       include: { association: { include: { partnerGroup: true } } }
     });
 
-    if (!school-lead) {
+    if (!referral) {
       return NextResponse.json(
-        { error: 'School Lead not found' },
+        { error: 'Referral not found' },
         { status: 404 }
       );
     }
 
     // If action is provided, handle approve/reject (legacy behavior)
     if (action && ['approve', 'reject'].includes(action)) {
-      const updatedSchool Lead = await prisma.school-lead.update({
+      const updatedReferral = await prisma.referral.update({
         where: { id: params.id },
         data: {
           status: action === 'approve' ? 'APPROVED' : 'REJECTED',
@@ -157,16 +157,16 @@ export async function PATCH(
 
       // If approved, create conversion and incentive
       if (action === 'approve') {
-        const refMetadata = school-lead.metadata as Record<string, any> || {};
+        const refMetadata = referral.metadata as Record<string, any> || {};
         const estValueCents = Number(refMetadata?.estimated_value) * 100 || 10000;
-        const incentiveRate = school-lead.association.partnerGroup?.incentiveRate
-          ? school-lead.association.partnerGroup.incentiveRate / 100
+        const incentiveRate = referral.association.partnerGroup?.incentiveRate
+          ? referral.association.partnerGroup.incentiveRate / 100
           : 0.1;
 
         const conversion = await prisma.conversion.create({
           data: {
-            associationId: school-lead.associationId,
-            school-leadId: school-lead.id,
+            associationId: referral.associationId,
+            referralId: referral.id,
             eventType: 'PURCHASE',
             amountCents: estValueCents,
             status: 'PENDING'
@@ -177,9 +177,9 @@ export async function PATCH(
         
         await prisma.incentive.create({
           data: {
-            associationId: school-lead.associationId,
+            associationId: referral.associationId,
             conversionId: conversion.id,
-            userId: school-lead.association.userId,
+            userId: referral.association.userId,
             rate: incentiveRate,
             amountCents: incentiveAmount,
             status: 'PENDING'
@@ -189,8 +189,8 @@ export async function PATCH(
 
       return NextResponse.json({
         success: true,
-        message: `School Lead ${action}d successfully`,
-        school-lead: updatedSchool Lead
+        message: `Referral ${action}d successfully`,
+        referral: updatedReferral
       });
     }
 
@@ -206,7 +206,7 @@ export async function PATCH(
       updateData.reviewedAt = new Date();
     }
 
-    const updatedSchool Lead = await prisma.school-lead.update({
+    const updatedReferral = await prisma.referral.update({
       where: { id: params.id },
       data: updateData
     });
@@ -214,19 +214,19 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       message: 'Customer updated successfully',
-      school-lead: updatedSchool Lead
+      referral: updatedReferral
     });
 
   } catch (error) {
-    console.error('Update school-lead error:', error);
+    console.error('Update referral error:', error);
     return NextResponse.json(
-      { error: 'Failed to update school-lead' },
+      { error: 'Failed to update referral' },
       { status: 500 }
     );
   }
 }
 
-// Add DELETE method to allow admins to delete school-leads
+// Add DELETE method to allow admins to delete referrals
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -246,32 +246,32 @@ export async function DELETE(
       );
     }
 
-    // Check if school-lead exists
-    const school-lead = await prisma.school-lead.findUnique({
+    // Check if referral exists
+    const referral = await prisma.referral.findUnique({
       where: { id: params.id }
     });
 
-    if (!school-lead) {
+    if (!referral) {
       return NextResponse.json(
-        { error: 'School Lead not found' },
+        { error: 'Referral not found' },
         { status: 404 }
       );
     }
 
-    // Delete the school-lead (will cascade delete related incentives due to Prisma schema)
-    await prisma.school-lead.delete({
+    // Delete the referral (will cascade delete related incentives due to Prisma schema)
+    await prisma.referral.delete({
       where: { id: params.id }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'School Lead deleted successfully'
+      message: 'Referral deleted successfully'
     });
 
   } catch (error) {
-    console.error('Delete school-lead error:', error);
+    console.error('Delete referral error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete school-lead' },
+      { error: 'Failed to delete referral' },
       { status: 500 }
     );
   }

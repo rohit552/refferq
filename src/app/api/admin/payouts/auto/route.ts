@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Find all associations with balance above minimum payout threshold
     // Status check is on User model, not Association
-    const eligibleAssociations = await prisma.association.findMany({
+    const eligibleAssociations = await prisma.affiliate.findMany({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Reset association balance
-        await prisma.association.update({
+        await prisma.affiliate.update({
           where: { id: association.id },
           data: {
             balanceCents: 0,
@@ -158,14 +158,14 @@ export async function GET(request: NextRequest) {
 
     // Count eligible associations
     const minPayoutCents = settings?.minPayoutCents || 100000;
-    const eligibleCount = await prisma.association.count({
+    const eligibleCount = await prisma.affiliate.count({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },
       },
     });
 
-    const totalPendingBalance = await prisma.association.aggregate({
+    const totalPendingBalance = await prisma.affiliate.aggregate({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },

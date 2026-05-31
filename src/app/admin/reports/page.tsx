@@ -71,7 +71,7 @@ import {
 // ────────────────────────────────────────────────
 //  Types
 // ────────────────────────────────────────────────
-type ReportType = 'summary' | 'associations' | 'school-leads' | 'incentives' | 'payouts';
+type ReportType = 'summary' | 'associations' | 'referrals' | 'incentives' | 'payouts';
 
 interface ScheduledReport {
   id: string;
@@ -103,8 +103,8 @@ interface CohortData {
   cohortKey: string;
   label: string;
   associationCount: number;
-  totalSchool Leads: number;
-  approvedSchool Leads: number;
+  totalReferrals: number;
+  approvedReferrals: number;
   conversionRate: string;
   totalIncentives: number;
   totalEarningsCents: number;
@@ -120,7 +120,7 @@ interface CohortAnalysis {
     totalAssociations: number;
     activeAssociations: number;
     activationRate: string;
-    avgSchool LeadsPerAssociation: string;
+    avgReferralsPerAssociation: string;
   };
   cohorts: CohortData[];
 }
@@ -131,7 +131,7 @@ interface CohortAnalysis {
 const reportTypes: { value: ReportType; label: string; description: string; icon: React.ElementType }[] = [
   { value: 'summary', label: 'Summary', description: 'Overview of all metrics', icon: BarChart3 },
   { value: 'associations', label: 'Associations', description: 'Partner performance data', icon: Users },
-  { value: 'school-leads', label: 'School Leads', description: 'School Lead lead details', icon: Link2 },
+  { value: 'referrals', label: 'Referrals', description: 'Referral lead details', icon: Link2 },
   { value: 'incentives', label: 'Incentives', description: 'Incentive records', icon: IndianRupee },
   { value: 'payouts', label: 'Payouts', description: 'Payout history', icon: Wallet },
 ];
@@ -885,7 +885,7 @@ export default function ReportsPage() {
                         <TableRow>
                           <TableHead>Cohort</TableHead>
                           <TableHead className="text-right">Associations</TableHead>
-                          <TableHead className="text-right">School Leads</TableHead>
+                          <TableHead className="text-right">Referrals</TableHead>
                           <TableHead className="text-right">Approved</TableHead>
                           <TableHead className="text-right">Conv. Rate</TableHead>
                           <TableHead className="text-right">Incentives</TableHead>
@@ -898,8 +898,8 @@ export default function ReportsPage() {
                           <TableRow key={c.cohortKey}>
                             <TableCell className="font-medium whitespace-nowrap">{c.label}</TableCell>
                             <TableCell className="text-right">{c.associationCount}</TableCell>
-                            <TableCell className="text-right">{c.totalSchool Leads}</TableCell>
-                            <TableCell className="text-right">{c.approvedSchool Leads}</TableCell>
+                            <TableCell className="text-right">{c.totalReferrals}</TableCell>
+                            <TableCell className="text-right">{c.approvedReferrals}</TableCell>
                             <TableCell className="text-right">{c.conversionRate}%</TableCell>
                             <TableCell className="text-right">{c.totalIncentives}</TableCell>
                             <TableCell className="text-right font-medium">

@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all school-leads with association information
-    const school-leads = await prisma.school-lead.findMany({
+    // Get all referrals with association information
+    const referrals = await prisma.referral.findMany({
       include: {
         association: {
           include: {
@@ -47,27 +47,27 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      school-leads: school-leads.map(school-lead => {
-        const metadata = school-lead.metadata as any;
-        const association = school-lead.association as any;
+      referrals: referrals.map(referral => {
+        const metadata = referral.metadata as any;
+        const association = referral.association as any;
         const pgId = association.partnerGroupId;
         const pgData = pgId ? partnerGroupMap.get(pgId) : null;
         
         return {
-          id: school-lead.id,
-          leadEmail: school-lead.leadEmail,
-          leadName: school-lead.leadName,
-          leadPhone: school-lead.leadPhone,
-          status: school-lead.status,
-          notes: school-lead.notes,
-          createdAt: school-lead.createdAt,
+          id: referral.id,
+          leadEmail: referral.leadEmail,
+          leadName: referral.leadName,
+          leadPhone: referral.leadPhone,
+          status: referral.status,
+          notes: referral.notes,
+          createdAt: referral.createdAt,
           estimatedValue: Number(metadata?.estimated_value) || 0,
           company: metadata?.company || '',
           association: {
             id: association.id,
             name: association.user.name,
             email: association.user.email,
-            school-leadCode: association.school-leadCode,
+            referralCode: association.referralCode,
             partnerGroup: pgData?.name || 'Default',
             partnerGroupId: pgId,
             incentiveRate: pgData?.rate || 0.20
@@ -77,9 +77,9 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin school-leads API error:', error);
+    console.error('Admin referrals API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch school-leads' },
+      { error: 'Failed to fetch referrals' },
       { status: 500 }
     );
   }
@@ -109,11 +109,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { school-leadIds, action } = body; // action: 'approve' | 'reject'
+    const { referralIds, action } = body; // action: 'approve' | 'reject'
 
-    if (!school-leadIds || !Array.isArray(school-leadIds) || school-leadIds.length === 0) {
+    if (!referralIds || !Array.isArray(referralIds) || referralIds.length === 0) {
       return NextResponse.json(
-        { error: 'School Lead IDs array is required' },
+        { error: 'Referral IDs array is required' },
         { status: 400 }
       );
     }
@@ -125,10 +125,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update multiple school-leads
-    const updatedSchool Leads = await prisma.school-lead.updateMany({
+    // Update multiple referrals
+    const updatedReferrals = await prisma.referral.updateMany({
       where: {
-        id: { in: school-leadIds },
+        id: { in: referralIds },
         status: 'PENDING'
       },
       data: {
@@ -140,14 +140,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${updatedSchool Leads.count} school-leads ${action}d successfully`,
-      updatedCount: updatedSchool Leads.count
+      message: `${updatedReferrals.count} referrals ${action}d successfully`,
+      updatedCount: updatedReferrals.count
     });
 
   } catch (error) {
-    console.error('Batch school-lead API error:', error);
+    console.error('Batch referral API error:', error);
     return NextResponse.json(
-      { error: 'Failed to process school-leads' },
+      { error: 'Failed to process referrals' },
       { status: 500 }
     );
   }

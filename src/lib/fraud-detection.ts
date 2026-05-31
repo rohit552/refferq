@@ -23,7 +23,7 @@ export function isBotUserAgent(userAgent: string): boolean {
 }
 
 /**
- * Comprehensive fraud check for a school-lead click.
+ * Comprehensive fraud check for a referral click.
  */
 export async function checkFraud({
     ipAddress,
@@ -45,7 +45,7 @@ export async function checkFraud({
 
     // 2. Check click frequency from the same IP in last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentClicksFromIP = await prisma.school-leadClick.count({
+    const recentClicksFromIP = await prisma.referralClick.count({
         where: {
             ipAddress,
             createdAt: { gte: oneHourAgo },
@@ -59,11 +59,11 @@ export async function checkFraud({
 
     // 3. Check if same IP already clicked for this association today
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const clicksForAssociationFromIP = await prisma.school-leadClick.count({
+    const clicksForAssociationFromIP = await prisma.referralClick.count({
         where: {
             ipAddress,
             createdAt: { gte: oneDayAgo },
-            school-lead: {
+            referral: {
                 associationId,
             },
         },
@@ -74,7 +74,7 @@ export async function checkFraud({
         riskScore += 40;
     }
 
-    // 4. Private/loopback IP ranges (could indicate self-school-lead or test)
+    // 4. Private/loopback IP ranges (could indicate self-referral or test)
     const isPrivateIP = /^(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/.test(ipAddress);
     if (isPrivateIP) {
         reasons.push('Private/internal IP address');
@@ -91,10 +91,10 @@ export async function checkFraud({
 }
 
 /**
- * Logs a fraud event to the school-leadClick metadata.
+ * Logs a fraud event to the referralClick metadata.
  */
 export async function logFraudEvent(clickId: string, fraudResult: FraudCheckResult) {
-    await prisma.school-leadClick.update({
+    await prisma.referralClick.update({
         where: { id: clickId },
         data: {
             metadata: {

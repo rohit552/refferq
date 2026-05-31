@@ -106,7 +106,7 @@ export default function NepLandingPage() {
             <p className="text-pretty text-lg text-muted-foreground">
               {BRAND.name} connects Master Partners, Sub Partners, and Partners
               with schools and associations across National, State, and District
-              levels — with full school-lead tracking built in.
+              levels — with full referral tracking built in.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <a href="#register-school" onClick={() => handleCta('hero_register')}>

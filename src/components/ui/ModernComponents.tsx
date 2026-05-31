@@ -176,7 +176,7 @@ export const PartnerRow = ({
       </div>
 
       <div className="text-center px-4">
-        <div className="text-xs text-gray-500 mb-1">School Lead Code</div>
+        <div className="text-xs text-gray-500 mb-1">Referral Code</div>
         <div className="font-mono text-sm font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{code}</div>
       </div>
 
