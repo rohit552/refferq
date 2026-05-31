@@ -59,12 +59,12 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const associationId = searchParams.get('associationId');
+    const affiliateId = searchParams.get('affiliateId');
 
     // Build where clause
     const where: any = {};
-    if (associationId) {
-      where.associationId = associationId;
+    if (affiliateId) {
+      where.affiliateId = affiliateId;
     }
 
     // Fetch payouts from database
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     // Format response
     const formattedPayouts = payouts.map((payout: any) => ({
       id: payout.id,
-      associationId: payout.associationId,
+      affiliateId: payout.affiliateId,
       associationName: payout.affiliate.name,
       associationEmail: payout.affiliate.email,
       amountCents: payout.amountCents,
@@ -145,11 +145,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Validation failed', details: validationError.issues }, { status: 400 });
     }
 
-    const { associationId, incentiveIds, method, notes } = data;
+    const { affiliateId, incentiveIds, method, notes } = data;
 
     // Verify association exists
     const association = await prisma.affiliate.findUnique({
-      where: { id: associationId },
+      where: { id: affiliateId },
     });
 
     if (!association) {
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     const incentives = await prisma.commission.findMany({
       where: {
         id: { in: incentiveIds },
-        associationId: associationId,
+        affiliateId: affiliateId,
         status: 'APPROVED',
       },
     });
@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
     // Create payout record
     const payout = await (prisma as any).payout.create({
       data: {
-        associationId,
+        affiliateId,
         amountCents: totalAmountCents,
         incentiveCount: incentives.length,
         status: 'PENDING',
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
       action: 'CREATE_PAYOUT',
       objectType: 'PAYOUT',
       objectId: payout.id,
-      payload: { amountCents: totalAmountCents, associationId }
+      payload: { amountCents: totalAmountCents, affiliateId }
     });
 
     // Update incentives to mark as PAID and link to payout
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
     try {
       const associationUser = await prisma.user.findFirst({
         where: {
-          affiliate: { id: associationId }
+          affiliate: { id: affiliateId }
         }
       });
 
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
       success: true,
       payout: {
         id: payout.id,
-        associationId: payout.associationId,
+        affiliateId: payout.affiliateId,
         associationName: payout.affiliate.name,
         associationEmail: payout.affiliate.email,
         amountCents: payout.amountCents,
@@ -349,7 +349,7 @@ export async function PUT(request: NextRequest) {
       try {
         const associationUser = await prisma.user.findFirst({
           where: {
-            affiliate: { id: payout.associationId }
+            affiliate: { id: payout.affiliateId }
           }
         });
 
@@ -374,7 +374,7 @@ export async function PUT(request: NextRequest) {
       success: true,
       payout: {
         id: payout.id,
-        associationId: payout.associationId,
+        affiliateId: payout.affiliateId,
         associationName: payout.affiliate.name,
         associationEmail: payout.affiliate.email,
         amountCents: payout.amountCents,

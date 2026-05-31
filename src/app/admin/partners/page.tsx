@@ -298,7 +298,7 @@ export default function PartnersPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          associationIds: selectedPartners,
+          affiliateIds: selectedPartners,
           action: action === 'delete' ? 'delete' : 'changeStatus',
           status: status,
         }),

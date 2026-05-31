@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { code, description, discountType, discountValue, currency, maxUses, associationId, startsAt, expiresAt } = body;
+    const { code, description, discountType, discountValue, currency, maxUses, affiliateId, startsAt, expiresAt } = body;
 
     if (!code || !discountValue) {
       return NextResponse.json({ error: 'Code and discount value are required' }, { status: 400 });

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     // Get all partner groups for incentive rate lookup
     const partnerGroups = await prisma.partnerGroup.findMany();
     const partnerGroupMap = new Map(
-      partnerGroups.map(pg => [pg.id, { name: pg.name, rate: pg.incentiveRate }])
+      partnerGroups.map(pg => [pg.id, { name: pg.name, rate: pg.commissionRate }])
     );
 
     return NextResponse.json({
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
             referralCode: association.referralCode,
             partnerGroup: pgData?.name || 'Default',
             partnerGroupId: pgId,
-            incentiveRate: pgData?.rate || 0.20
+            commissionRate: pgData?.rate || 0.20
           }
         };
       })

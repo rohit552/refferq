@@ -18,7 +18,7 @@ export const associationCreateSchema = z.object({
 
 // Payout Validation
 export const payoutSchema = z.object({
-    associationId: z.string(),
+    affiliateId: z.string(),
     incentiveIds: z.array(z.string()).min(1, 'At least one incentive is required'),
     method: z.string().optional(),
     notes: z.string().optional(),

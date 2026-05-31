@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     // Log the referral click
     console.log('✅ Referral click tracked:', {
-      associationId: association.id,
+      affiliateId: association.id,
       referralCode,
       url,
       referrer,

@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
                     summary: 'List all payouts',
                     security: [{ BearerAuth: [] }],
                     parameters: [
-                        { name: 'associationId', in: 'query', schema: { type: 'string' }, description: 'Filter by association' },
+                        { name: 'affiliateId', in: 'query', schema: { type: 'string' }, description: 'Filter by association' },
                         { name: 'format', in: 'query', schema: { type: 'string', enum: ['csv'] }, description: 'Export as CSV' },
                     ],
                     responses: { '200': { description: 'Array of payouts' } },
@@ -244,9 +244,9 @@ export async function GET(request: NextRequest) {
                 },
                 PayoutRequest: {
                     type: 'object',
-                    required: ['associationId', 'incentiveIds'],
+                    required: ['affiliateId', 'incentiveIds'],
                     properties: {
-                        associationId: { type: 'string' },
+                        affiliateId: { type: 'string' },
                         incentiveIds: { type: 'array', items: { type: 'string' }, minItems: 1 },
                         method: { type: 'string' },
                         notes: { type: 'string' },

@@ -28,11 +28,11 @@ export function isBotUserAgent(userAgent: string): boolean {
 export async function checkFraud({
     ipAddress,
     userAgent,
-    associationId,
+    affiliateId,
 }: {
     ipAddress: string;
     userAgent: string;
-    associationId: string;
+    affiliateId: string;
 }): Promise<FraudCheckResult> {
     const reasons: string[] = [];
     let riskScore = 0;
@@ -64,7 +64,7 @@ export async function checkFraud({
             ipAddress,
             createdAt: { gte: oneDayAgo },
             referral: {
-                associationId,
+                affiliateId,
             },
         },
     });

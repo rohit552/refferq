@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, slug, description, incentiveRate, incentiveType, cookieDuration, currency, autoApprove, minPayoutCents, payoutFrequency, termsUrl, logoUrl, brandColor } = body;
+    const { name, slug, description, commissionRate, commissionType, cookieDuration, currency, autoApprove, minPayoutCents, payoutFrequency, termsUrl, logoUrl, brandColor } = body;
 
     if (!name || !slug) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
         name,
         slug: slug.toLowerCase(),
         description: description || null,
-        incentiveRate: incentiveRate || 20,
-        incentiveType: incentiveType || 'PERCENTAGE',
+        commissionRate: commissionRate || 20,
+        commissionType: commissionType || 'PERCENTAGE',
         cookieDuration: cookieDuration || 30,
         currency: currency || 'INR',
         autoApprove: autoApprove || false,
@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Only allow specific fields (prevent mass assignment)
-    const allowedFields = ['name', 'description', 'incentiveType', 'incentiveValue', 'cookieDuration', 'isActive', 'terms'];
+    const allowedFields = ['name', 'description', 'commissionType', 'commissionRate', 'cookieDuration', 'isActive', 'terms'];
     const updates: Record<string, any> = {};
     for (const key of allowedFields) {
       if (key in body && body[key] !== undefined) updates[key] = body[key];

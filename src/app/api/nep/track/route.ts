@@ -75,13 +75,13 @@ export async function POST(req: NextRequest) {
     // Find or create a stable per-partner NEP tracking referral bucket.
     const trackingEmail = `${NEP_TRACKING_EMAIL_PREFIX}${association.id}@tracking.internal`;
     let referral = await prisma.referral.findFirst({
-      where: { associationId: association.id, leadEmail: trackingEmail },
+      where: { affiliateId: association.id, leadEmail: trackingEmail },
     });
 
     if (!referral) {
       referral = await prisma.referral.create({
         data: {
-          associationId: association.id,
+          affiliateId: association.id,
           leadName: 'NEP Landing Visitor',
           leadEmail: trackingEmail,
           status: 'PENDING',
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     ) {
       const lead = await prisma.referral.create({
         data: {
-          associationId: association.id,
+          affiliateId: association.id,
           leadName: body.contactName || body.schoolName || 'Referral',
           leadEmail:
             body.contactEmail || `nep-lead-${Date.now()}@tracking.internal`,

@@ -78,7 +78,7 @@ export interface IncentiveNotificationData {
   customerName: string;
   amountCents: number;
   incentiveCents: number;
-  incentiveRate: number;
+  commissionRate: number;
   transactionId: string;
 }
 
@@ -439,7 +439,7 @@ class EmailService {
   private generateIncentiveNotificationHTML(data: IncentiveNotificationData, symbol: string): string {
     const amount = this.formatAmount(data.amountCents, symbol);
     const incentive = this.formatAmount(data.incentiveCents, symbol);
-    const rate = (data.incentiveRate * 100).toFixed(0);
+    const rate = (data.commissionRate * 100).toFixed(0);
 
     return `
       <!DOCTYPE html>
@@ -698,7 +698,7 @@ class EmailService {
       customerName: string;
       amountCents: number;
       incentiveCents: number;
-      incentiveRate: number;
+      commissionRate: number;
       transactionId: string;
     }
   ): Promise<{ success: boolean; message: string }> {

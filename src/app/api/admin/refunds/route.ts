@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     // Find associated incentives for this association that are pending/approved
     const incentives = await prisma.commission.findMany({
       where: {
-        associationId: transaction.associationId,
+        affiliateId: transaction.affiliateId,
         status: { in: ['PENDING', 'APPROVED'] },
       },
     });
@@ -81,12 +81,12 @@ export async function POST(request: NextRequest) {
 
       // 3. Deduct from association balance if applicable
       const association = await prisma.affiliate.findUnique({
-        where: { id: transaction.associationId },
+        where: { id: transaction.affiliateId },
       });
 
       if (association && association.balanceCents >= matchingIncentive.amountCents) {
         await prisma.affiliate.update({
-          where: { id: transaction.associationId },
+          where: { id: transaction.affiliateId },
           data: {
             balanceCents: { decrement: matchingIncentive.amountCents },
           },

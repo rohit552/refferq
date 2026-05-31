@@ -40,7 +40,7 @@ import {
 
 interface Payout {
   id: string;
-  associationId: string;
+  affiliateId: string;
   associationName: string;
   associationEmail: string;
   amountCents: number;

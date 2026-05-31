@@ -122,14 +122,14 @@ export class DatabaseService {
 
   // Referral operations
   async createSchoolLead(schoolLeadData: {
-    associationId: string;
+    affiliateId: string;
     leadName: string;
     leadEmail: string;
     metadata?: any;
   }) {
     return await prisma.referral.create({
       data: {
-        associationId: schoolLeadData.associationId,
+        affiliateId: schoolLeadData.affiliateId,
         leadName: schoolLeadData.leadName,
         leadEmail: schoolLeadData.leadEmail,
         metadata: schoolLeadData.metadata || {},
@@ -151,9 +151,9 @@ export class DatabaseService {
     });
   }
 
-  async getSchoolLeadsByAssociation(associationId: string) {
+  async getSchoolLeadsByAssociation(affiliateId: string) {
     return await prisma.referral.findMany({
-      where: { associationId },
+      where: { affiliateId },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -181,7 +181,7 @@ export class DatabaseService {
 
   // Conversion operations
   async createConversion(conversionData: {
-    associationId: string;
+    affiliateId: string;
     referralId?: string;
     eventType: 'SIGNUP' | 'PURCHASE' | 'TRIAL' | 'LEAD';
     amountCents: number;
@@ -190,7 +190,7 @@ export class DatabaseService {
   }) {
     return await prisma.conversion.create({
       data: {
-        associationId: conversionData.associationId,
+        affiliateId: conversionData.affiliateId,
         referralId: conversionData.referralId,
         eventType: conversionData.eventType,
         amountCents: conversionData.amountCents,
@@ -201,9 +201,9 @@ export class DatabaseService {
     });
   }
 
-  async getConversionsByAssociation(associationId: string) {
+  async getConversionsByAssociation(affiliateId: string) {
     return await prisma.conversion.findMany({
-      where: { associationId },
+      where: { affiliateId },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -211,7 +211,7 @@ export class DatabaseService {
   // Incentive operations
   async createIncentive(incentiveData: {
     conversionId: string;
-    associationId: string;
+    affiliateId: string;
     userId: string;
     amountCents: number;
     rate: number;
@@ -220,7 +220,7 @@ export class DatabaseService {
     return await prisma.commission.create({
       data: {
         conversionId: incentiveData.conversionId,
-        associationId: incentiveData.associationId,
+        affiliateId: incentiveData.affiliateId,
         userId: incentiveData.userId,
         amountCents: incentiveData.amountCents,
         rate: incentiveData.rate,
@@ -231,9 +231,9 @@ export class DatabaseService {
     });
   }
 
-  async getIncentivesByAssociation(associationId: string) {
+  async getIncentivesByAssociation(affiliateId: string) {
     return await prisma.commission.findMany({
-      where: { associationId },
+      where: { affiliateId },
       include: {
         conversion: true,
       },
@@ -291,7 +291,7 @@ export class DatabaseService {
   // Payout operations
   async createPayout(payoutData: {
     userId: string;
-    associationId: string;
+    affiliateId: string;
     amountCents: number;
     incentiveCount: number;
     method?: string;
@@ -301,7 +301,7 @@ export class DatabaseService {
     return await prisma.payout.create({
       data: {
         userId: payoutData.userId,
-        associationId: payoutData.associationId,
+        affiliateId: payoutData.affiliateId,
         amountCents: payoutData.amountCents,
         incentiveCount: payoutData.incentiveCount,
         method: payoutData.method || 'Bank Transfer',
@@ -385,8 +385,8 @@ export class DatabaseService {
   );
 
   // Analytics and statistics
-  async getAssociationStats(associationId: string) {
-    const association = await this.getAssociationByUserId(associationId);
+  async getAssociationStats(affiliateId: string) {
+    const association = await this.getAssociationByUserId(affiliateId);
     if (!association) {
       return {
         totalClicks: 0,
@@ -404,15 +404,15 @@ export class DatabaseService {
       prisma.referralClick.count({
         where: {
           referral: {
-            associationId: association.id
+            affiliateId: association.id
           }
         },
       }),
       prisma.conversion.count({
-        where: { associationId: association.id },
+        where: { affiliateId: association.id },
       }),
       prisma.commission.findMany({
-        where: { associationId: association.id },
+        where: { affiliateId: association.id },
       }),
     ]);
 
@@ -559,7 +559,7 @@ export class DatabaseService {
 
       // Create sample school leads
       const schoolLead1 = await this.createSchoolLead({
-        associationId: association1.id,
+        affiliateId: association1.id,
         leadName: 'John Smith',
         leadEmail: 'john@techcorp.com',
         metadata: {
@@ -570,7 +570,7 @@ export class DatabaseService {
       });
 
       const schoolLead2 = await this.createSchoolLead({
-        associationId: association2.id,
+        affiliateId: association2.id,
         leadName: 'Maria Garcia',
         leadEmail: 'maria@startup.io',
         metadata: {
@@ -590,7 +590,7 @@ export class DatabaseService {
 
       // Create conversion for approved school lead
       const conversion = await this.createConversion({
-        associationId: association1.id,
+        affiliateId: association1.id,
         eventType: 'PURCHASE',
         amountCents: 225000, // $2250
         eventMetadata: {
@@ -603,7 +603,7 @@ export class DatabaseService {
       // Create incentive
       await this.createIncentive({
         conversionId: conversion.id,
-        associationId: association1.id,
+        affiliateId: association1.id,
         userId: association1User.id,
         amountCents: 33750, // 15% of $2250
         rate: 15,

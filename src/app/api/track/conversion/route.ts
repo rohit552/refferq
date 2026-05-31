@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       referral = await prisma.referral.findFirst({
         where: {
           leadEmail: customerEmail,
-          associationId: association.id,
+          affiliateId: association.id,
         },
       });
     }
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         data: {
           leadEmail: customerEmail,
           leadName: customerName || 'Unknown Customer',
-          associationId: association.id,
+          affiliateId: association.id,
           status: 'APPROVED',
           metadata: metadata || {},
         },
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
 
     const conversion = await prisma.conversion.create({
       data: {
-        associationId: association.id,
+        affiliateId: association.id,
         referralId: referral?.id || null,
         eventType: 'PURCHASE',
         amountCents,
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Conversion tracked successfully:', {
       conversionId: conversion.id,
-      associationId: association.id,
+      affiliateId: association.id,
       referralId: referral?.id,
       amount: amountCents / 100,
     });

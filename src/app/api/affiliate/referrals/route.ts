@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Create the referral
     const referral = await prisma.referral.create({
       data: {
-        associationId: user.affiliate.id,
+        affiliateId: user.affiliate.id,
         leadName: leadName.trim(),
         leadEmail: leadEmail.toLowerCase().trim(),
         status: 'PENDING',
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
     }
 
     const referrals = await prisma.referral.findMany({
-      where: { associationId: user.affiliate.id },
+      where: { affiliateId: user.affiliate.id },
       orderBy: { createdAt: 'desc' }
     });
 

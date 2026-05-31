@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all partner groups for incentive rate lookup
+    // Get all partner groups for commission rate lookup
     const partnerGroups = await prisma.partnerGroup.findMany();
     const partnerGroupMap = new Map(
-      partnerGroups.map(pg => [pg.id, pg.incentiveRate])
+      partnerGroups.map(pg => [pg.id, pg.commissionRate])
     );
     
     let totalEstimatedRevenue = 0;
@@ -65,16 +65,16 @@ export async function GET(request: NextRequest) {
       const estimatedValue = Number(metadata?.estimated_value) || 0;
       const valueInCents = estimatedValue * 100;
       
-      // Get incentive rate from partner group or default to 20%
-      const association = ref.association as any;
-      const partnerGroupId = association.partnerGroupId;
-      const incentiveRate = partnerGroupId 
+      // Get commission rate from partner group or default to 20%
+      const affiliate = ref.affiliate as any;
+      const partnerGroupId = affiliate.partnerGroupId;
+      const commissionRate = partnerGroupId 
         ? (partnerGroupMap.get(partnerGroupId) || 0.20)
         : 0.20;
-      const incentiveInCents = Math.floor(valueInCents * incentiveRate);
+      const commissionInCents = Math.floor(valueInCents * commissionRate);
       
       totalEstimatedRevenue += valueInCents;
-      totalEstimatedIncentive += incentiveInCents;
+      totalEstimatedIncentive += commissionInCents;
     });
 
     const stats = {

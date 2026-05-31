@@ -37,17 +37,17 @@ export async function GET(request: NextRequest) {
 
     // Get association statistics
     const referrals = await prisma.referral.findMany({
-      where: { associationId: association.id },
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     const conversions = await prisma.conversion.findMany({
-      where: { associationId: association.id },
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     const incentives = await prisma.commission.findMany({
-      where: { associationId: association.id },
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 

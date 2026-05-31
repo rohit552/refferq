@@ -60,7 +60,7 @@ interface Referral {
     email: string;
     referralCode: string;
     partnerGroup: string;
-    incentiveRate: number;
+    commissionRate: number;
   };
 }
 

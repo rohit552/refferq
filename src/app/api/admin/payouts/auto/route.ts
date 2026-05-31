@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // Process payouts
     const results: Array<{
-      associationId: string;
+      affiliateId: string;
       name: string;
       payoutId?: string;
       amountCents?: number;
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         // Create payout record
         const payout = await prisma.payout.create({
           data: {
-            associationId: association.id,
+            affiliateId: association.id,
             userId: association.user.id,
             amountCents: payoutAmountCents,
             status: 'PENDING',
@@ -107,14 +107,14 @@ export async function POST(request: NextRequest) {
             objectType: 'payout',
             objectId: payout.id,
             payload: {
-              associationId: association.id,
+              affiliateId: association.id,
               amountCents: payoutAmountCents,
             },
           },
         });
 
         results.push({
-          associationId: association.id,
+          affiliateId: association.id,
           name: association.user.name,
           payoutId: payout.id,
           amountCents: payoutAmountCents,
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
         totalAmountCents += payoutAmountCents;
       } catch (err) {
         results.push({
-          associationId: association.id,
+          affiliateId: association.id,
           name: association.user.name,
           status: 'FAILED',
           error: (err as Error).message,

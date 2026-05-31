@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { associationIds, action, status, group } = body;
+    const { affiliateIds, action, status, group } = body;
 
-    if (!associationIds || !Array.isArray(associationIds) || associationIds.length === 0) {
+    if (!affiliateIds || !Array.isArray(affiliateIds) || affiliateIds.length === 0) {
       return NextResponse.json(
-        { error: 'associationIds array is required' },
+        { error: 'affiliateIds array is required' },
         { status: 400 }
       );
     }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
         // Get all associations to find their userIds
         const associations = await prisma.affiliate.findMany({
-          where: { id: { in: associationIds } }
+          where: { id: { in: affiliateIds } }
         });
 
         const userIds = associations.map(aff => aff.userId);
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
-              associationIds,
+              affiliateIds,
               newStatus: status,
               count: updatedCount
             }
@@ -101,14 +101,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Update association metadata with group
-        for (const associationId of associationIds) {
+        for (const affiliateId of affiliateIds) {
           await prisma.affiliate.update({
-            where: { id: associationId },
+            where: { id: affiliateId },
             data: {
               payoutDetails: {
                 // Preserve existing data and add/update group
                 ...(await prisma.affiliate.findUnique({
-                  where: { id: associationId },
+                  where: { id: affiliateId },
                   select: { payoutDetails: true }
                 }).then(a => a?.payoutDetails as any) || {}),
                 group
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
             objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
-              associationIds,
+              affiliateIds,
               newGroup: group,
               count: updatedCount
             }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       case 'delete':
         // Get all associations to find their userIds
         const associationsToDelete = await prisma.affiliate.findMany({
-          where: { id: { in: associationIds } },
+          where: { id: { in: affiliateIds } },
           include: { user: true }
         });
 
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
             objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
-              associationIds,
+              affiliateIds,
               count: updatedCount,
               deletedEmails: associationsToDelete.map(a => a.user.email)
             }

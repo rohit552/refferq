@@ -79,7 +79,7 @@ export async function GET(
     const fraudResult = await checkFraud({
       ipAddress: cleanIP,
       userAgent,
-      associationId: association.id,
+      affiliateId: association.id,
     });
 
     // Generate attribution key
@@ -88,7 +88,7 @@ export async function GET(
     // Find or create a referral record for click tracking
     let referral = await prisma.referral.findFirst({
       where: {
-        associationId: association.id,
+        affiliateId: association.id,
         leadEmail: `click-${attributionKey}@tracking.internal`,
       }
     });
@@ -96,7 +96,7 @@ export async function GET(
     if (!referral) {
       referral = await prisma.referral.create({
         data: {
-          associationId: association.id,
+          affiliateId: association.id,
           leadName: 'Click Visitor',
           leadEmail: `click-${attributionKey}@tracking.internal`,
           status: 'PENDING',

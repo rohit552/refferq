@@ -93,42 +93,42 @@ class NotificationService {
   }
 
   // Association notifications
-  async notifyReferralApproved(associationId: string, referralData: { leadName: string; incentiveAmount: number }): Promise<void> {
+  async notifyReferralApproved(affiliateId: string, referralData: { leadName: string; incentiveAmount: number }): Promise<void> {
     await this.createNotification({
       type: 'referral_approved',
       title: 'Referral Approved!',
       message: `Your referral for ${referralData.leadName} has been approved. Incentive: $${(referralData.incentiveAmount / 100).toFixed(2)}`,
-      userId: associationId,
+      userId: affiliateId,
       metadata: referralData,
     });
   }
 
-  async notifyReferralRejected(associationId: string, referralData: { leadName: string; reason?: string }): Promise<void> {
+  async notifyReferralRejected(affiliateId: string, referralData: { leadName: string; reason?: string }): Promise<void> {
     await this.createNotification({
       type: 'referral_rejected',
       title: 'Referral Update',
       message: `Your referral for ${referralData.leadName} needs attention${referralData.reason ? `: ${referralData.reason}` : ''}`,
-      userId: associationId,
+      userId: affiliateId,
       metadata: referralData,
     });
   }
 
-  async notifyIncentiveApproved(associationId: string, incentiveData: { amount: number; referralName: string }): Promise<void> {
+  async notifyIncentiveApproved(affiliateId: string, incentiveData: { amount: number; referralName: string }): Promise<void> {
     await this.createNotification({
       type: 'incentive_approved',
       title: 'Incentive Approved!',
       message: `Incentive of $${(incentiveData.amount / 100).toFixed(2)} for ${incentiveData.referralName} has been approved`,
-      userId: associationId,
+      userId: affiliateId,
       metadata: incentiveData,
     });
   }
 
-  async notifyPayoutProcessed(associationId: string, payoutData: { amount: number; method: string }): Promise<void> {
+  async notifyPayoutProcessed(affiliateId: string, payoutData: { amount: number; method: string }): Promise<void> {
     await this.createNotification({
       type: 'payout_processed',
       title: 'Payout Processed',
       message: `Your payout of $${(payoutData.amount / 100).toFixed(2)} via ${payoutData.method} has been processed`,
-      userId: associationId,
+      userId: affiliateId,
       metadata: payoutData,
     });
   }

@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest) {
       'programName', 'productName', 'websiteUrl', 'currency', 'portalSubdomain',
       'companyName', 'companyLogo', 'primaryColor', 'secondaryColor',
       'cookieDuration', 'minimumPayout', 'payoutFrequency', 'autoApprove',
-      'incentiveType', 'incentiveValue', 'brandingEnabled', 'incentiveHoldDays'
+      'commissionType', 'commissionRate', 'brandingEnabled', 'incentiveHoldDays'
     ];
     const sanitizedData: Record<string, any> = {};
     for (const key of allowedFields) {

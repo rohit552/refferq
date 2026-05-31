@@ -28,8 +28,8 @@ interface Program {
   name: string;
   slug: string;
   description?: string;
-  incentiveRate: number;
-  incentiveType: string;
+  commissionRate: number;
+  commissionType: string;
   cookieDuration: number;
   currency: string;
   isActive: boolean;
@@ -44,7 +44,7 @@ interface Program {
 }
 
 const emptyForm = {
-  name: '', slug: '', description: '', incentiveRate: '20', incentiveType: 'PERCENTAGE',
+  name: '', slug: '', description: '', commissionRate: '20', commissionType: 'PERCENTAGE',
   cookieDuration: '30', currency: 'INR', autoApprove: false, minPayoutCents: '100000',
   payoutFrequency: 'MONTHLY', termsUrl: '', logoUrl: '', brandColor: '#6366f1',
 };
@@ -81,7 +81,7 @@ export default function ProgramsPage() {
     setEditing(p);
     setForm({
       name: p.name, slug: p.slug, description: p.description || '',
-      incentiveRate: String(p.incentiveRate), incentiveType: p.incentiveType,
+      commissionRate: String(p.commissionRate), commissionType: p.commissionType,
       cookieDuration: String(p.cookieDuration), currency: p.currency,
       autoApprove: p.autoApprove, minPayoutCents: String(p.minPayoutCents),
       payoutFrequency: p.payoutFrequency, termsUrl: p.termsUrl || '',
@@ -95,7 +95,7 @@ export default function ProgramsPage() {
     try {
       const body: any = {
         name: form.name, slug: form.slug, description: form.description || null,
-        incentiveRate: parseFloat(form.incentiveRate), incentiveType: form.incentiveType,
+        commissionRate: parseFloat(form.commissionRate), commissionType: form.commissionType,
         cookieDuration: parseInt(form.cookieDuration), currency: form.currency,
         autoApprove: form.autoApprove, minPayoutCents: parseInt(form.minPayoutCents),
         payoutFrequency: form.payoutFrequency,
@@ -256,8 +256,8 @@ export default function ProgramsPage() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Percent className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-semibold">{p.incentiveRate}%</span>
-                        <span className="text-xs text-muted-foreground">{p.incentiveType}</span>
+                        <span className="font-semibold">{p.commissionRate}%</span>
+                        <span className="text-xs text-muted-foreground">{p.commissionType}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -326,11 +326,11 @@ export default function ProgramsPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label>Incentive Rate (%)</Label>
-                <Input type="number" value={form.incentiveRate} onChange={e => setForm({...form, incentiveRate: e.target.value})} />
+                <Input type="number" value={form.commissionRate} onChange={e => setForm({...form, commissionRate: e.target.value})} />
               </div>
               <div className="grid gap-2">
                 <Label>Incentive Type</Label>
-                <Select value={form.incentiveType} onValueChange={v => setForm({...form, incentiveType: v})}>
+                <Select value={form.commissionType} onValueChange={v => setForm({...form, commissionType: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PERCENTAGE">Percentage</SelectItem>

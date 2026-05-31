@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         type: 'Association Performance Report',
         generatedAt: new Date().toISOString(),
         data: associations.map(association => ({
-          associationId: association.id,
+          affiliateId: association.id,
           name: association.user.name,
           email: association.user.email,
           referralCode: association.referralCode,

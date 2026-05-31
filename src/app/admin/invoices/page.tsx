@@ -25,7 +25,7 @@ import {
 interface Invoice {
   id: string;
   invoiceNumber: string;
-  associationId: string;
+  affiliateId: string;
   amountCents: number;
   taxCents: number;
   totalCents: number;
@@ -47,7 +47,7 @@ export default function InvoicesPage() {
   const [saving, setSaving] = useState(false);
   const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null);
   const [form, setForm] = useState({
-    associationId: '', amountCents: '', taxCents: '0', notes: '', dueAt: '',
+    affiliateId: '', amountCents: '', taxCents: '0', notes: '', dueAt: '',
   });
 
   useEffect(() => { fetchInvoices(); }, []);
@@ -71,7 +71,7 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          associationId: form.associationId,
+          affiliateId: form.affiliateId,
           amountCents: parseInt(form.amountCents),
           taxCents: parseInt(form.taxCents) || 0,
           notes: form.notes || null,
@@ -81,7 +81,7 @@ export default function InvoicesPage() {
       if (res.ok) {
         await fetchInvoices();
         setDialogOpen(false);
-        setForm({ associationId: '', amountCents: '', taxCents: '0', notes: '', dueAt: '' });
+        setForm({ affiliateId: '', amountCents: '', taxCents: '0', notes: '', dueAt: '' });
       }
     } catch (error) {
       console.error('Failed to create invoice:', error);
@@ -232,7 +232,7 @@ export default function InvoicesPage() {
                 {invoices.map(inv => (
                   <TableRow key={inv.id}>
                     <TableCell className="font-mono text-sm font-medium">{inv.invoiceNumber}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{inv.associationId.slice(0, 8)}...</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{inv.affiliateId.slice(0, 8)}...</TableCell>
                     <TableCell>{formatCurrency(inv.amountCents)}</TableCell>
                     <TableCell className="text-muted-foreground">{formatCurrency(inv.taxCents)}</TableCell>
                     <TableCell className="font-semibold">{formatCurrency(inv.totalCents)}</TableCell>
@@ -274,7 +274,7 @@ export default function InvoicesPage() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Association ID *</Label>
-              <Input value={form.associationId} onChange={e => setForm({...form, associationId: e.target.value})} placeholder="Association ID" />
+              <Input value={form.affiliateId} onChange={e => setForm({...form, affiliateId: e.target.value})} placeholder="Association ID" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -298,7 +298,7 @@ export default function InvoicesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={saving || !form.associationId || !form.amountCents}>
+            <Button onClick={handleCreate} disabled={saving || !form.affiliateId || !form.amountCents}>
               {saving ? 'Creating...' : 'Create Invoice'}
             </Button>
           </DialogFooter>
@@ -320,7 +320,7 @@ export default function InvoicesPage() {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Association</p>
-                  <p className="font-mono mt-1">{viewInvoice.associationId}</p>
+                  <p className="font-mono mt-1">{viewInvoice.affiliateId}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Amount</p>

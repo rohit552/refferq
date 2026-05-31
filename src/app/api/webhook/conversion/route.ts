@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Create conversion record
     const conversion = await db.createConversion({
-      associationId: association.id,
+      affiliateId: association.id,
       eventType: event_type,
       amountCents: amount_cents || 0,
       currency,
@@ -126,13 +126,13 @@ export async function POST(request: NextRequest) {
     const incentiveRules = await db.getIncentiveRules();
     let applicableRule = incentiveRules.find((rule: any) => rule.isDefault);
 
-    const incentiveRate = applicableRule?.value || 15;
+    const commissionRate = applicableRule?.value || 15;
     let incentiveAmount = 0;
 
     if (applicableRule?.type === 'PERCENTAGE' && amount_cents) {
-      incentiveAmount = Math.floor((amount_cents * incentiveRate) / 100);
+      incentiveAmount = Math.floor((amount_cents * commissionRate) / 100);
     } else if (applicableRule?.type === 'FIXED') {
-      incentiveAmount = incentiveRate;
+      incentiveAmount = commissionRate;
     }
 
     // ─── Incentive Hold Period ─────────────────────────────────
@@ -146,10 +146,10 @@ export async function POST(request: NextRequest) {
     const incentive = await prisma.commission.create({
       data: {
         conversionId: conversion.id,
-        associationId: association.id,
+        affiliateId: association.id,
         userId: association.userId,
         amountCents: incentiveAmount,
-        rate: incentiveRate,
+        rate: commissionRate,
         status: 'PENDING',
         maturesAt,
       },

@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
                     // Deduct from association balance
                     await prisma.affiliate.update({
-                        where: { id: incentive.associationId },
+                        where: { id: incentive.affiliateId },
                         data: {
                             balanceCents: { decrement: incentive.amountCents },
                         },
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
 
                     // Create negative balance to offset next payout
                     await prisma.affiliate.update({
-                        where: { id: incentive.associationId },
+                        where: { id: incentive.affiliateId },
                         data: {
                             balanceCents: { decrement: incentive.amountCents },
                         },
@@ -197,7 +197,7 @@ export async function POST(request: NextRequest) {
 
         // ─── Send email notification to affected associations ────────
         try {
-            const affectedAssociationIds = [...new Set(conversions.map(c => c.associationId))];
+            const affectedAssociationIds = [...new Set(conversions.map(c => c.affiliateId))];
             for (const affId of affectedAssociationIds) {
                 const associationUser = await prisma.user.findFirst({
                     where: { affiliate: { id: affId } },

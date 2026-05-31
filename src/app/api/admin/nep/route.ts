@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     // ── NEP landing events (stored as ReferralClick with channel '/nep') ──
     const nepClicks = await prisma.referralClick.findMany({
       where: { metadata: { path: ['channel'], equals: '/nep' } },
-      select: { metadata: true, createdAt: true, referral: { select: { associationId: true } } },
+      select: { metadata: true, createdAt: true, referral: { select: { affiliateId: true } } },
     });
 
     let pageViews = 0;
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       };
     }
     for (const l of schoolLeads) {
-      if (perfMap[l.associationId]) perfMap[l.associationId].leads++;
+      if (perfMap[l.affiliateId]) perfMap[l.affiliateId].leads++;
     }
     const partnerPerformance = Object.values(perfMap)
       .sort((a, b) => b.leads - a.leads)

@@ -28,12 +28,12 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const referralId = searchParams.get('referralId');
-    const associationId = searchParams.get('associationId');
+    const affiliateId = searchParams.get('affiliateId');
 
     // Build where clause
     const where: any = {};
     if (referralId) where.referralId = referralId;
-    if (associationId) where.associationId = associationId;
+    if (affiliateId) where.affiliateId = affiliateId;
 
     const transactions = await (prisma as any).transaction.findMany({
       where,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
           customerEmail: txn.customerEmail,
           amountCents: txn.amountCents,
           incentiveCents: txn.incentiveCents,
-          incentiveRate: txn.incentiveRate,
+          commissionRate: txn.commissionRate,
           status: txn.status,
           description: txn.description,
           invoiceId: txn.invoiceId,
@@ -155,32 +155,32 @@ export async function POST(request: NextRequest) {
 
     // Get partner group incentive rate
     const association = referral.association as any;
-    let incentiveRate = 0.20; // Default 20%
+    let commissionRate = 0.20; // Default 20%
 
     if (association.partnerGroupId) {
       const partnerGroup = await prisma.partnerGroup.findUnique({
         where: { id: association.partnerGroupId }
       });
       if (partnerGroup) {
-        incentiveRate = partnerGroup.incentiveRate;
+        commissionRate = partnerGroup.commissionRate;
       }
     }
 
     // Calculate incentive
     const amountCents = Math.floor(Number(amount) * 100);
-    const incentiveCents = Math.floor(amountCents * incentiveRate);
+    const incentiveCents = Math.floor(amountCents * commissionRate);
 
     // Create transaction
     const transaction = await (prisma as any).transaction.create({
       data: {
         referralId,
-        associationId: referral.associationId,
+        affiliateId: referral.affiliateId,
         customerId: referral.subscriptionId,
         customerName: referral.leadName,
         customerEmail: referral.leadEmail,
         amountCents,
         incentiveCents,
-        incentiveRate,
+        commissionRate,
         status: 'COMPLETED',
         description,
         invoiceId,
@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
     // Also create a incentive record for tracking
     await prisma.conversion.create({
       data: {
-        associationId: referral.associationId,
+        affiliateId: referral.affiliateId,
         referralId: referral.id,
         eventType: 'PURCHASE',
         amountCents,
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
         eventMetadata: {
           transactionId: transaction.id,
           incentiveCents,
-          incentiveRate
+          commissionRate
         }
       }
     });
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
           customerName: referral.leadName,
           amountCents,
           incentiveCents,
-          incentiveRate,
+          commissionRate,
           transactionId: transaction.id
         });
       }

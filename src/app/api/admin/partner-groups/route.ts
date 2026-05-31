@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         id: pg.id,
         name: pg.name,
         description: pg.description,
-        incentiveRate: pg.incentiveRate,
+        commissionRate: pg.commissionRate,
         signupUrl: pg.signupUrl,
         isDefault: pg.isDefault,
         memberCount: countMap.get(pg.id) || 0,
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, incentiveRate, signupUrl, isDefault } = body;
+    const { name, description, commissionRate, signupUrl, isDefault } = body;
 
     // Validation
     if (!name || typeof name !== 'string') {
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!incentiveRate || typeof incentiveRate !== 'number' || incentiveRate <= 0 || incentiveRate > 1) {
+    if (!commissionRate || typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1) {
       return NextResponse.json(
         { error: 'Incentive rate must be a number between 0 and 1 (e.g., 0.20 for 20%)' },
         { status: 400 }
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description: description || null,
-        incentiveRate,
+        commissionRate,
         signupUrl: signupUrl || null,
         isDefault: isDefault || false
       }
@@ -167,7 +167,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, name, description, incentiveRate, signupUrl, isDefault } = body;
+    const { id, name, description, commissionRate, signupUrl, isDefault } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -177,7 +177,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validation
-    if (incentiveRate && (typeof incentiveRate !== 'number' || incentiveRate <= 0 || incentiveRate > 1)) {
+    if (commissionRate && (typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1)) {
       return NextResponse.json(
         { error: 'Incentive rate must be a number between 0 and 1' },
         { status: 400 }
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest) {
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
-        ...(incentiveRate && { incentiveRate }),
+        ...(commissionRate && { commissionRate }),
         ...(signupUrl !== undefined && { signupUrl }),
         ...(isDefault !== undefined && { isDefault })
       }

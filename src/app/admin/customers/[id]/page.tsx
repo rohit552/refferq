@@ -64,7 +64,7 @@ interface Referral {
     referralCode: string;
     partnerGroup: string;
     partnerGroupId: string | null;
-    incentiveRate: number;
+    commissionRate: number;
   };
 }
 
@@ -204,7 +204,7 @@ export default function CustomerDetailPage() {
 
   const cfg = statusConfig[referral.status] || statusConfig.PENDING;
   const StatusIcon = cfg.icon;
-  const estimatedIncentive = Math.round(referral.estimatedValue * referral.affiliate.incentiveRate);
+  const estimatedIncentive = Math.round(referral.estimatedValue * referral.affiliate.commissionRate);
 
   return (
     <div className="space-y-6">
@@ -405,7 +405,7 @@ export default function CustomerDetailPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Incentive Rate</span>
-                <span className="font-semibold">{(referral.affiliate.incentiveRate * 100).toFixed(0)}%</span>
+                <span className="font-semibold">{(referral.affiliate.commissionRate * 100).toFixed(0)}%</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">

@@ -66,7 +66,7 @@ interface Partner {
   email: string;
   referralCode: string;
   partnerGroup?: string;
-  incentiveRate: number;
+  commissionRate: number;
   status: string;
   totalClicks: number;
   totalLeads: number;
@@ -148,7 +148,7 @@ export default function PartnerDetailPage() {
             email: association.email,
             referralCode: association.referralCode,
             partnerGroup: association.partnerGroup,
-            incentiveRate: association.incentiveRate || 0.20,
+            commissionRate: association.commissionRate || 0.20,
             status: association.status,
             totalClicks: association.totalClicks || 0,
             totalLeads: association.totalLeads || 0,
@@ -170,7 +170,7 @@ export default function PartnerDetailPage() {
       if (res.ok) {
         const data = await res.json();
         const partnerCustomers = data.referrals
-          ?.filter((r: any) => r.associationId === partnerId)
+          ?.filter((r: any) => r.affiliateId === partnerId)
           .map((r: any) => ({
             id: r.id,
             name: r.leadName,
@@ -188,7 +188,7 @@ export default function PartnerDetailPage() {
 
   const fetchIncentives = async () => {
     try {
-      const res = await fetch(`/api/admin/transactions?associationId=${partnerId}`);
+      const res = await fetch(`/api/admin/transactions?affiliateId=${partnerId}`);
       if (res.ok) {
         const data = await res.json();
         const comms = data.transactions?.map((txn: any) => ({
@@ -196,7 +196,7 @@ export default function PartnerDetailPage() {
           transactionId: txn.id,
           customerName: txn.customerName,
           amountCents: txn.incentiveCents,
-          rate: txn.incentiveRate,
+          rate: txn.commissionRate,
           status: txn.status === 'COMPLETED' ? 'PENDING' : txn.status,
           createdAt: txn.createdAt,
           paidAt: txn.paidAt,
@@ -210,7 +210,7 @@ export default function PartnerDetailPage() {
 
   const fetchPayouts = async () => {
     try {
-      const res = await fetch(`/api/admin/payouts?associationId=${partnerId}`);
+      const res = await fetch(`/api/admin/payouts?affiliateId=${partnerId}`);
       if (res.ok) {
         const data = await res.json();
         setPayouts(data.payouts || []);
@@ -230,7 +230,7 @@ export default function PartnerDetailPage() {
       const res = await fetch('/api/admin/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ associationId: partnerId, incentiveIds: selectedIncentives }),
+        body: JSON.stringify({ affiliateId: partnerId, incentiveIds: selectedIncentives }),
       });
       if (res.ok) {
         alert('Payout created successfully!');
@@ -369,7 +369,7 @@ export default function PartnerDetailPage() {
                   </Badge>
                 )}
                 <Badge variant="outline" className="text-xs">
-                  {(partner.incentiveRate * 100).toFixed(0)}% incentive
+                  {(partner.commissionRate * 100).toFixed(0)}% incentive
                 </Badge>
               </div>
             </div>
@@ -463,7 +463,7 @@ export default function PartnerDetailPage() {
                   { label: 'Email', value: partner.email },
                   { label: 'Referral Code', value: partner.referralCode, mono: true },
                   { label: 'Partner Group', value: partner.partnerGroup || 'Default' },
-                  { label: 'Incentive Rate', value: `${(partner.incentiveRate * 100).toFixed(0)}%` },
+                  { label: 'Incentive Rate', value: `${(partner.commissionRate * 100).toFixed(0)}%` },
                   { label: 'Partner Since', value: formatDate(partner.createdAt) },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between">
