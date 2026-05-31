@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
                 },
             },
             include: {
-                incentives: true,
+                commissions: true,
                 affiliate: true,
             },
             orderBy: { createdAt: 'desc' },
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
         const results: Array<{ incentiveId: string; action: string; amountCents: number }> = [];
 
         for (const conversion of conversions) {
-            for (const incentive of conversion.incentives) {
+            for (const incentive of conversion.commissions) {
                 // Skip already cancelled/clawedback incentives
                 if (incentive.status === 'CANCELLED' || incentive.status === 'CLAWBACK') {
                     results.push({ incentiveId: incentive.id, action: 'already_cancelled', amountCents: 0 });

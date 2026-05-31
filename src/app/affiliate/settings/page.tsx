@@ -63,8 +63,8 @@ export default function SettingsPage() {
       const res = await fetch('/api/association/profile');
       const data = await res.json();
       if (data.success) {
-        const pd = data.association?.payoutDetails || {};
-        setReferralCode(data.association?.referralCode || '');
+        const pd = data.affiliate?.payoutDetails || {};
+        setReferralCode(data.affiliate?.referralCode || '');
         setSettingsForm({
           name: data.user?.name || user?.name || '',
           company: pd.company || '',

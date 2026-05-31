@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       success: true,
       referrals: referrals.map(referral => {
         const metadata = referral.metadata as any;
-        const association = referral.association as any;
+        const association = referral.affiliate as any;
         const pgId = association.partnerGroupId;
         const pgData = pgId ? partnerGroupMap.get(pgId) : null;
         

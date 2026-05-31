@@ -107,15 +107,15 @@ export default function AssociationDashboard() {
 
       if (data.success) {
         setStats({
-          totalEarnings: data.association?.balanceCents || 0,
+          totalEarnings: data.affiliate?.balanceCents || 0,
           pendingEarnings: data.stats?.pendingEarnings || 0,
           totalClicks: data.stats?.totalClicks || 0,
           totalLeads: data.referrals?.length || 0,
           totalReferredCustomers: data.referrals?.filter((r: any) => r.status === 'APPROVED').length || 0,
           totalConversions: data.stats?.totalConversions || 0,
           conversionRate: data.stats?.conversionRate || 0,
-          referralLink: `${window.location.origin}/r/${data.association?.referralCode}`,
-          referralCode: data.association?.referralCode || '',
+          referralLink: `${window.location.origin}/r/${data.affiliate?.referralCode}`,
+          referralCode: data.affiliate?.referralCode || '',
           currencySymbol: data.currencySymbol || '₹',
           nextMaturesAt: data.stats?.nextMaturesAt || null,
         });

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         referrals: {
           select: { id: true, status: true, createdAt: true },
         },
-        incentives: {
+        commissions: {
           select: { id: true, amountCents: true, status: true, createdAt: true },
         },
       },
@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
       cohort.associationCount++;
       cohort.totalReferrals += association.referrals.length;
       cohort.approvedReferrals += association.referrals.filter((r) => r.status === 'APPROVED').length;
-      cohort.totalIncentives += association.incentives.length;
-      cohort.totalEarnings += association.incentives.reduce((sum, c) => sum + c.amountCents, 0);
+      cohort.totalIncentives += association.commissions.length;
+      cohort.totalEarnings += association.commissions.reduce((sum, c) => sum + c.amountCents, 0);
 
       // Calculate retention: which periods after joining did this association have activity?
       for (const referral of association.referrals) {

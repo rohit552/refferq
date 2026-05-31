@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
           portalSubdomain: 'bsbot.tolt.io',
           minimumPayoutThreshold: 0,
           payoutTerm: 'NET-15',
-          incentiveHoldDays: 30
+          commissionHoldDays: 30
         }
       });
     }

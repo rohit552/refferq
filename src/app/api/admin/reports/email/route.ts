@@ -126,7 +126,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
       include: {
         user: true,
         referrals: { where: dateFilter },
-        incentives: { where: dateFilter },
+        commissions: { where: dateFilter },
       },
     });
     return {
@@ -137,7 +137,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
         referralCode: a.referralCode,
         totalReferrals: a.referrals.length,
         approved: a.referrals.filter((r) => r.status === 'APPROVED').length,
-        totalEarningsCents: a.incentives.reduce((s, c) => s + c.amountCents, 0),
+        totalEarningsCents: a.commissions.reduce((s, c) => s + c.amountCents, 0),
         joinedDate: a.createdAt.toISOString().slice(0, 10),
       })),
     };

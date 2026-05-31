@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
           referrals: {
             where: dateFilter
           },
-          incentives: {
+          commissions: {
             where: dateFilter
           }
         }
@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
           totalReferrals: association.referrals.length,
           approvedReferrals: association.referrals.filter(r => r.status === 'APPROVED').length,
           pendingReferrals: association.referrals.filter(r => r.status === 'PENDING').length,
-          totalIncentives: association.incentives.length,
-          totalEarnings: association.incentives.reduce((sum, c) => sum + c.amountCents, 0),
-          paidEarnings: association.incentives.filter(c => c.paidAt !== null).reduce((sum, c) => sum + c.amountCents, 0),
+          totalIncentives: association.commissions.length,
+          totalEarnings: association.commissions.reduce((sum, c) => sum + c.amountCents, 0),
+          paidEarnings: association.commissions.filter(c => c.paidAt !== null).reduce((sum, c) => sum + c.amountCents, 0),
           balance: association.balanceCents,
           joinedDate: association.createdAt
         }))
@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
         where: dateFilter,
         include: {
           user: true,
-          incentives: {
+          commissions: {
             include: {
               affiliate: {
                 include: {

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!user.association) {
+    if (!user.affiliate) {
       return NextResponse.json(
         { error: 'Association profile not found' },
         { status: 404 }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!user.association) {
+    if (!user.affiliate) {
       return NextResponse.json(
         { error: 'Association profile not found' },
         { status: 404 }

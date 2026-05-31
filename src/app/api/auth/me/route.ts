@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
-        hasAssociation: !!user.association,
+        hasAssociation: !!user.affiliate,
         profilePicture: user.profilePicture,
       }
     });

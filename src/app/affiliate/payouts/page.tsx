@@ -63,7 +63,7 @@ export default function PayoutsPage() {
       const profileData = await profileRes.json();
       if (payData.success) setPayouts(payData.payouts || []);
       if (profileData.success) {
-        setBalance(profileData.association?.balanceCents || 0);
+        setBalance(profileData.affiliate?.balanceCents || 0);
         setCurrencySymbol(profileData.currencySymbol || '₹');
       }
     } catch (error) {

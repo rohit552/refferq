@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const association = user.association as any;
+    const association = user.affiliate as any;
     if (!association) {
       return NextResponse.json(
         { error: 'Association profile not found' },
@@ -180,7 +180,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update association payout details if provided
-    if (user.association) {
+    if (user.affiliate) {
       const payoutDetails: any = {};
 
       if (company) payoutDetails.company = company.trim();

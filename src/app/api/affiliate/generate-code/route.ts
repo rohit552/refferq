@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let association = user.association;
+    let association = user.affiliate;
 
     // If association record doesn't exist, create it
     if (!association) {

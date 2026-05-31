@@ -293,7 +293,7 @@ export class DatabaseService {
     userId: string;
     affiliateId: string;
     amountCents: number;
-    incentiveCount: number;
+    commissionCount: number;
     method?: string;
     notes?: string;
     createdBy: string;
@@ -303,7 +303,7 @@ export class DatabaseService {
         userId: payoutData.userId,
         affiliateId: payoutData.affiliateId,
         amountCents: payoutData.amountCents,
-        incentiveCount: payoutData.incentiveCount,
+        commissionCount: payoutData.commissionCount,
         method: payoutData.method || 'Bank Transfer',
         notes: payoutData.notes,
         status: 'PENDING',

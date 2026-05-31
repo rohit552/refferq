@@ -86,9 +86,9 @@ export async function POST(req: NextRequest) {
           leadEmail: trackingEmail,
           status: 'PENDING',
           metadata: {
+            ...attribution,
             source: 'nep_landing',
             channel: '/nep',
-            ...attribution,
           },
         },
       });
@@ -112,11 +112,11 @@ export async function POST(req: NextRequest) {
             body.schoolName ? ` — ${body.schoolName}` : ''
           }`,
           metadata: {
+            ...attribution,
             source: 'nep_landing',
             event_type: eventType,
             school_name: body.schoolName || null,
             school_board: body.schoolBoard || null,
-            ...attribution,
           },
         },
       });

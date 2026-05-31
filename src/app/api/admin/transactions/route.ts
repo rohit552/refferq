@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       transactions: transactions.map((txn: any) => {
-        const association = txn.association as any;
+        const association = txn.affiliate as any;
         return {
           id: txn.id,
           customerId: txn.customerId,
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get partner group incentive rate
-    const association = referral.association as any;
+    const association = referral.affiliate as any;
     let commissionRate = 0.20; // Default 20%
 
     if (association.partnerGroupId) {
