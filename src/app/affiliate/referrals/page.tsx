@@ -204,12 +204,12 @@ export default function ReferralsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Referrals</h1>
-          <p className="text-muted-foreground">Track and manage your referral submissions</p>
+          <h1 className="text-2xl font-bold tracking-tight">School Leads</h1>
+          <p className="text-muted-foreground">Track and manage your school lead submissions</p>
         </div>
         <Button onClick={() => setShowSubmitModal(true)} className="gap-1.5">
           <Plus className="h-4 w-4" />
-          Submit Lead
+          Submit School Lead
         </Button>
       </div>
 
@@ -319,14 +319,14 @@ export default function ReferralsPage() {
       <Dialog open={showSubmitModal} onOpenChange={setShowSubmitModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Submit Lead</DialogTitle>
+            <DialogTitle>Submit School Lead</DialogTitle>
             <DialogDescription>
-              Enter the details below to submit a lead.
+              Enter the school details below to submit a lead for incentives.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmitLead} className="space-y-4">
             <div className="space-y-2">
-              <Label>Lead&apos;s Name *</Label>
+              <Label>School Name *</Label>
               <Input
                 required
                 value={submitForm.leadName}
