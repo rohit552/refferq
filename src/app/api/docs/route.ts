@@ -5,9 +5,9 @@ export async function GET(request: NextRequest) {
     const spec = {
         openapi: '3.0.3',
         info: {
-            title: 'Refferq API',
+            title: 'SkillHeed NEP Partner API',
             version: '1.1.0',
-            description: 'Open-source affiliate marketing platform API. Manage affiliates, referrals, conversions, commissions, and payouts.',
+            description: 'SkillHeed NEP Partner platform API. Manage partners, referrals, school onboarding, conversions, commissions, and payouts.',
             contact: { email: 'hello@refferq.com' },
             license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
         },

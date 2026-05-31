@@ -48,10 +48,13 @@ import {
   FileText,
   UsersRound,
   Layers,
+  School,
 } from 'lucide-react';
+import { BRAND } from '@/lib/brand';
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
+  { title: 'NEP Analytics', url: '/admin/nep', icon: School },
   { title: 'Partners', url: '/admin/partners', icon: Users },
   { title: 'Customers', url: '/admin/customers', icon: UserCheck },
   { title: 'Payouts', url: '/admin/payouts', icon: Wallet },
@@ -91,10 +94,10 @@ function AdminSidebar() {
           <SidebarMenuItem>
             <div className="flex items-center gap-3 px-2 py-1.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-                <span className="text-lg">🎯</span>
+                <School className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold">Refferq</span>
+                <span className="text-sm font-bold">{BRAND.shortName}</span>
                 <span className="text-xs text-muted-foreground">Admin Dashboard</span>
               </div>
             </div>
