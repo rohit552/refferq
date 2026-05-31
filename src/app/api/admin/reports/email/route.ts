@@ -121,8 +121,8 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     ? { createdAt: { gte: new Date(startDate), lte: new Date(endDate) } }
     : {};
 
-  if (reportType === 'affiliates') {
-    const affiliates = await prisma.affiliate.findMany({
+  if (reportType === 'associations') {
+    const associations = await prisma.affiliate.findMany({
       include: {
         user: true,
         referrals: { where: dateFilter },
@@ -130,8 +130,8 @@ async function generateReportData(reportType: string, startDate?: string, endDat
       },
     });
     return {
-      type: 'Affiliate Performance Report',
-      data: affiliates.map((a) => ({
+      type: 'Association Performance Report',
+      data: associations.map((a) => ({
         name: a.user.name,
         email: a.user.email,
         referralCode: a.referralCode,
@@ -161,15 +161,15 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     };
   }
 
-  if (reportType === 'commissions') {
-    const commissions = await prisma.commission.findMany({
+  if (reportType === 'incentives') {
+    const incentives = await prisma.commission.findMany({
       where: dateFilter,
       include: { affiliate: { include: { user: true } }, conversion: true },
       orderBy: { createdAt: 'desc' },
     });
     return {
-      type: 'Commissions Report',
-      data: commissions.map((c) => ({
+      type: 'Incentives Report',
+      data: incentives.map((c) => ({
         affiliate: c.affiliate.user.name,
         amountCents: c.amountCents,
         rate: c.rate,
@@ -198,10 +198,10 @@ async function generateReportData(reportType: string, startDate?: string, endDat
   }
 
   // Default: summary
-  const totalAffiliates = await prisma.affiliate.count();
+  const totalAssociations = await prisma.affiliate.count();
   const totalReferrals = await prisma.referral.count({ where: dateFilter });
   const approvedReferrals = await prisma.referral.count({ where: { ...dateFilter, status: 'APPROVED' } });
-  const totalCommissions = await prisma.commission.aggregate({
+  const totalIncentives = await prisma.commission.aggregate({
     where: dateFilter,
     _sum: { amountCents: true },
     _count: true,
@@ -215,12 +215,12 @@ async function generateReportData(reportType: string, startDate?: string, endDat
   return {
     type: 'Summary Report',
     summary: {
-      totalAffiliates,
+      totalAssociations,
       totalReferrals,
       approvedReferrals,
       conversionRate: totalReferrals > 0 ? ((approvedReferrals / totalReferrals) * 100).toFixed(2) + '%' : '0%',
-      totalCommissions: totalCommissions._count,
-      totalCommissionAmountCents: totalCommissions._sum.amountCents || 0,
+      totalIncentives: totalIncentives._count,
+      totalIncentiveAmountCents: totalIncentives._sum.amountCents || 0,
       totalPayouts: totalPayouts._count,
       totalPayoutAmountCents: totalPayouts._sum.amountCents || 0,
     },

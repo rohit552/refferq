@@ -51,11 +51,11 @@ export default function NotificationCenter() {
         return '✅';
       case 'referral_rejected':
         return '❌';
-      case 'commission_approved':
+      case 'incentive_approved':
         return '💰';
       case 'payout_processed':
         return '💳';
-      case 'affiliate_registered':
+      case 'association_registered':
         return '👤';
       default:
         return '📢';

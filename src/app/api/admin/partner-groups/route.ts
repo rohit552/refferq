@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get affiliate counts for each partner group
-    const affiliateCounts = await Promise.all(
+    // Get association counts for each partner group
+    const associationCounts = await Promise.all(
       partnerGroups.map(async (pg) => {
         const count = await prisma.affiliate.count({
           where: { partnerGroupId: pg.id } as any
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       })
     );
     
-    const countMap = new Map(affiliateCounts.map(ac => [ac.id, ac.count]));
+    const countMap = new Map(associationCounts.map(ac => [ac.id, ac.count]));
 
     return NextResponse.json({
       success: true,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     if (!commissionRate || typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1) {
       return NextResponse.json(
-        { error: 'Commission rate must be a number between 0 and 1 (e.g., 0.20 for 20%)' },
+        { error: 'Incentive rate must be a number between 0 and 1 (e.g., 0.20 for 20%)' },
         { status: 400 }
       );
     }
@@ -179,7 +179,7 @@ export async function PUT(request: NextRequest) {
     // Validation
     if (commissionRate && (typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1)) {
       return NextResponse.json(
-        { error: 'Commission rate must be a number between 0 and 1' },
+        { error: 'Incentive rate must be a number between 0 and 1' },
         { status: 400 }
       );
     }
@@ -267,7 +267,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    // Count affiliates in this group
+    // Count associations in this group
     const memberCount = await prisma.affiliate.count({
       where: { partnerGroupId: id } as any
     });

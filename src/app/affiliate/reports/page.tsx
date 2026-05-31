@@ -71,14 +71,14 @@ export default function ReportsPage() {
   const fetchReportData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/affiliate/profile');
+      const res = await fetch('/api/association/profile');
       const data = await res.json();
       if (data.success) {
         const referrals = data.referrals || [];
-        const commissions = data.commissions || [];
+        const incentives = data.incentives || [];
         const conversions = data.conversions || [];
 
-        const totalEarnings = commissions
+        const totalEarnings = incentives
           .filter((c: any) => c.status === 'PAID')
           .reduce((sum: number, c: any) => sum + c.amountCents, 0);
 
@@ -117,7 +117,7 @@ export default function ReportsPage() {
           if (months[key]) months[key].conversions++;
         });
 
-        commissions
+        incentives
           .filter((c: any) => c.status === 'PAID')
           .forEach((c: any) => {
             const d = new Date(c.createdAt);
@@ -168,7 +168,7 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">Analyze your affiliate performance</p>
+          <p className="text-muted-foreground">Analyze your association performance</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={period} onValueChange={setPeriod}>

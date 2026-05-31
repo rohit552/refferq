@@ -22,19 +22,19 @@ export async function GET(request: NextRequest) {
 
     if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
     if (!user.affiliate) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
 
-    // Get payouts for this affiliate
+    // Get payouts for this association
     const payouts = await prisma.payout.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       }))
     });
   } catch (error) {
-    console.error('Affiliate payouts API error:', error);
+    console.error('Association payouts API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch payouts' },
       { status: 500 }

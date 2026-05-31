@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Find affiliate by referral code
-    const affiliate = await prisma.affiliate.findUnique({
+    // Find association by referral code
+    const association = await prisma.affiliate.findUnique({
       where: { referralCode },
       include: {
         user: {
@@ -55,23 +55,23 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!affiliate) {
+    if (!association) {
       return NextResponse.json(
         { success: false, error: 'Invalid referral code' },
         { status: 404 }
       );
     }
 
-    if (affiliate.user.status !== 'ACTIVE') {
+    if (association.user.status !== 'ACTIVE') {
       return NextResponse.json(
-        { success: false, error: 'Affiliate is not active' },
+        { success: false, error: 'Association is not active' },
         { status: 403 }
       );
     }
 
     // Log the referral click
     console.log('✅ Referral click tracked:', {
-      affiliateId: affiliate.id,
+      affiliateId: association.id,
       referralCode,
       url,
       referrer,
@@ -85,8 +85,8 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Referral tracked successfully',
       affiliate: {
-        name: affiliate.user.name,
-        code: affiliate.referralCode,
+        name: association.user.name,
+        code: association.referralCode,
       },
     });
   } catch (error) {

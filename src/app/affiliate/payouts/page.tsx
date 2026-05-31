@@ -56,8 +56,8 @@ export default function PayoutsPage() {
     try {
       setLoading(true);
       const [payRes, profileRes] = await Promise.all([
-        fetch('/api/affiliate/payouts'),
-        fetch('/api/affiliate/profile'),
+        fetch('/api/association/payouts'),
+        fetch('/api/association/profile'),
       ]);
       const payData = await payRes.json();
       const profileData = await profileRes.json();
@@ -224,7 +224,7 @@ export default function PayoutsPage() {
               <Wallet className="h-12 w-12 text-muted-foreground/40 mb-3" />
               <p className="font-medium">No payouts yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Start referring customers to earn commissions
+                Start referring customers to earn incentives
               </p>
             </div>
           ) : (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET: List active resources for affiliates
+// GET: List active resources for associations
 export async function GET(request: NextRequest) {
   try {
     const userId = request.headers.get('x-user-id')!;
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error('Affiliate resources API error:', error);
+    console.error('Association resources API error:', error);
     return NextResponse.json({ error: 'Failed to fetch resources' }, { status: 500 });
   }
 }

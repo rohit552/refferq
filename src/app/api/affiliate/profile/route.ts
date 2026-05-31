@@ -22,46 +22,46 @@ export async function GET(request: NextRequest) {
 
     if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    const affiliate = user.affiliate as any;
-    if (!affiliate) {
+    const association = user.affiliate as any;
+    if (!association) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
 
-    // Get affiliate statistics
+    // Get association statistics
     const referrals = await prisma.referral.findMany({
-      where: { affiliateId: affiliate.id },
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     const conversions = await prisma.conversion.findMany({
-      where: { affiliateId: affiliate.id },
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    const commissions = await prisma.commission.findMany({
-      where: { affiliateId: affiliate.id },
+    const incentives = await prisma.commission.findMany({
+      where: { affiliateId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     // Calculate stats
     // Available earnings = COMPLETED (PAID) + APPROVED but not yet paid
-    const availableEarnings = commissions
+    const availableEarnings = incentives
       .filter(c => c.status === 'PAID' || c.status === 'APPROVED')
       .reduce((sum, c) => sum + c.amountCents, 0);
 
-    const pendingCommissionsList = commissions.filter(c => c.status === 'PENDING');
-    const pendingEarningsCents = pendingCommissionsList.reduce((sum, c) => sum + c.amountCents, 0);
+    const pendingIncentivesList = incentives.filter(c => c.status === 'PENDING');
+    const pendingEarningsCents = pendingIncentivesList.reduce((sum, c) => sum + c.amountCents, 0);
 
-    const totalCommissions = commissions.length;
-    const pendingCommissionsCount = pendingCommissionsList.length;
+    const totalIncentives = incentives.length;
+    const pendingIncentivesCount = pendingIncentivesList.length;
     const totalConversions = conversions.length;
     const totalClicks = referrals.reduce((sum, r) => {
       const metadata = r.metadata as any;
@@ -69,18 +69,18 @@ export async function GET(request: NextRequest) {
     }, 0);
     const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
-    // Next maturation date for pending commissions
-    const nextMaturesAt = pendingCommissionsList
+    // Next maturation date for pending incentives
+    const nextMaturesAt = pendingIncentivesList
       .filter(c => (c as any).maturesAt)
       .sort((a, b) => ((a as any).maturesAt.getTime() - (b as any).maturesAt.getTime()))[0]?.maturesAt || null;
 
     const stats = {
       totalEarnings: availableEarnings,
       pendingEarnings: pendingEarningsCents,
-      pendingEarningsList: pendingCommissionsList.length,
+      pendingEarningsList: pendingIncentivesList.length,
       nextMaturesAt,
-      totalCommissions,
-      pendingCommissions: pendingCommissionsCount,
+      totalIncentives,
+      pendingIncentives: pendingIncentivesCount,
       totalConversions,
       totalClicks,
       conversionRate
@@ -108,17 +108,17 @@ export async function GET(request: NextRequest) {
         email: user.email,
         role: user.role
       },
-      affiliate: affiliate,
+      affiliate: association,
       stats,
       referrals: mappedReferrals,
       conversions,
-      commissions,
+      incentives,
       currencySymbol,
     });
   } catch (error) {
-    console.error('Affiliate profile API error:', error);
+    console.error('Association profile API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch affiliate profile' },
+      { error: 'Failed to fetch association profile' },
       { status: 500 }
     );
   }
@@ -145,7 +145,7 @@ export async function PUT(request: NextRequest) {
 
     if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
@@ -179,7 +179,7 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    // Update affiliate payout details if provided
+    // Update association payout details if provided
     if (user.affiliate) {
       const payoutDetails: any = {};
 
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest) {
       message: 'Profile updated successfully',
     });
   } catch (error) {
-    console.error('Affiliate profile update API error:', error);
+    console.error('Association profile update API error:', error);
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }

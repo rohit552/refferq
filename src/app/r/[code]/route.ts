@@ -55,13 +55,13 @@ export async function GET(
       ? rawTarget
       : websiteUrl || appUrl; // Fallback to program website or app URL
 
-    // Find affiliate by referral code using Prisma
-    const affiliate = await prisma.affiliate.findUnique({
+    // Find association by referral code using Prisma
+    const association = await prisma.affiliate.findUnique({
       where: { referralCode },
       include: { user: true }
     });
 
-    if (!affiliate) {
+    if (!association) {
       // Invalid referral code - redirect to default URL
       return NextResponse.redirect(targetUrl);
     }
@@ -79,7 +79,7 @@ export async function GET(
     const fraudResult = await checkFraud({
       ipAddress: cleanIP,
       userAgent,
-      affiliateId: affiliate.id,
+      affiliateId: association.id,
     });
 
     // Generate attribution key
@@ -88,7 +88,7 @@ export async function GET(
     // Find or create a referral record for click tracking
     let referral = await prisma.referral.findFirst({
       where: {
-        affiliateId: affiliate.id,
+        affiliateId: association.id,
         leadEmail: `click-${attributionKey}@tracking.internal`,
       }
     });
@@ -96,7 +96,7 @@ export async function GET(
     if (!referral) {
       referral = await prisma.referral.create({
         data: {
-          affiliateId: affiliate.id,
+          affiliateId: association.id,
           leadName: 'Click Visitor',
           leadEmail: `click-${attributionKey}@tracking.internal`,
           status: 'PENDING',
@@ -150,10 +150,10 @@ export async function GET(
     const cookieExpiry = new Date();
     cookieExpiry.setDate(cookieExpiry.getDate() + 30);
 
-    response.cookies.set('affiliate_attribution', JSON.stringify({
+    response.cookies.set('association_attribution', JSON.stringify({
       referral_code: referralCode,
       attribution_key: attributionKey,
-      affiliate_id: affiliate.id,
+      association_id: association.id,
       timestamp: new Date().toISOString(),
     }), {
       expires: cookieExpiry,

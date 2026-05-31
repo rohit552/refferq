@@ -1,7 +1,7 @@
-// Real-time notification system for the affiliate platform
+// Real-time notification system for the association platform
 export interface NotificationData {
   id: string;
-  type: 'referral_submitted' | 'referral_approved' | 'referral_rejected' | 'commission_approved' | 'payout_processed' | 'affiliate_registered';
+  type: 'referral_submitted' | 'referral_approved' | 'referral_rejected' | 'incentive_approved' | 'payout_processed' | 'association_registered';
   title: string;
   message: string;
   timestamp: string;
@@ -11,7 +11,7 @@ export interface NotificationData {
 }
 
 class NotificationService {
-  private readonly STORAGE_KEY = 'affiliate_platform_notifications';
+  private readonly STORAGE_KEY = 'association_platform_notifications';
 
   private generateId(): string {
     return `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -80,24 +80,24 @@ class NotificationService {
   }
 
   // Admin notifications
-  async notifyReferralSubmitted(referralData: { affiliateName: string; leadName: string; company?: string }, adminIds: string[]): Promise<void> {
+  async notifyReferralSubmitted(referralData: { associationName: string; leadName: string; company?: string }, adminIds: string[]): Promise<void> {
     for (const adminId of adminIds) {
       await this.createNotification({
         type: 'referral_submitted',
         title: 'New Referral Submitted',
-        message: `${referralData.affiliateName} submitted a referral for ${referralData.leadName}${referralData.company ? ` from ${referralData.company}` : ''}`,
+        message: `${referralData.associationName} submitted a referral for ${referralData.leadName}${referralData.company ? ` from ${referralData.company}` : ''}`,
         userId: adminId,
         metadata: referralData,
       });
     }
   }
 
-  // Affiliate notifications
-  async notifyReferralApproved(affiliateId: string, referralData: { leadName: string; commissionAmount: number }): Promise<void> {
+  // Association notifications
+  async notifyReferralApproved(affiliateId: string, referralData: { leadName: string; incentiveAmount: number }): Promise<void> {
     await this.createNotification({
       type: 'referral_approved',
       title: 'Referral Approved!',
-      message: `Your referral for ${referralData.leadName} has been approved. Commission: $${(referralData.commissionAmount / 100).toFixed(2)}`,
+      message: `Your referral for ${referralData.leadName} has been approved. Incentive: $${(referralData.incentiveAmount / 100).toFixed(2)}`,
       userId: affiliateId,
       metadata: referralData,
     });
@@ -113,13 +113,13 @@ class NotificationService {
     });
   }
 
-  async notifyCommissionApproved(affiliateId: string, commissionData: { amount: number; referralName: string }): Promise<void> {
+  async notifyIncentiveApproved(affiliateId: string, incentiveData: { amount: number; referralName: string }): Promise<void> {
     await this.createNotification({
-      type: 'commission_approved',
-      title: 'Commission Approved!',
-      message: `Commission of $${(commissionData.amount / 100).toFixed(2)} for ${commissionData.referralName} has been approved`,
+      type: 'incentive_approved',
+      title: 'Incentive Approved!',
+      message: `Incentive of $${(incentiveData.amount / 100).toFixed(2)} for ${incentiveData.referralName} has been approved`,
       userId: affiliateId,
-      metadata: commissionData,
+      metadata: incentiveData,
     });
   }
 
@@ -134,14 +134,14 @@ class NotificationService {
   }
 
   // System notifications
-  async notifyAffiliateRegistered(adminIds: string[], affiliateData: { name: string; email: string }): Promise<void> {
+  async notifyAssociationRegistered(adminIds: string[], associationData: { name: string; email: string }): Promise<void> {
     for (const adminId of adminIds) {
       await this.createNotification({
-        type: 'affiliate_registered',
-        title: 'New Affiliate Registration',
-        message: `${affiliateData.name} (${affiliateData.email}) has registered as an affiliate`,
+        type: 'association_registered',
+        title: 'New Association Registration',
+        message: `${associationData.name} (${associationData.email}) has registered as an association`,
         userId: adminId,
-        metadata: affiliateData,
+        metadata: associationData,
       });
     }
   }

@@ -51,7 +51,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface AffiliateStats {
+interface AssociationStats {
   totalEarnings: number;
   pendingEarnings: number;
   totalClicks: number;
@@ -75,9 +75,9 @@ interface Referral {
   createdAt: string;
 }
 
-export default function AffiliateDashboard() {
+export default function AssociationDashboard() {
   const { user, loading: authLoading } = useAuth();
-  const [stats, setStats] = useState<AffiliateStats | null>(null);
+  const [stats, setStats] = useState<AssociationStats | null>(null);
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [currencySymbol, setCurrencySymbol] = useState('₹');
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ export default function AffiliateDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/affiliate/profile');
+      const response = await fetch('/api/association/profile');
       const data = await response.json();
 
       if (data.success) {
@@ -134,7 +134,7 @@ export default function AffiliateDashboard() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch('/api/affiliate/referrals', {
+      const response = await fetch('/api/association/referrals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -163,7 +163,7 @@ export default function AffiliateDashboard() {
 
   const handleGenerateCode = async () => {
     try {
-      const response = await fetch('/api/affiliate/generate-code', { method: 'POST' });
+      const response = await fetch('/api/association/generate-code', { method: 'POST' });
       const data = await response.json();
       if (data.success) {
         window.location.reload();
@@ -229,7 +229,7 @@ export default function AffiliateDashboard() {
         </Alert>
       )}
 
-      {/* Commission Banner */}
+      {/* Incentive Banner */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -243,7 +243,7 @@ export default function AffiliateDashboard() {
                 <span className="text-2xl font-bold">{currencySymbol}</span>
               </div>
               <div>
-                <p className="text-sm text-white/90 font-medium tracking-wide">Earn 20% commission on all paid customers</p>
+                <p className="text-sm text-white/90 font-medium tracking-wide">Earn 20% incentive on all paid customers</p>
                 <p className="text-xl font-bold mt-1 tracking-tight">Start referring today and grow your wealth!</p>
               </div>
             </div>
@@ -329,7 +329,7 @@ export default function AffiliateDashboard() {
               </div>
               <p className="font-medium">No referral code found</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Generate your referral code to start earning commissions
+                Generate your referral code to start earning incentives
               </p>
               <Button className="mt-4" onClick={handleGenerateCode}>
                 Generate Referral Code
@@ -377,7 +377,7 @@ export default function AffiliateDashboard() {
           </div>
           {referrals.length > 5 && (
             <Button variant="ghost" size="sm" asChild>
-              <a href="/affiliate/referrals" className="gap-1">
+              <a href="/association/referrals" className="gap-1">
                 View All <ArrowRight className="h-3.5 w-3.5" />
               </a>
             </Button>
@@ -417,7 +417,7 @@ export default function AffiliateDashboard() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/affiliate/referrals'}>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/association/referrals'}>
           <CardContent className="p-5 flex items-center gap-3">
             <Users className="h-5 w-5 text-blue-600" />
             <div>
@@ -427,7 +427,7 @@ export default function AffiliateDashboard() {
             <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground" />
           </CardContent>
         </Card>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/affiliate/reports'}>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/association/reports'}>
           <CardContent className="p-5 flex items-center gap-3">
             <TrendingUp className="h-5 w-5 text-emerald-600" />
             <div>
@@ -437,7 +437,7 @@ export default function AffiliateDashboard() {
             <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground" />
           </CardContent>
         </Card>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/affiliate/resources'}>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = '/association/resources'}>
           <CardContent className="p-5 flex items-center gap-3">
             <Target className="h-5 w-5 text-violet-600" />
             <div>

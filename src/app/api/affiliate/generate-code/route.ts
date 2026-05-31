@@ -9,7 +9,7 @@ function generateReferralCode(name: string): string {
 }
 
 /**
- * POST /api/affiliate/generate-code - Generate or regenerate referral code
+ * POST /api/association/generate-code - Generate or regenerate referral code
  */
 export async function POST(request: NextRequest) {
   try {
@@ -32,18 +32,18 @@ export async function POST(request: NextRequest) {
 
     if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
-        { success: false, error: 'Access denied. Affiliate role required.' },
+        { success: false, error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    let affiliate = user.affiliate;
+    let association = user.affiliate;
 
-    // If affiliate record doesn't exist, create it
-    if (!affiliate) {
+    // If association record doesn't exist, create it
+    if (!association) {
       const referralCode = generateReferralCode(user.name);
       
-      affiliate = await prisma.affiliate.create({
+      association = await prisma.affiliate.create({
         data: {
           userId: user.id,
           referralCode,
@@ -54,32 +54,32 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Affiliate profile created with referral code',
-        affiliate,
+        message: 'Association profile created with referral code',
+        association,
       });
     }
 
-    // If affiliate exists but no referral code, generate one
-    if (!affiliate.referralCode || affiliate.referralCode.trim() === '') {
+    // If association exists but no referral code, generate one
+    if (!association.referralCode || association.referralCode.trim() === '') {
       const referralCode = generateReferralCode(user.name);
       
-      affiliate = await prisma.affiliate.update({
-        where: { id: affiliate.id },
+      association = await prisma.affiliate.update({
+        where: { id: association.id },
         data: { referralCode }
       });
 
       return NextResponse.json({
         success: true,
         message: 'Referral code generated',
-        affiliate,
+        association,
       });
     }
 
-    // Affiliate already has a referral code
+    // Association already has a referral code
     return NextResponse.json({
       success: true,
       message: 'Referral code already exists',
-      affiliate,
+      association,
     });
 
   } catch (error) {

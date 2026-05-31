@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all referrals with affiliate information
+    // Get all referrals with association information
     const referrals = await prisma.referral.findMany({
       include: {
         affiliate: {
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all partner groups for commission rate lookup
+    // Get all partner groups for incentive rate lookup
     const partnerGroups = await prisma.partnerGroup.findMany();
     const partnerGroupMap = new Map(
       partnerGroups.map(pg => [pg.id, { name: pg.name, rate: pg.commissionRate }])
@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
       success: true,
       referrals: referrals.map(referral => {
         const metadata = referral.metadata as any;
-        const affiliate = referral.affiliate as any;
-        const pgId = affiliate.partnerGroupId;
+        const association = referral.affiliate as any;
+        const pgId = association.partnerGroupId;
         const pgData = pgId ? partnerGroupMap.get(pgId) : null;
         
         return {
@@ -64,10 +64,10 @@ export async function GET(request: NextRequest) {
           estimatedValue: Number(metadata?.estimated_value) || 0,
           company: metadata?.company || '',
           affiliate: {
-            id: affiliate.id,
-            name: affiliate.user.name,
-            email: affiliate.user.email,
-            referralCode: affiliate.referralCode,
+            id: association.id,
+            name: association.user.name,
+            email: association.user.email,
+            referralCode: association.referralCode,
             partnerGroup: pgData?.name || 'Default',
             partnerGroupId: pgId,
             commissionRate: pgData?.rate || 0.20

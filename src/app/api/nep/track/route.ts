@@ -57,38 +57,38 @@ export async function POST(req: NextRequest) {
       partner_id: body.partnerId || null,
     };
 
-    // Resolve the partner (affiliate) by referral code if provided.
-    let affiliate = null as Awaited<ReturnType<typeof prisma.affiliate.findUnique>> | null;
+    // Resolve the partner (association) by referral code if provided.
+    let association = null as Awaited<ReturnType<typeof prisma.affiliate.findUnique>> | null;
     if (body.partnerId) {
-      affiliate = await prisma.affiliate.findUnique({
+      association = await prisma.affiliate.findUnique({
         where: { referralCode: body.partnerId },
       });
     }
 
     // If we cannot attribute to a real partner, log to console and return.
     // (We never weaken auth or create fake users for unknown codes.)
-    if (!affiliate) {
+    if (!association) {
       console.log('[v0] NEP event (unattributed):', { eventType, ...attribution });
       return NextResponse.json({ success: true, attributed: false });
     }
 
     // Find or create a stable per-partner NEP tracking referral bucket.
-    const trackingEmail = `${NEP_TRACKING_EMAIL_PREFIX}${affiliate.id}@tracking.internal`;
+    const trackingEmail = `${NEP_TRACKING_EMAIL_PREFIX}${association.id}@tracking.internal`;
     let referral = await prisma.referral.findFirst({
-      where: { affiliateId: affiliate.id, leadEmail: trackingEmail },
+      where: { affiliateId: association.id, leadEmail: trackingEmail },
     });
 
     if (!referral) {
       referral = await prisma.referral.create({
         data: {
-          affiliateId: affiliate.id,
+          affiliateId: association.id,
           leadName: 'NEP Landing Visitor',
           leadEmail: trackingEmail,
           status: 'PENDING',
           metadata: {
+            ...attribution,
             source: 'nep_landing',
             channel: '/nep',
-            ...attribution,
           },
         },
       });
@@ -102,8 +102,8 @@ export async function POST(req: NextRequest) {
     ) {
       const lead = await prisma.referral.create({
         data: {
-          affiliateId: affiliate.id,
-          leadName: body.contactName || body.schoolName || 'School Lead',
+          affiliateId: association.id,
+          leadName: body.contactName || body.schoolName || 'Referral',
           leadEmail:
             body.contactEmail || `nep-lead-${Date.now()}@tracking.internal`,
           leadPhone: body.contactPhone || null,
@@ -112,11 +112,11 @@ export async function POST(req: NextRequest) {
             body.schoolName ? ` — ${body.schoolName}` : ''
           }`,
           metadata: {
+            ...attribution,
             source: 'nep_landing',
             event_type: eventType,
             school_name: body.schoolName || null,
             school_board: body.schoolBoard || null,
-            ...attribution,
           },
         },
       });
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
         success: true,
         attributed: true,
         leadId: lead.id,
-        partner: affiliate.referralCode,
+        partner: association.referralCode,
       });
     }
 
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       attributed: true,
-      partner: affiliate.referralCode,
+      partner: association.referralCode,
     });
   } catch (error) {
     console.error('POST /api/nep/track error:', error);

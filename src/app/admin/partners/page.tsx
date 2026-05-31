@@ -125,11 +125,11 @@ export default function PartnersPage() {
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/affiliates');
+      const response = await fetch('/api/admin/associations');
       const data = await response.json();
 
       if (data.success) {
-        const formattedPartners = data.affiliates.map((aff: any) => ({
+        const formattedPartners = data.associations.map((aff: any) => ({
           id: aff.id,
           userId: aff.userId,
           name: aff.user.name,
@@ -203,7 +203,7 @@ export default function PartnersPage() {
   const handleCreatePartner = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/admin/affiliates', {
+      const response = await fetch('/api/admin/associations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -294,7 +294,7 @@ export default function PartnersPage() {
     }
 
     try {
-      const response = await fetch('/api/admin/affiliates/batch', {
+      const response = await fetch('/api/admin/associations/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -371,7 +371,7 @@ export default function PartnersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Partners</h2>
-          <p className="text-muted-foreground">Manage your affiliate partners</p>
+          <p className="text-muted-foreground">Manage your association partners</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowInviteModal(true)}>
@@ -571,7 +571,7 @@ export default function PartnersPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Create Partner</DialogTitle>
-            <DialogDescription>Add a new affiliate partner manually</DialogDescription>
+            <DialogDescription>Add a new association partner manually</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreatePartner}>
             <div className="grid gap-4 py-4">
@@ -683,7 +683,7 @@ export default function PartnersPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Invite Partner</DialogTitle>
-            <DialogDescription>Send an email invitation to a new affiliate partner</DialogDescription>
+            <DialogDescription>Send an email invitation to a new association partner</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">

@@ -204,7 +204,7 @@ export default function CustomerDetailPage() {
 
   const cfg = statusConfig[referral.status] || statusConfig.PENDING;
   const StatusIcon = cfg.icon;
-  const estimatedCommission = Math.round(referral.estimatedValue * referral.affiliate.commissionRate);
+  const estimatedIncentive = Math.round(referral.estimatedValue * referral.affiliate.commissionRate);
 
   return (
     <div className="space-y-6">
@@ -242,7 +242,7 @@ export default function CustomerDetailPage() {
               <AlertDialogTitle>Delete this referral lead?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will permanently delete <strong>{referral.leadName}</strong> and all associated
-                conversions and commissions. This action cannot be undone.
+                conversions and incentives. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -404,15 +404,15 @@ export default function CustomerDetailPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Commission Rate</span>
+                <span className="text-sm text-muted-foreground">Incentive Rate</span>
                 <span className="font-semibold">{(referral.affiliate.commissionRate * 100).toFixed(0)}%</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Est. Commission</span>
+                <span className="text-sm font-medium">Est. Incentive</span>
                 <span className="flex items-center gap-1 text-lg font-bold text-primary">
                   <IndianRupee className="h-4 w-4" />
-                  {estimatedCommission.toLocaleString('en-IN')}
+                  {estimatedIncentive.toLocaleString('en-IN')}
                 </span>
               </div>
             </CardContent>

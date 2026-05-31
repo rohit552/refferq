@@ -54,14 +54,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       transactions: transactions.map((txn: any) => {
-        const affiliate = txn.affiliate as any;
+        const association = txn.affiliate as any;
         return {
           id: txn.id,
           customerId: txn.customerId,
           customerName: txn.customerName,
           customerEmail: txn.customerEmail,
           amountCents: txn.amountCents,
-          commissionCents: txn.commissionCents,
+          incentiveCents: txn.incentiveCents,
           commissionRate: txn.commissionRate,
           status: txn.status,
           description: txn.description,
@@ -76,12 +76,12 @@ export async function GET(request: NextRequest) {
             status: txn.referral.status
           },
           affiliate: {
-            id: affiliate.id,
-            name: affiliate.user.name,
-            email: affiliate.user.email,
-            referralCode: affiliate.referralCode,
-            partnerGroup: affiliate.partnerGroupId ? 
-              (affiliate.partnerGroup?.name || 'Default') : 
+            id: association.id,
+            name: association.user.name,
+            email: association.user.email,
+            referralCode: association.referralCode,
+            partnerGroup: association.partnerGroupId ? 
+              (association.partnerGroup?.name || 'Default') : 
               'Default'
           }
         };
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get referral with affiliate and partner group
+    // Get referral with association and partner group
     const referral = await prisma.referral.findUnique({
       where: { id: referralId },
       include: {
@@ -153,22 +153,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get partner group commission rate
-    const affiliate = referral.affiliate as any;
+    // Get partner group incentive rate
+    const association = referral.affiliate as any;
     let commissionRate = 0.20; // Default 20%
 
-    if (affiliate.partnerGroupId) {
+    if (association.partnerGroupId) {
       const partnerGroup = await prisma.partnerGroup.findUnique({
-        where: { id: affiliate.partnerGroupId }
+        where: { id: association.partnerGroupId }
       });
       if (partnerGroup) {
         commissionRate = partnerGroup.commissionRate;
       }
     }
 
-    // Calculate commission
+    // Calculate incentive
     const amountCents = Math.floor(Number(amount) * 100);
-    const commissionCents = Math.floor(amountCents * commissionRate);
+    const incentiveCents = Math.floor(amountCents * commissionRate);
 
     // Create transaction
     const transaction = await (prisma as any).transaction.create({
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         customerName: referral.leadName,
         customerEmail: referral.leadEmail,
         amountCents,
-        commissionCents,
+        incentiveCents,
         commissionRate,
         status: 'COMPLETED',
         description,
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Also create a commission record for tracking
+    // Also create a incentive record for tracking
     await prisma.conversion.create({
       data: {
         affiliateId: referral.affiliateId,
@@ -201,25 +201,25 @@ export async function POST(request: NextRequest) {
         currency: 'INR',
         eventMetadata: {
           transactionId: transaction.id,
-          commissionCents,
+          incentiveCents,
           commissionRate
         }
       }
     });
 
-    // Send email notification to affiliate
+    // Send email notification to association
     try {
-      const affiliateUser = await prisma.user.findUnique({
-        where: { id: affiliate.userId }
+      const associationUser = await prisma.user.findUnique({
+        where: { id: association.userId }
       });
 
-      if (affiliateUser?.email) {
+      if (associationUser?.email) {
         const { emailService } = await import('@/lib/email');
-        await emailService.sendTransactionCreatedEmail(affiliateUser.email, {
-          affiliateName: affiliate.name || affiliateUser.name || 'Partner',
+        await emailService.sendTransactionCreatedEmail(associationUser.email, {
+          associationName: association.name || associationUser.name || 'Partner',
           customerName: referral.leadName,
           amountCents,
-          commissionCents,
+          incentiveCents,
           commissionRate,
           transactionId: transaction.id
         });

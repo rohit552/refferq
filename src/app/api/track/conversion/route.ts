@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Find affiliate by referral code
-    const affiliate = await prisma.affiliate.findUnique({
+    // Find association by referral code
+    const association = await prisma.affiliate.findUnique({
       where: { referralCode },
       include: {
         user: {
@@ -65,16 +65,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!affiliate) {
+    if (!association) {
       return NextResponse.json(
         { success: false, error: 'Invalid referral code' },
         { status: 404 }
       );
     }
 
-    if (affiliate.user.status !== 'ACTIVE') {
+    if (association.user.status !== 'ACTIVE') {
       return NextResponse.json(
-        { success: false, error: 'Affiliate is not active' },
+        { success: false, error: 'Association is not active' },
         { status: 403 }
       );
     }
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       referral = await prisma.referral.findFirst({
         where: {
           leadEmail: customerEmail,
-          affiliateId: affiliate.id,
+          affiliateId: association.id,
         },
       });
     }
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         data: {
           leadEmail: customerEmail,
           leadName: customerName || 'Unknown Customer',
-          affiliateId: affiliate.id,
+          affiliateId: association.id,
           status: 'APPROVED',
           metadata: metadata || {},
         },
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
 
     const conversion = await prisma.conversion.create({
       data: {
-        affiliateId: affiliate.id,
+        affiliateId: association.id,
         referralId: referral?.id || null,
         eventType: 'PURCHASE',
         amountCents,
@@ -135,12 +135,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Note: Commission calculation will be done by the commission rules system
+    // Note: Incentive calculation will be done by the incentive rules system
     // This just creates the conversion record
 
     console.log('✅ Conversion tracked successfully:', {
       conversionId: conversion.id,
-      affiliateId: affiliate.id,
+      affiliateId: association.id,
       referralId: referral?.id,
       amount: amountCents / 100,
     });
@@ -154,8 +154,8 @@ export async function POST(req: NextRequest) {
         currency: conversion.currency,
       },
       affiliate: {
-        name: affiliate.user.name,
-        code: affiliate.referralCode,
+        name: association.user.name,
+        code: association.referralCode,
       },
     });
   } catch (error) {

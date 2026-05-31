@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         amountCents,
         taxCents: tax,
         totalCents: total,
-        lineItems: lineItems || [{ description: 'Affiliate commission payout', qty: 1, unitPrice: amountCents, total: amountCents }],
+        lineItems: lineItems || [{ description: 'Affiliate incentive payout', qty: 1, unitPrice: amountCents, total: amountCents }],
         billingInfo: billingInfo || {},
         notes: notes || null,
         status: 'ISSUED',

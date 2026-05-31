@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    // Top performing affiliates
-    const topAffiliates = await prisma.affiliate.findMany({
+    // Top performing associations
+    const topAssociations = await prisma.affiliate.findMany({
       take: 10,
       orderBy: {
         balanceCents: 'desc'
@@ -71,8 +71,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Commission statistics
-    const totalCommissions = await prisma.commission.aggregate({
+    // Incentive statistics
+    const totalIncentives = await prisma.commission.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const paidCommissions = await prisma.commission.aggregate({
+    const paidIncentives = await prisma.commission.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -103,18 +103,18 @@ export async function GET(request: NextRequest) {
         totalReferrals,
         approvedReferrals,
         conversionRate: conversionRate.toFixed(2),
-        totalRevenue: totalCommissions._sum.amountCents || 0,
-        totalCommissionsPaid: paidCommissions._sum.amountCents || 0,
-        pendingCommissions: (totalCommissions._sum.amountCents || 0) - (paidCommissions._sum.amountCents || 0)
+        totalRevenue: totalIncentives._sum.amountCents || 0,
+        totalIncentivesPaid: paidIncentives._sum.amountCents || 0,
+        pendingIncentives: (totalIncentives._sum.amountCents || 0) - (paidIncentives._sum.amountCents || 0)
       },
-      topAffiliates: topAffiliates.map(affiliate => ({
-        id: affiliate.id,
-        name: affiliate.user.name,
-        email: affiliate.user.email,
-        referralCode: affiliate.referralCode,
-        totalReferrals: affiliate.referrals.length,
-        totalEarnings: affiliate.balanceCents,
-        totalCommissions: affiliate.commissions.length
+      topAssociations: topAssociations.map(association => ({
+        id: association.id,
+        name: association.user.name,
+        email: association.user.email,
+        referralCode: association.referralCode,
+        totalReferrals: association.referrals.length,
+        totalEarnings: association.balanceCents,
+        totalIncentives: association.commissions.length
       })),
       referralsByStatus: referralsByStatus.map(item => ({
         status: item.status,
@@ -124,18 +124,18 @@ export async function GET(request: NextRequest) {
         date: item.createdAt,
         amount: item._sum.amountCents || 0
       })),
-      commissionStats: {
+      incentiveStats: {
         total: {
-          count: totalCommissions._count,
-          amount: totalCommissions._sum.amountCents || 0
+          count: totalIncentives._count,
+          amount: totalIncentives._sum.amountCents || 0
         },
         paid: {
-          count: paidCommissions._count,
-          amount: paidCommissions._sum.amountCents || 0
+          count: paidIncentives._count,
+          amount: paidIncentives._sum.amountCents || 0
         },
         pending: {
-          count: totalCommissions._count - paidCommissions._count,
-          amount: (totalCommissions._sum.amountCents || 0) - (paidCommissions._sum.amountCents || 0)
+          count: totalIncentives._count - paidIncentives._count,
+          amount: (totalIncentives._sum.amountCents || 0) - (paidIncentives._sum.amountCents || 0)
         }
       }
     };

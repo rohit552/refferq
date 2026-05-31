@@ -72,22 +72,22 @@ export class DatabaseService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
-  // Affiliate operations
-  async createAffiliate(affiliateData: {
+  // Association operations
+  async createAssociation(associationData: {
     userId: string;
     referralCode: string;
     payoutDetails?: any;
   }) {
     return await prisma.affiliate.create({
       data: {
-        userId: affiliateData.userId,
-        referralCode: affiliateData.referralCode,
-        payoutDetails: affiliateData.payoutDetails || {},
+        userId: associationData.userId,
+        referralCode: associationData.referralCode,
+        payoutDetails: associationData.payoutDetails || {},
       },
     });
   }
 
-  async getAffiliateByUserId(userId: string) {
+  async getAssociationByUserId(userId: string) {
     return await prisma.affiliate.findUnique({
       where: { userId },
       include: {
@@ -96,7 +96,7 @@ export class DatabaseService {
     });
   }
 
-  async getAffiliateByReferralCode(code: string) {
+  async getAssociationByReferralCode(code: string) {
     return await prisma.affiliate.findUnique({
       where: { referralCode: code },
       include: {
@@ -105,7 +105,7 @@ export class DatabaseService {
     });
   }
 
-  async getAllAffiliates() {
+  async getAllAssociations() {
     return await prisma.affiliate.findMany({
       include: {
         user: true,
@@ -113,7 +113,7 @@ export class DatabaseService {
     });
   }
 
-  async updateAffiliate(id: string, updates: Parameters<typeof prisma.affiliate.update>[0]['data']) {
+  async updateAssociation(id: string, updates: Parameters<typeof prisma.affiliate.update>[0]['data']) {
     return await prisma.affiliate.update({
       where: { id },
       data: updates,
@@ -121,7 +121,7 @@ export class DatabaseService {
   }
 
   // Referral operations
-  async createReferral(referralData: {
+  async createSchoolLead(schoolLeadData: {
     affiliateId: string;
     leadName: string;
     leadEmail: string;
@@ -129,16 +129,16 @@ export class DatabaseService {
   }) {
     return await prisma.referral.create({
       data: {
-        affiliateId: referralData.affiliateId,
-        leadName: referralData.leadName,
-        leadEmail: referralData.leadEmail,
-        metadata: referralData.metadata || {},
+        affiliateId: schoolLeadData.affiliateId,
+        leadName: schoolLeadData.leadName,
+        leadEmail: schoolLeadData.leadEmail,
+        metadata: schoolLeadData.metadata || {},
         status: 'PENDING',
       },
     });
   }
 
-  async getReferralById(id: string) {
+  async getSchoolLeadById(id: string) {
     return await prisma.referral.findUnique({
       where: { id },
       include: {
@@ -151,14 +151,14 @@ export class DatabaseService {
     });
   }
 
-  async getReferralsByAffiliate(affiliateId: string) {
+  async getSchoolLeadsByAssociation(affiliateId: string) {
     return await prisma.referral.findMany({
       where: { affiliateId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async getPendingReferrals() {
+  async getPendingSchoolLeads() {
     return await prisma.referral.findMany({
       where: { status: 'PENDING' },
       include: {
@@ -172,7 +172,7 @@ export class DatabaseService {
     });
   }
 
-  async updateReferral(id: string, updates: Parameters<typeof prisma.referral.update>[0]['data']) {
+  async updateSchoolLead(id: string, updates: Parameters<typeof prisma.referral.update>[0]['data']) {
     return await prisma.referral.update({
       where: { id },
       data: updates,
@@ -201,15 +201,15 @@ export class DatabaseService {
     });
   }
 
-  async getConversionsByAffiliate(affiliateId: string) {
+  async getConversionsByAssociation(affiliateId: string) {
     return await prisma.conversion.findMany({
       where: { affiliateId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  // Commission operations
-  async createCommission(commissionData: {
+  // Incentive operations
+  async createIncentive(incentiveData: {
     conversionId: string;
     affiliateId: string;
     userId: string;
@@ -219,19 +219,19 @@ export class DatabaseService {
   }) {
     return await prisma.commission.create({
       data: {
-        conversionId: commissionData.conversionId,
-        affiliateId: commissionData.affiliateId,
-        userId: commissionData.userId,
-        amountCents: commissionData.amountCents,
-        rate: commissionData.rate,
-        status: commissionData.approvedBy ? 'APPROVED' : 'PENDING',
-        approvedBy: commissionData.approvedBy,
-        approvedAt: commissionData.approvedBy ? new Date() : undefined,
+        conversionId: incentiveData.conversionId,
+        affiliateId: incentiveData.affiliateId,
+        userId: incentiveData.userId,
+        amountCents: incentiveData.amountCents,
+        rate: incentiveData.rate,
+        status: incentiveData.approvedBy ? 'APPROVED' : 'PENDING',
+        approvedBy: incentiveData.approvedBy,
+        approvedAt: incentiveData.approvedBy ? new Date() : undefined,
       },
     });
   }
 
-  async getCommissionsByAffiliate(affiliateId: string) {
+  async getIncentivesByAssociation(affiliateId: string) {
     return await prisma.commission.findMany({
       where: { affiliateId },
       include: {
@@ -241,7 +241,7 @@ export class DatabaseService {
     });
   }
 
-  async getPendingCommissions() {
+  async getPendingIncentives() {
     return await prisma.commission.findMany({
       where: { status: 'PENDING' },
       include: {
@@ -256,15 +256,15 @@ export class DatabaseService {
     });
   }
 
-  async updateCommission(id: string, updates: Parameters<typeof prisma.commission.update>[0]['data']) {
+  async updateIncentive(id: string, updates: Parameters<typeof prisma.commission.update>[0]['data']) {
     return await prisma.commission.update({
       where: { id },
       data: updates,
     });
   }
 
-  // Commission Rules
-  async createCommissionRule(ruleData: {
+  // Incentive Rules
+  async createIncentiveRule(ruleData: {
     name: string;
     type: 'PERCENTAGE' | 'FIXED';
     value: number;
@@ -276,13 +276,13 @@ export class DatabaseService {
     });
   }
 
-  async getCommissionRules() {
+  async getIncentiveRules() {
     return await prisma.commissionRule.findMany({
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async getDefaultCommissionRule() {
+  async getDefaultIncentiveRule() {
     return await prisma.commissionRule.findFirst({
       where: { isDefault: true },
     });
@@ -385,62 +385,62 @@ export class DatabaseService {
   );
 
   // Analytics and statistics
-  async getAffiliateStats(affiliateId: string) {
-    const affiliate = await this.getAffiliateByUserId(affiliateId);
-    if (!affiliate) {
+  async getAssociationStats(affiliateId: string) {
+    const association = await this.getAssociationByUserId(affiliateId);
+    if (!association) {
       return {
         totalClicks: 0,
         totalConversions: 0,
         conversionRate: 0,
-        totalCommissions: 0,
-        pendingCommissions: 0,
-        approvedCommissions: 0,
+        totalIncentives: 0,
+        pendingIncentives: 0,
+        approvedIncentives: 0,
         totalEarnings: 0,
         pendingEarnings: 0,
       };
     }
 
-    const [clicks, conversions, commissions] = await Promise.all([
+    const [clicks, conversions, incentives] = await Promise.all([
       prisma.referralClick.count({
         where: {
           referral: {
-            affiliateId: affiliate.id
+            affiliateId: association.id
           }
         },
       }),
       prisma.conversion.count({
-        where: { affiliateId: affiliate.id },
+        where: { affiliateId: association.id },
       }),
       prisma.commission.findMany({
-        where: { affiliateId: affiliate.id },
+        where: { affiliateId: association.id },
       }),
     ]);
 
-    const pendingCommissions = commissions.filter((c: any) => c.status === 'PENDING');
-    const approvedCommissions = commissions.filter((c: any) => c.status === 'APPROVED');
+    const pendingIncentives = incentives.filter((c: any) => c.status === 'PENDING');
+    const approvedIncentives = incentives.filter((c: any) => c.status === 'APPROVED');
 
     return {
       totalClicks: clicks,
       totalConversions: conversions,
       conversionRate: clicks > 0 ? (conversions / clicks) * 100 : 0,
-      totalCommissions: commissions.length,
-      pendingCommissions: pendingCommissions.length,
-      approvedCommissions: approvedCommissions.length,
-      totalEarnings: commissions.reduce((sum: number, c: any) => sum + c.amountCents, 0),
-      pendingEarnings: pendingCommissions.reduce((sum: number, c: any) => sum + c.amountCents, 0),
+      totalIncentives: incentives.length,
+      pendingIncentives: pendingIncentives.length,
+      approvedIncentives: approvedIncentives.length,
+      totalEarnings: incentives.reduce((sum: number, c: any) => sum + c.amountCents, 0),
+      pendingEarnings: pendingIncentives.reduce((sum: number, c: any) => sum + c.amountCents, 0),
     };
   }
 
   async getPlatformStats() {
     const [
-      totalAffiliates,
-      activeAffiliates,
-      pendingAffiliates,
+      totalAssociations,
+      activeAssociations,
+      pendingAssociations,
       totalReferrals,
       pendingReferrals,
       approvedReferrals,
       totalConversions,
-      totalCommissions,
+      totalIncentives,
       clicks,
     ] = await Promise.all([
       prisma.user.count({ where: { role: 'AFFILIATE' } }),
@@ -461,14 +461,14 @@ export class DatabaseService {
     const totalRevenue = conversions.reduce((sum: number, c: any) => sum + c.amountCents, 0);
 
     return {
-      totalAffiliates,
-      activeAffiliates,
-      pendingAffiliates,
+      totalAssociations,
+      activeAssociations,
+      pendingAssociations,
       totalReferrals,
       pendingReferrals,
       approvedReferrals,
       totalConversions,
-      totalCommissions,
+      totalIncentives,
       totalRevenue,
       conversionRate: clicks > 0 ? (totalConversions / clicks) * 100 : 0,
     };
@@ -492,28 +492,28 @@ export class DatabaseService {
         role: 'ADMIN',
       });
 
-      // Create affiliate users
-      const affiliate1User = await this.createUser({
+      // Create association users
+      const association1User = await this.createUser({
         email: 'sarah.johnson@example.com',
         password: 'password',
         name: 'Sarah Johnson',
         role: 'AFFILIATE',
       });
 
-      const affiliate2User = await this.createUser({
+      const association2User = await this.createUser({
         email: 'david.lee@example.com',
         password: 'password',
         name: 'David Lee',
         role: 'AFFILIATE',
       });
 
-      // Update affiliate users to active
-      await this.updateUser(affiliate1User.id, { status: 'ACTIVE' });
-      await this.updateUser(affiliate2User.id, { status: 'ACTIVE' });
+      // Update association users to active
+      await this.updateUser(association1User.id, { status: 'ACTIVE' });
+      await this.updateUser(association2User.id, { status: 'ACTIVE' });
 
-      // Create affiliate profiles
-      const affiliate1 = await this.createAffiliate({
-        userId: affiliate1User.id,
+      // Create association profiles
+      const association1 = await this.createAssociation({
+        userId: association1User.id,
         referralCode: 'SARAH-TECH',
         payoutDetails: {
           method: 'bank_transfer',
@@ -522,8 +522,8 @@ export class DatabaseService {
         },
       });
 
-      const affiliate2 = await this.createAffiliate({
-        userId: affiliate2User.id,
+      const association2 = await this.createAssociation({
+        userId: association2User.id,
         referralCode: 'DAVID-SALES',
         payoutDetails: {
           method: 'stripe_connect',
@@ -531,22 +531,22 @@ export class DatabaseService {
         },
       });
 
-      // Create commission rules
-      await this.createCommissionRule({
+      // Create incentive rules
+      await this.createIncentiveRule({
         name: 'Standard Rate',
         type: 'PERCENTAGE',
         value: 15,
         isDefault: true,
       });
 
-      await this.createCommissionRule({
+      await this.createIncentiveRule({
         name: 'Enterprise Tier',
         type: 'PERCENTAGE',
         value: 20,
         conditions: { minAmountCents: 500000 }, // $5000+
       });
 
-      await this.createCommissionRule({
+      await this.createIncentiveRule({
         name: 'Bonus Rate',
         type: 'PERCENTAGE',
         value: 25,
@@ -557,9 +557,9 @@ export class DatabaseService {
         },
       });
 
-      // Create sample referrals
-      const referral1 = await this.createReferral({
-        affiliateId: affiliate1.id,
+      // Create sample school leads
+      const schoolLead1 = await this.createSchoolLead({
+        affiliateId: association1.id,
         leadName: 'John Smith',
         leadEmail: 'john@techcorp.com',
         metadata: {
@@ -569,8 +569,8 @@ export class DatabaseService {
         },
       });
 
-      const referral2 = await this.createReferral({
-        affiliateId: affiliate2.id,
+      const schoolLead2 = await this.createSchoolLead({
+        affiliateId: association2.id,
         leadName: 'Maria Garcia',
         leadEmail: 'maria@startup.io',
         metadata: {
@@ -580,17 +580,17 @@ export class DatabaseService {
         },
       });
 
-      // Approve one referral and create conversion
-      await this.updateReferral(referral2.id, {
+      // Approve one school lead and create conversion
+      await this.updateSchoolLead(schoolLead2.id, {
         status: 'APPROVED',
         reviewedBy: adminUser.id,
         reviewedAt: new Date(),
         reviewNotes: 'Approved - verified lead quality',
       });
 
-      // Create conversion for approved referral
+      // Create conversion for approved school lead
       const conversion = await this.createConversion({
-        affiliateId: affiliate1.id,
+        affiliateId: association1.id,
         eventType: 'PURCHASE',
         amountCents: 225000, // $2250
         eventMetadata: {
@@ -600,27 +600,27 @@ export class DatabaseService {
         },
       });
 
-      // Create commission
-      await this.createCommission({
+      // Create incentive
+      await this.createIncentive({
         conversionId: conversion.id,
-        affiliateId: affiliate1.id,
-        userId: affiliate1User.id,
+        affiliateId: association1.id,
+        userId: association1User.id,
         amountCents: 33750, // 15% of $2250
         rate: 15,
         approvedBy: adminUser.id,
       });
 
-      // Update affiliate balance
-      await this.updateAffiliate(affiliate1.id, {
+      // Update association balance
+      await this.updateAssociation(association1.id, {
         balanceCents: 33750,
       });
 
       // Create sample clicks
       await this.createReferralClick({
-        referralId: referral1.id, // Use referral ID instead of referral code
+        referralId: schoolLead1.id,
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        metadata: { attributionKey: `attr_${Date.now()} ` },
+        metadata: { attributionKey: `attr_${Date.now()}` },
       });
 
       console.log('Database seeded successfully with sample data');

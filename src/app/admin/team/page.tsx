@@ -38,7 +38,7 @@ interface TeamMember {
 const ROLES = [
   { value: 'OWNER', label: 'Owner', description: 'Full access to everything' },
   { value: 'ADMIN', label: 'Admin', description: 'Full access except billing' },
-  { value: 'MANAGER', label: 'Manager', description: 'Manage affiliates and payouts' },
+  { value: 'MANAGER', label: 'Manager', description: 'Manage associations and payouts' },
   { value: 'VIEWER', label: 'Viewer', description: 'View-only access' },
 ];
 

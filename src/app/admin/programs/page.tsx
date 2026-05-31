@@ -180,7 +180,7 @@ export default function ProgramsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Programs</h1>
-          <p className="text-muted-foreground">Manage multiple affiliate programs with different commission structures</p>
+          <p className="text-muted-foreground">Manage multiple association programs with different incentive structures</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="mr-2 h-4 w-4" />
@@ -215,21 +215,21 @@ export default function ProgramsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Programs</CardTitle>
-          <CardDescription>Configure commission rates, cookie durations, and payout rules per program</CardDescription>
+          <CardDescription>Configure incentive rates, cookie durations, and payout rules per program</CardDescription>
         </CardHeader>
         <CardContent>
           {programs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Layers className="h-12 w-12 text-muted-foreground/50" />
               <h3 className="mt-4 text-lg font-semibold">No programs yet</h3>
-              <p className="text-sm text-muted-foreground">Create your first affiliate program</p>
+              <p className="text-sm text-muted-foreground">Create your first association program</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Program</TableHead>
-                  <TableHead>Commission</TableHead>
+                  <TableHead>Incentive</TableHead>
                   <TableHead>Cookie</TableHead>
                   <TableHead>Min Payout</TableHead>
                   <TableHead>Frequency</TableHead>
@@ -306,7 +306,7 @@ export default function ProgramsPage() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Program' : 'Create Program'}</DialogTitle>
-            <DialogDescription>{editing ? 'Update program configuration' : 'Set up a new affiliate program'}</DialogDescription>
+            <DialogDescription>{editing ? 'Update program configuration' : 'Set up a new association program'}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
@@ -325,11 +325,11 @@ export default function ProgramsPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
-                <Label>Commission Rate (%)</Label>
+                <Label>Incentive Rate (%)</Label>
                 <Input type="number" value={form.commissionRate} onChange={e => setForm({...form, commissionRate: e.target.value})} />
               </div>
               <div className="grid gap-2">
-                <Label>Commission Type</Label>
+                <Label>Incentive Type</Label>
                 <Select value={form.commissionType} onValueChange={v => setForm({...form, commissionType: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -393,7 +393,7 @@ export default function ProgramsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.autoApprove as boolean} onCheckedChange={v => setForm({...form, autoApprove: v})} />
-              <Label>Auto-approve new affiliates</Label>
+              <Label>Auto-approve new associations</Label>
             </div>
           </div>
           <DialogFooter>

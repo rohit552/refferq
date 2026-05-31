@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all affiliates with their user info and counts
-    const affiliates = await prisma.affiliate.findMany({
+    // Fetch all associations with their user info and counts
+    const associations = await prisma.affiliate.findMany({
       include: {
         user: {
           select: {
@@ -49,13 +49,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      affiliates,
+      associations,
       currencySymbol, // Add currency symbol to response
     });
   } catch (error) {
-    console.error('Get affiliates API error:', error);
+    console.error('Get associations API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch affiliates' },
+      { error: 'Failed to fetch associations' },
       { status: 500 }
     );
   }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate with Zod
-    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.affiliateCreateSchema.safeParse(body));
+    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.associationCreateSchema.safeParse(body));
 
     if (!success) {
       return NextResponse.json(
@@ -123,8 +123,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create affiliate profile
-    const affiliate = await prisma.affiliate.create({
+    // Create association profile
+    const association = await prisma.affiliate.create({
       data: {
         userId: newUser.id,
         referralCode: `AF${Date.now()}${(await import('crypto')).randomBytes(3).toString('hex').toUpperCase().slice(0, 4)}`,
@@ -135,24 +135,24 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Affiliate created successfully',
+      message: 'Association created successfully',
       affiliate: {
-        id: affiliate.id,
+        id: association.id,
         userId: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        referralCode: affiliate.referralCode,
-        balanceCents: affiliate.balanceCents,
-        createdAt: affiliate.createdAt
+        referralCode: association.referralCode,
+        balanceCents: association.balanceCents,
+        createdAt: association.createdAt
       },
       // Note: Password is sent to admin once and should be communicated
-      // securely to the affiliate. It is not stored in logs.
+      // securely to the association. It is not stored in logs.
       temporaryPassword: userPassword
     });
   } catch (error) {
-    console.error('Create affiliate API error:', error);
+    console.error('Create association API error:', error);
     return NextResponse.json(
-      { error: 'Failed to create affiliate' },
+      { error: 'Failed to create association' },
       { status: 500 }
     );
   }

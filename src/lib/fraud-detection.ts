@@ -12,7 +12,7 @@ const SUSPICIOUS_USER_AGENTS = [
 ];
 
 const MAX_CLICKS_PER_IP_PER_HOUR = 10;
-const MAX_CLICKS_PER_AFFILIATE_PER_IP_DAY = 5;
+const MAX_CLICKS_PER_ASSOCIATION_PER_IP_DAY = 5;
 
 /**
  * Checks if an IP + userAgent combination looks suspicious.
@@ -57,9 +57,9 @@ export async function checkFraud({
         riskScore += 30;
     }
 
-    // 3. Check if same IP already clicked for this affiliate today
+    // 3. Check if same IP already clicked for this association today
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const clicksForAffiliateFromIP = await prisma.referralClick.count({
+    const clicksForAssociationFromIP = await prisma.referralClick.count({
         where: {
             ipAddress,
             createdAt: { gte: oneDayAgo },
@@ -69,8 +69,8 @@ export async function checkFraud({
         },
     });
 
-    if (clicksForAffiliateFromIP >= MAX_CLICKS_PER_AFFILIATE_PER_IP_DAY) {
-        reasons.push(`Duplicate IP: ${clicksForAffiliateFromIP} clicks for same affiliate from same IP today`);
+    if (clicksForAssociationFromIP >= MAX_CLICKS_PER_ASSOCIATION_PER_IP_DAY) {
+        reasons.push(`Duplicate IP: ${clicksForAssociationFromIP} clicks for same association from same IP today`);
         riskScore += 40;
     }
 

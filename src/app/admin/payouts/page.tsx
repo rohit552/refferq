@@ -41,10 +41,10 @@ import {
 interface Payout {
   id: string;
   affiliateId: string;
-  affiliateName: string;
-  affiliateEmail: string;
+  associationName: string;
+  associationEmail: string;
   amountCents: number;
-  commissionCount: number;
+  incentiveCount: number;
   status: string;
   method: string;
   notes: string | null;
@@ -130,7 +130,7 @@ export default function PayoutsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Payouts</h1>
-        <p className="text-muted-foreground">Manage partner commission payouts</p>
+        <p className="text-muted-foreground">Manage partner incentive payouts</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -214,7 +214,7 @@ export default function PayoutsPage() {
                 <TableRow>
                   <TableHead>Partner</TableHead>
                   <TableHead>Amount</TableHead>
-                  <TableHead>Commissions</TableHead>
+                  <TableHead>Incentives</TableHead>
                   <TableHead>Method</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Requested</TableHead>
@@ -228,8 +228,8 @@ export default function PayoutsPage() {
                     <TableRow key={payout.id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium text-sm">{payout.affiliateName}</p>
-                          <p className="text-xs text-muted-foreground">{payout.affiliateEmail}</p>
+                          <p className="font-medium text-sm">{payout.associationName}</p>
+                          <p className="text-xs text-muted-foreground">{payout.associationEmail}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -237,7 +237,7 @@ export default function PayoutsPage() {
                           {currencySymbol}{(payout.amountCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm">{payout.commissionCount}</TableCell>
+                      <TableCell className="text-sm">{payout.incentiveCount}</TableCell>
                       <TableCell className="text-sm">{payout.method || '—'}</TableCell>
                       <TableCell>
                         <Badge variant={cfg.variant}>{cfg.label}</Badge>

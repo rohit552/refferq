@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Only allow specific fields (prevent mass assignment)
-    const allowedFields = ['name', 'description', 'commissionType', 'commissionValue', 'cookieDuration', 'isActive', 'terms'];
+    const allowedFields = ['name', 'description', 'commissionType', 'commissionRate', 'cookieDuration', 'isActive', 'terms'];
     const updates: Record<string, any> = {};
     for (const key of allowedFields) {
       if (key in body && body[key] !== undefined) updates[key] = body[key];

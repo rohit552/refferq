@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       await emailService.sendWelcomeEmail({
         name: result.user!.name,
         email: result.user!.email,
-        role: result.user!.role.toLowerCase() as 'affiliate' | 'admin',
+        role: result.user!.role.toLowerCase() as 'association' | 'admin',
         loginUrl,
         password: randomPassword,
       });

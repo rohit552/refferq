@@ -1,4 +1,4 @@
-// Authentication and session management for the affiliate platform
+// Authentication and session management for the association platform
 import { type User, Role, UserStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
@@ -19,7 +19,7 @@ export interface RegisterData {
   email: string;
   password: string;
   name: string;
-  role: string; // 'affiliate' or 'admin' from the form
+  role: string; // 'association' or 'admin' from the form
 }
 
 class AuthService {
@@ -65,8 +65,8 @@ class AuthService {
         }
       });
 
-      // If affiliate, create affiliate record
-      if (userRoleLower === 'affiliate') {
+      // If association, create association record
+      if (userRoleLower === 'association') {
         const referralCode = this.generateReferralCode(data.name);
 
         await prisma.affiliate.create({

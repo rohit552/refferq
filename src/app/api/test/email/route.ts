@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const result = await emailService.sendWelcomeEmail({
       name: 'Test User',
       email: 'test@example.com',
-      role: 'affiliate',
+      role: 'association',
       loginUrl: 'http://localhost:3000',
     });
 

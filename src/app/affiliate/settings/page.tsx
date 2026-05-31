@@ -60,7 +60,7 @@ export default function SettingsPage() {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/affiliate/profile');
+      const res = await fetch('/api/association/profile');
       const data = await res.json();
       if (data.success) {
         const pd = data.affiliate?.payoutDetails || {};
@@ -84,7 +84,7 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/affiliate/profile', {
+      const res = await fetch('/api/association/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsForm),
@@ -104,7 +104,7 @@ export default function SettingsPage() {
 
   const handleGenerateCode = async () => {
     try {
-      const res = await fetch('/api/affiliate/generate-code', { method: 'POST' });
+      const res = await fetch('/api/association/generate-code', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         showNotification('success', 'Referral code generated!');

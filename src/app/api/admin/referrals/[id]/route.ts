@@ -61,9 +61,9 @@ export async function PUT(
       }
     });
 
-    // If approved, create conversion and commission
+    // If approved, create conversion and incentive
     if (action === 'approve') {
-      // Get commission rate from partner group or use default 10%
+      // Get incentive rate from partner group or use default 10%
       const commissionRate = referral.affiliate.partnerGroup?.commissionRate
         ? referral.affiliate.partnerGroup.commissionRate / 100
         : 0.1;
@@ -78,7 +78,7 @@ export async function PUT(
         }
       });
 
-      const commissionAmount = Math.round(estimatedValueCents * commissionRate);
+      const incentiveAmount = Math.round(estimatedValueCents * commissionRate);
 
       await prisma.commission.create({
         data: {
@@ -86,7 +86,7 @@ export async function PUT(
           conversionId: conversion.id,
           userId: referral.affiliate.userId,
           rate: commissionRate,
-          amountCents: commissionAmount,
+          amountCents: incentiveAmount,
           status: 'PENDING'
         }
       });
@@ -155,7 +155,7 @@ export async function PATCH(
         }
       });
 
-      // If approved, create conversion and commission
+      // If approved, create conversion and incentive
       if (action === 'approve') {
         const refMetadata = referral.metadata as Record<string, any> || {};
         const estValueCents = Number(refMetadata?.estimated_value) * 100 || 10000;
@@ -173,7 +173,7 @@ export async function PATCH(
           }
         });
 
-        const commissionAmount = Math.round(estValueCents * commissionRate);
+        const incentiveAmount = Math.round(estValueCents * commissionRate);
         
         await prisma.commission.create({
           data: {
@@ -181,7 +181,7 @@ export async function PATCH(
             conversionId: conversion.id,
             userId: referral.affiliate.userId,
             rate: commissionRate,
-            amountCents: commissionAmount,
+            amountCents: incentiveAmount,
             status: 'PENDING'
           }
         });
@@ -258,7 +258,7 @@ export async function DELETE(
       );
     }
 
-    // Delete the referral (will cascade delete related commissions due to Prisma schema)
+    // Delete the referral (will cascade delete related incentives due to Prisma schema)
     await prisma.referral.delete({
       where: { id: params.id }
     });

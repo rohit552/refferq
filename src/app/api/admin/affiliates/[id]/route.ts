@@ -3,7 +3,7 @@ import { UserStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 
-// Update affiliate status
+// Update association status
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -42,22 +42,22 @@ export async function PATCH(
       );
     }
 
-    // Get affiliate to find userId
-    const affiliate = await prisma.affiliate.findUnique({
+    // Get association to find userId
+    const association = await prisma.affiliate.findUnique({
       where: { id: params.id },
       include: { user: true }
     });
 
-    if (!affiliate) {
+    if (!association) {
       return NextResponse.json(
-        { error: 'Affiliate not found' },
+        { error: 'Association not found' },
         { status: 404 }
       );
     }
 
     // Update user status
     const updatedUser = await prisma.user.update({
-      where: { id: affiliate.userId },
+      where: { id: association.userId },
       data: {
         status: status as UserStatus
       }
@@ -67,38 +67,38 @@ export async function PATCH(
     await prisma.auditLog.create({
       data: {
         actorId: user.id,
-        action: 'UPDATE_AFFILIATE_STATUS',
+        action: 'UPDATE_ASSOCIATION_STATUS',
         objectType: 'AFFILIATE',
         objectId: params.id,
         payload: {
-          oldStatus: affiliate.user.status,
+          oldStatus: association.user.status,
           newStatus: status,
           notes: notes || null,
-          affiliateEmail: affiliate.user.email
+          associationEmail: association.user.email
         }
       }
     });
 
     return NextResponse.json({
       success: true,
-      message: `Affiliate status updated to ${status}`,
+      message: `Association status updated to ${status}`,
       affiliate: {
-        id: affiliate.id,
+        id: association.id,
         userId: updatedUser.id,
         status: updatedUser.status
       }
     });
 
   } catch (error) {
-    console.error('Update affiliate status error:', error);
+    console.error('Update association status error:', error);
     return NextResponse.json(
-      { error: 'Failed to update affiliate status' },
+      { error: 'Failed to update association status' },
       { status: 500 }
     );
   }
 }
 
-// Delete affiliate
+// Delete association
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -118,48 +118,48 @@ export async function DELETE(
       );
     }
 
-    // Get affiliate to find userId
-    const affiliate = await prisma.affiliate.findUnique({
+    // Get association to find userId
+    const association = await prisma.affiliate.findUnique({
       where: { id: params.id },
       include: { user: true }
     });
 
-    if (!affiliate) {
+    if (!association) {
       return NextResponse.json(
-        { error: 'Affiliate not found' },
+        { error: 'Association not found' },
         { status: 404 }
       );
     }
 
-    // Delete user (will cascade delete affiliate due to Prisma schema)
+    // Delete user (will cascade delete association due to Prisma schema)
     await prisma.user.delete({
-      where: { id: affiliate.userId }
+      where: { id: association.userId }
     });
 
     // Create audit log
     await prisma.auditLog.create({
       data: {
         actorId: user.id,
-        action: 'DELETE_AFFILIATE',
+        action: 'DELETE_ASSOCIATION',
         objectType: 'AFFILIATE',
         objectId: params.id,
         payload: {
-          affiliateName: affiliate.user.name,
-          affiliateEmail: affiliate.user.email,
-          referralCode: affiliate.referralCode
+          associationName: association.user.name,
+          associationEmail: association.user.email,
+          referralCode: association.referralCode
         }
       }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Affiliate deleted successfully'
+      message: 'Association deleted successfully'
     });
 
   } catch (error) {
-    console.error('Delete affiliate error:', error);
+    console.error('Delete association error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete affiliate' },
+      { error: 'Failed to delete association' },
       { status: 500 }
     );
   }

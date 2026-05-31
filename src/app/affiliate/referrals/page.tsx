@@ -83,7 +83,7 @@ export default function ReferralsPage() {
   const fetchReferrals = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/affiliate/referrals');
+      const res = await fetch('/api/association/referrals');
       const data = await res.json();
       if (data.success) setReferrals(data.referrals || []);
     } catch (error) {
@@ -97,7 +97,7 @@ export default function ReferralsPage() {
     e.preventDefault();
     setSubmitLoading(true);
     try {
-      const res = await fetch('/api/affiliate/referrals', {
+      const res = await fetch('/api/association/referrals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -278,7 +278,7 @@ export default function ReferralsPage() {
               <Users className="h-12 w-12 text-muted-foreground/40 mb-3" />
               <p className="font-medium">No referrals found</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {referrals.length === 0 ? 'Start submitting leads to earn commissions' : 'Try adjusting your filters'}
+                {referrals.length === 0 ? 'Start submitting leads to earn incentives' : 'Try adjusting your filters'}
               </p>
               {referrals.length === 0 && (
                 <Button className="mt-4" onClick={() => setShowSubmitModal(true)}>Submit your first lead</Button>

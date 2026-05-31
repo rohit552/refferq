@@ -41,15 +41,15 @@ import {
 interface DashboardStats {
   totalRevenue: number;
   totalEstimatedRevenue: number;
-  totalEstimatedCommission: number;
+  totalEstimatedIncentive: number;
   totalClicks: number;
   totalLeads: number;
   totalReferredCustomers: number;
-  totalAffiliates: number;
+  totalAssociations: number;
   pendingReferrals: number;
 }
 
-interface TopAffiliate {
+interface TopAssociation {
   id: string;
   name: string;
   email: string;
@@ -62,7 +62,7 @@ interface RecentCustomer {
   id: string;
   leadName: string;
   leadEmail: string;
-  affiliateName: string;
+  associationName: string;
   amountPaid: number;
   status: string;
   createdAt: string;
@@ -72,7 +72,7 @@ export default function AdminDashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [topAffiliates, setTopAffiliates] = useState<TopAffiliate[]>([]);
+  const [topAssociations, setTopAssociations] = useState<TopAssociation[]>([]);
   const [recentCustomers, setRecentCustomers] = useState<RecentCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -101,17 +101,17 @@ export default function AdminDashboardPage() {
         setStats({
           totalRevenue: statsData.stats.totalRevenue || 0,
           totalEstimatedRevenue: statsData.stats.totalEstimatedRevenue || 0,
-          totalEstimatedCommission: statsData.stats.totalEstimatedCommission || 0,
+          totalEstimatedIncentive: statsData.stats.totalEstimatedIncentive || 0,
           totalClicks: 0,
           totalLeads: statsData.stats.totalReferrals || 0,
           totalReferredCustomers: statsData.stats.approvedReferrals || 0,
-          totalAffiliates: statsData.stats.totalAffiliates || 0,
+          totalAssociations: statsData.stats.totalAssociations || 0,
           pendingReferrals: statsData.stats.pendingReferrals || 0,
         });
       }
 
-      if (analyticsData.success && analyticsData.analytics.topAffiliates) {
-        setTopAffiliates(analyticsData.analytics.topAffiliates.slice(0, 5));
+      if (analyticsData.success && analyticsData.analytics.topAssociations) {
+        setTopAssociations(analyticsData.analytics.topAssociations.slice(0, 5));
       }
 
       if (referralsData.success) {
@@ -119,7 +119,7 @@ export default function AdminDashboardPage() {
           id: ref.id,
           leadName: ref.leadName,
           leadEmail: ref.leadEmail,
-          affiliateName: ref.affiliate.name,
+          associationName: ref.affiliate.name,
           amountPaid: 0,
           status: ref.status,
           createdAt: ref.createdAt,
@@ -157,8 +157,8 @@ export default function AdminDashboardPage() {
       bg: 'bg-emerald-500/10',
     },
     {
-      title: 'Commission Owed',
-      value: `₹${stats ? (stats.totalEstimatedCommission / 100).toFixed(2) : '0.00'}`,
+      title: 'Incentive Owed',
+      value: `₹${stats ? (stats.totalEstimatedIncentive / 100).toFixed(2) : '0.00'}`,
       icon: Wallet,
       description: 'Pending payouts',
       color: 'text-amber-600',
@@ -166,9 +166,9 @@ export default function AdminDashboardPage() {
     },
     {
       title: 'Total Partners',
-      value: stats?.totalAffiliates || 0,
+      value: stats?.totalAssociations || 0,
       icon: Users,
-      description: 'Active affiliates',
+      description: 'Active associations',
       trend: '+5',
       trendUp: true,
       color: 'text-violet-600',
@@ -183,7 +183,7 @@ export default function AdminDashboardPage() {
   const quickActions = [
     {
       title: 'Partners',
-      description: 'Manage affiliates',
+      description: 'Manage associations',
       icon: Users,
       href: '/admin/partners',
       color: 'text-blue-600',
@@ -222,7 +222,7 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Overview of your affiliate program performance
+            Overview of your association program performance
           </p>
         </div>
 
@@ -346,7 +346,7 @@ export default function AdminDashboardPage() {
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
                 <CardTitle className="text-base font-semibold">Top Partners</CardTitle>
-                <CardDescription>Best performing affiliates</CardDescription>
+                <CardDescription>Best performing associations</CardDescription>
               </div>
               <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push('/admin/partners')}>
                 View all
@@ -355,9 +355,9 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <Separator />
             <CardContent className="pt-4">
-              {topAffiliates.length > 0 ? (
+              {topAssociations.length > 0 ? (
                 <div className="space-y-1">
-                  {topAffiliates.map((affiliate: any, index: number) => (
+                  {topAssociations.map((affiliate: any, index: number) => (
                     <div
                       key={affiliate.id}
                       className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted/50 cursor-pointer"
@@ -421,7 +421,7 @@ export default function AdminDashboardPage() {
                       </p>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{customer.leadEmail}</p>
-                        <p className="text-xs text-muted-foreground">via {customer.affiliateName}</p>
+                        <p className="text-xs text-muted-foreground">via {customer.associationName}</p>
                       </div>
                       <StatusBadge status={customer.status} />
                     </div>

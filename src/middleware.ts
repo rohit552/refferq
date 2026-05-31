@@ -9,11 +9,21 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
+    // Handle backward compatibility: redirect /affiliate/* to /association/*
+    if (pathname.startsWith('/affiliate')) {
+        const newPathname = pathname.replace(/^\/affiliate/, '/association');
+        return NextResponse.redirect(new URL(newPathname, request.url));
+    }
+    if (pathname.startsWith('/api/affiliate')) {
+        const newPathname = pathname.replace(/^\/api\/affiliate/, '/api/association');
+        return NextResponse.redirect(new URL(newPathname, request.url));
+    }
+
     // 1. Define protected routes
     const isAdminRoute = pathname.startsWith('/api/admin') || pathname.startsWith('/admin');
-    const isAffiliateRoute = pathname.startsWith('/api/affiliate') || pathname.startsWith('/affiliate');
+    const isAssociationRoute = pathname.startsWith('/api/association') || pathname.startsWith('/association');
 
-    if (!isAdminRoute && !isAffiliateRoute) {
+    if (!isAdminRoute && !isAssociationRoute) {
         return NextResponse.next();
     }
 
@@ -48,10 +58,10 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
 
-        if (isAffiliateRoute && userRole !== 'AFFILIATE' && userRole !== 'ADMIN') {
+        if (isAssociationRoute && userRole !== 'AFFILIATE' && userRole !== 'ADMIN') {
             if (pathname.startsWith('/api/')) {
                 return NextResponse.json(
-                    { error: 'Forbidden: Affiliate access required' },
+                    { error: 'Forbidden: Association access required' },
                     { status: 403 }
                 );
             }
@@ -79,9 +89,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/admin/:path*',
-        '/affiliate/:path*',
+        '/association/:path*',
+        '/affiliate/:path*', // backward compatibility
         '/api/admin/:path*',
-        '/api/affiliate/:path*',
+        '/api/association/:path*',
+        '/api/affiliate/:path*', // backward compatibility
         '/api/auth/me',
     ],
 };

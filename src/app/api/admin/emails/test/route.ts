@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     const testVariables: Record<string, string> = {
       partner_name: 'John Doe',
-      program_name: 'Test Affiliate Program',
+      program_name: 'Test Association Program',
       referral_link: 'https://example.com/ref/ABC123',
       referral_name: 'Jane Smith',
       referral_email: 'jane@example.com',

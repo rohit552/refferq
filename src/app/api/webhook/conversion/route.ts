@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let affiliate = null;
+    let association = null;
     let attributionMethod = 'none';
 
-    // Try to find affiliate through attribution key first
+    // Try to find association through attribution key first
     if (attribution_key) {
       // In a real implementation, this would be stored in Redis
       // For this simulation, we'll comment out the problematic call
@@ -86,14 +86,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback to referral code
-    if (!affiliate && referral_code) {
-      affiliate = await db.getAffiliateByReferralCode(referral_code);
+    if (!association && referral_code) {
+      association = await db.getAssociationByReferralCode(referral_code);
       attributionMethod = 'referral_code';
     }
 
-    // If no affiliate found, log the conversion but don't create commission
-    if (!affiliate) {
-      console.log('Conversion received but no affiliate attribution found:', {
+    // If no association found, log the conversion but don't create incentive
+    if (!association) {
+      console.log('Conversion received but no association attribution found:', {
         event_type,
         customer_email,
         attribution_key,
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Create conversion record
     const conversion = await db.createConversion({
-      affiliateId: affiliate.id,
+      affiliateId: association.id,
       eventType: event_type,
       amountCents: amount_cents || 0,
       currency,
@@ -122,33 +122,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Calculate commission
-    const commissionRules = await db.getCommissionRules();
-    let applicableRule = commissionRules.find((rule: any) => rule.isDefault);
+    // Calculate incentive
+    const incentiveRules = await db.getIncentiveRules();
+    let applicableRule = incentiveRules.find((rule: any) => rule.isDefault);
 
     const commissionRate = applicableRule?.value || 15;
-    let commissionAmount = 0;
+    let incentiveAmount = 0;
 
     if (applicableRule?.type === 'PERCENTAGE' && amount_cents) {
-      commissionAmount = Math.floor((amount_cents * commissionRate) / 100);
+      incentiveAmount = Math.floor((amount_cents * commissionRate) / 100);
     } else if (applicableRule?.type === 'FIXED') {
-      commissionAmount = commissionRate;
+      incentiveAmount = commissionRate;
     }
 
-    // ─── Commission Hold Period ─────────────────────────────────
+    // ─── Incentive Hold Period ─────────────────────────────────
     // Fetch hold days from ProgramSettings (default 30)
     const settings = await prisma.programSettings.findFirst();
-    const holdDays = (settings as any)?.commissionHoldDays ?? 30;
+    const holdDays = (settings as any)?.incentiveHoldDays ?? 30;
     const maturesAt = new Date();
     maturesAt.setDate(maturesAt.getDate() + holdDays);
 
-    // Create commission record with maturesAt (status stays PENDING until maturation)
-    const commission = await prisma.commission.create({
+    // Create incentive record with maturesAt (status stays PENDING until maturation)
+    const incentive = await prisma.commission.create({
       data: {
         conversionId: conversion.id,
-        affiliateId: affiliate.id,
-        userId: affiliate.userId,
-        amountCents: commissionAmount,
+        affiliateId: association.id,
+        userId: association.userId,
+        amountCents: incentiveAmount,
         rate: commissionRate,
         status: 'PENDING',
         maturesAt,
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
     });
 
     // NOTE: We do NOT update balanceCents here anymore.
-    // Balance is only updated when the commission matures (PENDING → APPROVED).
+    // Balance is only updated when the incentive matures (PENDING → APPROVED).
     // This protects against refunds during the hold period.
 
     // Log audit event
@@ -168,8 +168,8 @@ export async function POST(request: NextRequest) {
       payload: {
         event_type,
         amount_cents,
-        commission_amount: commissionAmount,
-        affiliate_id: affiliate.id,
+        incentive_amount: incentiveAmount,
+        association_id: association.id,
         attributionMethod,
       },
     });
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       message: 'Conversion tracked successfully',
       attributed: true,
       conversion,
-      commission,
+      incentive,
       attributionMethod,
     });
   } catch (error) {

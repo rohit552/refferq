@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate platform stats
-    const totalAffiliates = await prisma.affiliate.count();
+    const totalAssociations = await prisma.affiliate.count();
     const totalUsers = await prisma.user.count();
     const totalReferrals = await prisma.referral.count();
     const totalConversions = await prisma.conversion.count();
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     );
     
     let totalEstimatedRevenue = 0;
-    let totalEstimatedCommission = 0;
+    let totalEstimatedIncentive = 0;
     
     referrals.forEach((ref) => {
       const metadata = ref.metadata as any;
@@ -74,11 +74,11 @@ export async function GET(request: NextRequest) {
       const commissionInCents = Math.floor(valueInCents * commissionRate);
       
       totalEstimatedRevenue += valueInCents;
-      totalEstimatedCommission += commissionInCents;
+      totalEstimatedIncentive += commissionInCents;
     });
 
     const stats = {
-      totalAffiliates,
+      totalAssociations,
       totalUsers,
       totalReferrals,
       totalConversions,
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
       approvedReferrals,
       totalRevenue: totalRevenue._sum?.amountCents || 0, // Actual transaction revenue
       totalEstimatedRevenue, // Estimated revenue from all leads
-      totalEstimatedCommission, // Total commission to be paid
+      totalEstimatedIncentive, // Total incentive to be paid
     };
 
     return NextResponse.json({ success: true, stats });

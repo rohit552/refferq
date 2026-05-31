@@ -8,7 +8,7 @@ interface User {
   email: string;
   name: string;
   role: string;
-  hasAffiliate: boolean;
+  hasAssociation: boolean;
   profilePicture?: string;
 }
 

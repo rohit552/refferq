@@ -204,7 +204,7 @@ export default function InvoicesPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Invoices</CardTitle>
-          <CardDescription>Track and manage affiliate payout invoices</CardDescription>
+          <CardDescription>Track and manage association payout invoices</CardDescription>
         </CardHeader>
         <CardContent>
           {invoices.length === 0 ? (
@@ -218,7 +218,7 @@ export default function InvoicesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Invoice #</TableHead>
-                  <TableHead>Affiliate</TableHead>
+                  <TableHead>Association</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Tax</TableHead>
                   <TableHead>Total</TableHead>
@@ -269,12 +269,12 @@ export default function InvoicesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Invoice</DialogTitle>
-            <DialogDescription>Generate a new payout invoice for an affiliate</DialogDescription>
+            <DialogDescription>Generate a new payout invoice for an association</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label>Affiliate ID *</Label>
-              <Input value={form.affiliateId} onChange={e => setForm({...form, affiliateId: e.target.value})} placeholder="Affiliate ID" />
+              <Label>Association ID *</Label>
+              <Input value={form.affiliateId} onChange={e => setForm({...form, affiliateId: e.target.value})} placeholder="Association ID" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -319,7 +319,7 @@ export default function InvoicesPage() {
                   <div className="mt-1">{getStatusBadge(viewInvoice.status)}</div>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Affiliate</p>
+                  <p className="text-muted-foreground">Association</p>
                   <p className="font-mono mt-1">{viewInvoice.affiliateId}</p>
                 </div>
                 <div>

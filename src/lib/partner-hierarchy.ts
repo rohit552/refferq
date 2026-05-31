@@ -3,9 +3,9 @@
  *
  * This layers a 3-tier partner hierarchy on top of the existing data model
  * WITHOUT any schema migration:
- *   - User.role        -> ADMIN (Master Partner / platform) | AFFILIATE (partners)
+ *   - User.role        -> ADMIN (Master Partner / platform) | ASSOCIATION (partners)
  *   - PartnerGroup.name -> used to label a partner's tier ("Master Partner", etc.)
- *   - Affiliate / Referral metadata JSON -> stores level/state/district attribution
+ *   - Association / Referral metadata JSON -> stores level/state/district attribution
  *
  * Operational levels map 1:1 to partner tiers:
  *   Master Partner -> National Level

@@ -6,7 +6,7 @@ import { tierFromGroupName, PARTNER_TIERS, type PartnerTier } from '@/lib/partne
  * GET /api/admin/nep
  *
  * Aggregates SkillHeed NEP analytics from the existing data model
- * (Affiliate, PartnerGroup, Referral, ReferralClick) — no schema changes.
+ * (Association, PartnerGroup, Referral, ReferralClick) — no schema changes.
  * Admin-only (enforced by middleware + the role check below).
  */
 export async function GET(request: NextRequest) {
@@ -18,12 +18,12 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Partner hierarchy counts ──────────────────────────────
-    const affiliates = await prisma.affiliate.findMany({
+    const associations = await prisma.affiliate.findMany({
       include: { partnerGroup: true, user: { select: { name: true, email: true } } },
     });
 
     const tierCounts: Record<PartnerTier, number> = { MASTER: 0, SUB: 0, PARTNER: 0 };
-    for (const a of affiliates) {
+    for (const a of associations) {
       tierCounts[tierFromGroupName(a.partnerGroup?.name)]++;
     }
 
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 
     // Partner performance (leads per partner)
     const perfMap: Record<string, { name: string; code: string; leads: number; tier: PartnerTier }> = {};
-    for (const a of affiliates) {
+    for (const a of associations) {
       perfMap[a.id] = {
         name: a.user.name,
         code: a.referralCode,
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       summary: {
-        totalPartners: affiliates.length,
+        totalPartners: associations.length,
         masterPartners: tierCounts.MASTER,
         subPartners: tierCounts.SUB,
         partners: tierCounts.PARTNER,

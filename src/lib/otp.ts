@@ -291,7 +291,7 @@ export class OTPService {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">${process.env.PLATFORM_NAME || 'Affiliate Platform'}</div>
+              <div class="logo">${process.env.PLATFORM_NAME || 'Association Platform'}</div>
               <h1>Your Login Code</h1>
             </div>
             
@@ -311,7 +311,7 @@ export class OTPService {
             
             <div class="footer">
               <p>Best regards,<br>
-              ${process.env.PLATFORM_NAME || 'Affiliate Platform'} Team</p>
+              ${process.env.PLATFORM_NAME || 'Association Platform'} Team</p>
               <p>
                 Need help? Contact us at 
                 <a href="mailto:${process.env.PLATFORM_SUPPORT_EMAIL}" style="color: #2563eb;">
