@@ -71,7 +71,7 @@ export default function ResourcesPage() {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/affiliate/resources');
+      const res = await fetch('/api/association/resources');
       const data = await res.json();
       if (data.success) setResources(data.resources || []);
     } catch (error) {
@@ -84,7 +84,7 @@ export default function ResourcesPage() {
   const handleDownload = async (resource: Resource) => {
     // Track download
     try {
-      await fetch(`/api/affiliate/resources?id=${resource.id}`, { method: 'POST' });
+      await fetch(`/api/association/resources?id=${resource.id}`, { method: 'POST' });
     } catch (_e) { /* ignore tracking errors */ }
 
     // Open/download file

@@ -3,9 +3,9 @@
  *
  * This layers a 3-tier partner hierarchy on top of the existing data model
  * WITHOUT any schema migration:
- *   - User.role        -> ADMIN (Master Partner / platform) | AFFILIATE (partners)
+ *   - User.role        -> ADMIN (Master Partner / platform) | ASSOCIATION (partners)
  *   - PartnerGroup.name -> used to label a partner's tier ("Master Partner", etc.)
- *   - Affiliate / Referral metadata JSON -> stores level/state/district attribution
+ *   - Association / School Lead metadata JSON -> stores level/state/district attribution
  *
  * Operational levels map 1:1 to partner tiers:
  *   Master Partner -> National Level
@@ -117,5 +117,5 @@ export const DEFAULT_LEVEL_MAPPING = {
   Partner: 'DISTRICT',
 } as const;
 
-/** Default attribution window (days) for referral tracking on /nep. */
+/** Default attribution window (days) for school-lead tracking on /nep. */
 export const DEFAULT_ATTRIBUTION_WINDOW_DAYS = 30;

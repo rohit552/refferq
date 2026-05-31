@@ -86,7 +86,7 @@ export default function LoginPage() {
         if (user.role === 'ADMIN') {
           router.push('/admin');
         } else {
-          router.push('/affiliate');
+          router.push('/association');
         }
       } else {
         setError(data.error || 'Invalid verification code');

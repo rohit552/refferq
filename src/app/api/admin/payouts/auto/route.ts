@@ -12,7 +12,7 @@ async function verifyAdmin(request: NextRequest) {
   } catch (_e) { return null; }
 }
 
-// POST - Process auto-payouts for all eligible affiliates
+// POST - Process auto-payouts for all eligible associations
 export async function POST(request: NextRequest) {
   const admin = await verifyAdmin(request);
   if (!admin) {
@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
     const settings = await prisma.programSettings.findFirst();
     const minPayoutCents = settings?.minPayoutCents || 100000; // Default ₹1000
 
-    // Find all affiliates with balance above minimum payout threshold
-    // Status check is on User model, not Affiliate
-    const eligibleAffiliates = await prisma.affiliate.findMany({
+    // Find all associations with balance above minimum payout threshold
+    // Status check is on User model, not Association
+    const eligibleAssociations = await prisma.association.findMany({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },
@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (eligibleAffiliates.length === 0) {
+    if (eligibleAssociations.length === 0) {
       return NextResponse.json({
         success: true,
-        message: 'No affiliates eligible for auto-payout',
+        message: 'No associations eligible for auto-payout',
         processed: 0,
         totalAmountCents: 0,
       });
@@ -51,20 +51,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         dryRun: true,
-        eligible: eligibleAffiliates.map(a => ({
+        eligible: eligibleAssociations.map(a => ({
           id: a.id,
           name: a.user.name,
           email: a.user.email,
           balanceCents: a.balanceCents,
         })),
-        totalAffiliates: eligibleAffiliates.length,
-        totalAmountCents: eligibleAffiliates.reduce((s, a) => s + a.balanceCents, 0),
+        totalAssociations: eligibleAssociations.length,
+        totalAmountCents: eligibleAssociations.reduce((s, a) => s + a.balanceCents, 0),
       });
     }
 
     // Process payouts
     const results: Array<{
-      affiliateId: string;
+      associationId: string;
       name: string;
       payoutId?: string;
       amountCents?: number;
@@ -74,15 +74,15 @@ export async function POST(request: NextRequest) {
     let totalProcessed = 0;
     let totalAmountCents = 0;
 
-    for (const affiliate of eligibleAffiliates) {
+    for (const association of eligibleAssociations) {
       try {
-        const payoutAmountCents = affiliate.balanceCents;
+        const payoutAmountCents = association.balanceCents;
 
         // Create payout record
         const payout = await prisma.payout.create({
           data: {
-            affiliateId: affiliate.id,
-            userId: affiliate.user.id,
+            associationId: association.id,
+            userId: association.user.id,
             amountCents: payoutAmountCents,
             status: 'PENDING',
             method: 'AUTO',
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Reset affiliate balance
-        await prisma.affiliate.update({
-          where: { id: affiliate.id },
+        // Reset association balance
+        await prisma.association.update({
+          where: { id: association.id },
           data: {
             balanceCents: 0,
           },
@@ -107,15 +107,15 @@ export async function POST(request: NextRequest) {
             objectType: 'payout',
             objectId: payout.id,
             payload: {
-              affiliateId: affiliate.id,
+              associationId: association.id,
               amountCents: payoutAmountCents,
             },
           },
         });
 
         results.push({
-          affiliateId: affiliate.id,
-          name: affiliate.user.name,
+          associationId: association.id,
+          name: association.user.name,
           payoutId: payout.id,
           amountCents: payoutAmountCents,
           status: 'CREATED',
@@ -125,8 +125,8 @@ export async function POST(request: NextRequest) {
         totalAmountCents += payoutAmountCents;
       } catch (err) {
         results.push({
-          affiliateId: affiliate.id,
-          name: affiliate.user.name,
+          associationId: association.id,
+          name: association.user.name,
           status: 'FAILED',
           error: (err as Error).message,
         });
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Auto-payout processed for ${totalProcessed} affiliates`,
+      message: `Auto-payout processed for ${totalProcessed} associations`,
       processed: totalProcessed,
       totalAmountCents,
       results,
@@ -156,16 +156,16 @@ export async function GET(request: NextRequest) {
   try {
     const settings = await prisma.programSettings.findFirst();
 
-    // Count eligible affiliates
+    // Count eligible associations
     const minPayoutCents = settings?.minPayoutCents || 100000;
-    const eligibleCount = await prisma.affiliate.count({
+    const eligibleCount = await prisma.association.count({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },
       },
     });
 
-    const totalPendingBalance = await prisma.affiliate.aggregate({
+    const totalPendingBalance = await prisma.association.aggregate({
       where: {
         balanceCents: { gte: minPayoutCents },
         user: { status: 'ACTIVE' },
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
       take: 10,
       include: {
-        affiliate: {
+        association: {
           include: { user: { select: { name: true, email: true } } },
         },
       },
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
         autoPayoutsEnabled: settings?.autoApprovePayouts || false,
       },
       stats: {
-        eligibleAffiliates: eligibleCount,
+        eligibleAssociations: eligibleCount,
         totalPendingCents: totalPendingBalance._sum?.balanceCents || 0,
       },
       recentPayouts,

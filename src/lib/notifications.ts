@@ -1,7 +1,7 @@
-// Real-time notification system for the affiliate platform
+// Real-time notification system for the association platform
 export interface NotificationData {
   id: string;
-  type: 'referral_submitted' | 'referral_approved' | 'referral_rejected' | 'commission_approved' | 'payout_processed' | 'affiliate_registered';
+  type: 'school-lead_submitted' | 'school-lead_approved' | 'school-lead_rejected' | 'incentive_approved' | 'payout_processed' | 'association_registered';
   title: string;
   message: string;
   timestamp: string;
@@ -11,7 +11,7 @@ export interface NotificationData {
 }
 
 class NotificationService {
-  private readonly STORAGE_KEY = 'affiliate_platform_notifications';
+  private readonly STORAGE_KEY = 'association_platform_notifications';
 
   private generateId(): string {
     return `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -80,68 +80,68 @@ class NotificationService {
   }
 
   // Admin notifications
-  async notifyReferralSubmitted(referralData: { affiliateName: string; leadName: string; company?: string }, adminIds: string[]): Promise<void> {
+  async notifySchool LeadSubmitted(school-leadData: { associationName: string; leadName: string; company?: string }, adminIds: string[]): Promise<void> {
     for (const adminId of adminIds) {
       await this.createNotification({
-        type: 'referral_submitted',
-        title: 'New Referral Submitted',
-        message: `${referralData.affiliateName} submitted a referral for ${referralData.leadName}${referralData.company ? ` from ${referralData.company}` : ''}`,
+        type: 'school-lead_submitted',
+        title: 'New School Lead Submitted',
+        message: `${school-leadData.associationName} submitted a school-lead for ${school-leadData.leadName}${school-leadData.company ? ` from ${school-leadData.company}` : ''}`,
         userId: adminId,
-        metadata: referralData,
+        metadata: school-leadData,
       });
     }
   }
 
-  // Affiliate notifications
-  async notifyReferralApproved(affiliateId: string, referralData: { leadName: string; commissionAmount: number }): Promise<void> {
+  // Association notifications
+  async notifySchool LeadApproved(associationId: string, school-leadData: { leadName: string; incentiveAmount: number }): Promise<void> {
     await this.createNotification({
-      type: 'referral_approved',
-      title: 'Referral Approved!',
-      message: `Your referral for ${referralData.leadName} has been approved. Commission: $${(referralData.commissionAmount / 100).toFixed(2)}`,
-      userId: affiliateId,
-      metadata: referralData,
+      type: 'school-lead_approved',
+      title: 'School Lead Approved!',
+      message: `Your school-lead for ${school-leadData.leadName} has been approved. Incentive: $${(school-leadData.incentiveAmount / 100).toFixed(2)}`,
+      userId: associationId,
+      metadata: school-leadData,
     });
   }
 
-  async notifyReferralRejected(affiliateId: string, referralData: { leadName: string; reason?: string }): Promise<void> {
+  async notifySchool LeadRejected(associationId: string, school-leadData: { leadName: string; reason?: string }): Promise<void> {
     await this.createNotification({
-      type: 'referral_rejected',
-      title: 'Referral Update',
-      message: `Your referral for ${referralData.leadName} needs attention${referralData.reason ? `: ${referralData.reason}` : ''}`,
-      userId: affiliateId,
-      metadata: referralData,
+      type: 'school-lead_rejected',
+      title: 'School Lead Update',
+      message: `Your school-lead for ${school-leadData.leadName} needs attention${school-leadData.reason ? `: ${school-leadData.reason}` : ''}`,
+      userId: associationId,
+      metadata: school-leadData,
     });
   }
 
-  async notifyCommissionApproved(affiliateId: string, commissionData: { amount: number; referralName: string }): Promise<void> {
+  async notifyIncentiveApproved(associationId: string, incentiveData: { amount: number; school-leadName: string }): Promise<void> {
     await this.createNotification({
-      type: 'commission_approved',
-      title: 'Commission Approved!',
-      message: `Commission of $${(commissionData.amount / 100).toFixed(2)} for ${commissionData.referralName} has been approved`,
-      userId: affiliateId,
-      metadata: commissionData,
+      type: 'incentive_approved',
+      title: 'Incentive Approved!',
+      message: `Incentive of $${(incentiveData.amount / 100).toFixed(2)} for ${incentiveData.school-leadName} has been approved`,
+      userId: associationId,
+      metadata: incentiveData,
     });
   }
 
-  async notifyPayoutProcessed(affiliateId: string, payoutData: { amount: number; method: string }): Promise<void> {
+  async notifyPayoutProcessed(associationId: string, payoutData: { amount: number; method: string }): Promise<void> {
     await this.createNotification({
       type: 'payout_processed',
       title: 'Payout Processed',
       message: `Your payout of $${(payoutData.amount / 100).toFixed(2)} via ${payoutData.method} has been processed`,
-      userId: affiliateId,
+      userId: associationId,
       metadata: payoutData,
     });
   }
 
   // System notifications
-  async notifyAffiliateRegistered(adminIds: string[], affiliateData: { name: string; email: string }): Promise<void> {
+  async notifyAssociationRegistered(adminIds: string[], associationData: { name: string; email: string }): Promise<void> {
     for (const adminId of adminIds) {
       await this.createNotification({
-        type: 'affiliate_registered',
-        title: 'New Affiliate Registration',
-        message: `${affiliateData.name} (${affiliateData.email}) has registered as an affiliate`,
+        type: 'association_registered',
+        title: 'New Association Registration',
+        message: `${associationData.name} (${associationData.email}) has registered as an association`,
         userId: adminId,
-        metadata: affiliateData,
+        metadata: associationData,
       });
     }
   }

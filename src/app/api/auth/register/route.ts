@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // SECURITY: Never allow self-registration as admin
-    const userRole = 'AFFILIATE';
+    const userRole = 'ASSOCIATION';
 
     // Generate a cryptographically secure random password
     const crypto = await import('crypto');
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       await emailService.sendWelcomeEmail({
         name: result.user!.name,
         email: result.user!.email,
-        role: result.user!.role.toLowerCase() as 'affiliate' | 'admin',
+        role: result.user!.role.toLowerCase() as 'association' | 'admin',
         loginUrl,
         password: randomPassword,
       });

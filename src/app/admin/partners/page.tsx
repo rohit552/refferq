@@ -70,7 +70,7 @@ interface Partner {
   userId: string;
   name: string;
   email: string;
-  referralCode: string;
+  school-leadCode: string;
   status: string;
   createdAt: string;
   clicks: number;
@@ -125,21 +125,21 @@ export default function PartnersPage() {
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/affiliates');
+      const response = await fetch('/api/admin/associations');
       const data = await response.json();
 
       if (data.success) {
-        const formattedPartners = data.affiliates.map((aff: any) => ({
+        const formattedPartners = data.associations.map((aff: any) => ({
           id: aff.id,
           userId: aff.userId,
           name: aff.user.name,
           email: aff.user.email,
-          referralCode: aff.referralCode,
+          school-leadCode: aff.school-leadCode,
           status: aff.user.status,
           createdAt: aff.createdAt,
           clicks: 0,
-          leads: aff._count?.referrals || 0,
-          customers: aff._count?.referrals || 0,
+          leads: aff._count?.school-leads || 0,
+          customers: aff._count?.school-leads || 0,
           revenue: 0,
           earnings: aff.balanceCents || 0,
           groupName: '',
@@ -172,7 +172,7 @@ export default function PartnersPage() {
         (p: Partner) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.referralCode.toLowerCase().includes(searchQuery.toLowerCase())
+          p.school-leadCode.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -203,7 +203,7 @@ export default function PartnersPage() {
   const handleCreatePartner = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/admin/affiliates', {
+      const response = await fetch('/api/admin/associations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -219,7 +219,7 @@ export default function PartnersPage() {
 
       if (data.success) {
         alert(
-          `Partner created successfully!\n\nName: ${data.affiliate.name}\nEmail: ${data.affiliate.email}\nReferral Code: ${data.affiliate.referralCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
+          `Partner created successfully!\n\nName: ${data.association.name}\nEmail: ${data.association.email}\nSchool Lead Code: ${data.association.school-leadCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
         );
         setShowCreateModal(false);
         setNewPartner({
@@ -263,10 +263,10 @@ export default function PartnersPage() {
     }
 
     const csv = [
-      ['Name', 'Email', 'Referral Code', 'Status', 'Signed Up', 'Clicks', 'Leads', 'Customers', 'Revenue', 'Earnings'].join(','),
+      ['Name', 'Email', 'School Lead Code', 'Status', 'Signed Up', 'Clicks', 'Leads', 'Customers', 'Revenue', 'Earnings'].join(','),
       ...partnersToExport.map((p: Partner) =>
         [
-          `"${p.name}"`, p.email, p.referralCode, p.status,
+          `"${p.name}"`, p.email, p.school-leadCode, p.status,
           new Date(p.createdAt).toLocaleDateString(), p.clicks, p.leads,
           p.customers, (p.revenue / 100).toFixed(2), (p.earnings / 100).toFixed(2),
         ].join(',')
@@ -294,11 +294,11 @@ export default function PartnersPage() {
     }
 
     try {
-      const response = await fetch('/api/admin/affiliates/batch', {
+      const response = await fetch('/api/admin/associations/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          affiliateIds: selectedPartners,
+          associationIds: selectedPartners,
           action: action === 'delete' ? 'delete' : 'changeStatus',
           status: status,
         }),
@@ -371,7 +371,7 @@ export default function PartnersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Partners</h2>
-          <p className="text-muted-foreground">Manage your affiliate partners</p>
+          <p className="text-muted-foreground">Manage your association partners</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowInviteModal(true)}>
@@ -472,7 +472,7 @@ export default function PartnersPage() {
                       Partner <SortIcon field="name" />
                     </div>
                   </TableHead>
-                  <TableHead>Referral Code</TableHead>
+                  <TableHead>School Lead Code</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('leads')}>
                     <div className="flex items-center">
                       Leads <SortIcon field="leads" />
@@ -528,7 +528,7 @@ export default function PartnersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{partner.referralCode}</code>
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{partner.school-leadCode}</code>
                       </TableCell>
                       <TableCell>{partner.leads}</TableCell>
                       <TableCell>{partner.customers}</TableCell>
@@ -571,7 +571,7 @@ export default function PartnersPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Create Partner</DialogTitle>
-            <DialogDescription>Add a new affiliate partner manually</DialogDescription>
+            <DialogDescription>Add a new association partner manually</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreatePartner}>
             <div className="grid gap-4 py-4">
@@ -683,7 +683,7 @@ export default function PartnersPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Invite Partner</DialogTitle>
-            <DialogDescription>Send an email invitation to a new affiliate partner</DialogDescription>
+            <DialogDescription>Send an email invitation to a new association partner</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">

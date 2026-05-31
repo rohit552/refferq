@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all referrals with affiliate information
-    const referrals = await prisma.referral.findMany({
+    // Get all school-leads with association information
+    const school-leads = await prisma.school-lead.findMany({
       include: {
-        affiliate: {
+        association: {
           include: {
             user: true
           }
@@ -39,47 +39,47 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all partner groups for commission rate lookup
+    // Get all partner groups for incentive rate lookup
     const partnerGroups = await prisma.partnerGroup.findMany();
     const partnerGroupMap = new Map(
-      partnerGroups.map(pg => [pg.id, { name: pg.name, rate: pg.commissionRate }])
+      partnerGroups.map(pg => [pg.id, { name: pg.name, rate: pg.incentiveRate }])
     );
 
     return NextResponse.json({
       success: true,
-      referrals: referrals.map(referral => {
-        const metadata = referral.metadata as any;
-        const affiliate = referral.affiliate as any;
-        const pgId = affiliate.partnerGroupId;
+      school-leads: school-leads.map(school-lead => {
+        const metadata = school-lead.metadata as any;
+        const association = school-lead.association as any;
+        const pgId = association.partnerGroupId;
         const pgData = pgId ? partnerGroupMap.get(pgId) : null;
         
         return {
-          id: referral.id,
-          leadEmail: referral.leadEmail,
-          leadName: referral.leadName,
-          leadPhone: referral.leadPhone,
-          status: referral.status,
-          notes: referral.notes,
-          createdAt: referral.createdAt,
+          id: school-lead.id,
+          leadEmail: school-lead.leadEmail,
+          leadName: school-lead.leadName,
+          leadPhone: school-lead.leadPhone,
+          status: school-lead.status,
+          notes: school-lead.notes,
+          createdAt: school-lead.createdAt,
           estimatedValue: Number(metadata?.estimated_value) || 0,
           company: metadata?.company || '',
-          affiliate: {
-            id: affiliate.id,
-            name: affiliate.user.name,
-            email: affiliate.user.email,
-            referralCode: affiliate.referralCode,
+          association: {
+            id: association.id,
+            name: association.user.name,
+            email: association.user.email,
+            school-leadCode: association.school-leadCode,
             partnerGroup: pgData?.name || 'Default',
             partnerGroupId: pgId,
-            commissionRate: pgData?.rate || 0.20
+            incentiveRate: pgData?.rate || 0.20
           }
         };
       })
     });
 
   } catch (error) {
-    console.error('Admin referrals API error:', error);
+    console.error('Admin school-leads API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch referrals' },
+      { error: 'Failed to fetch school-leads' },
       { status: 500 }
     );
   }
@@ -109,11 +109,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { referralIds, action } = body; // action: 'approve' | 'reject'
+    const { school-leadIds, action } = body; // action: 'approve' | 'reject'
 
-    if (!referralIds || !Array.isArray(referralIds) || referralIds.length === 0) {
+    if (!school-leadIds || !Array.isArray(school-leadIds) || school-leadIds.length === 0) {
       return NextResponse.json(
-        { error: 'Referral IDs array is required' },
+        { error: 'School Lead IDs array is required' },
         { status: 400 }
       );
     }
@@ -125,10 +125,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update multiple referrals
-    const updatedReferrals = await prisma.referral.updateMany({
+    // Update multiple school-leads
+    const updatedSchool Leads = await prisma.school-lead.updateMany({
       where: {
-        id: { in: referralIds },
+        id: { in: school-leadIds },
         status: 'PENDING'
       },
       data: {
@@ -140,14 +140,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${updatedReferrals.count} referrals ${action}d successfully`,
-      updatedCount: updatedReferrals.count
+      message: `${updatedSchool Leads.count} school-leads ${action}d successfully`,
+      updatedCount: updatedSchool Leads.count
     });
 
   } catch (error) {
-    console.error('Batch referral API error:', error);
+    console.error('Batch school-lead API error:', error);
     return NextResponse.json(
-      { error: 'Failed to process referrals' },
+      { error: 'Failed to process school-leads' },
       { status: 500 }
     );
   }

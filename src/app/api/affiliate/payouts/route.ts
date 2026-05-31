@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -20,26 +20,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    if (!user.affiliate) {
+    if (!user.association) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
 
-    // Get payouts for this affiliate
+    // Get payouts for this association
     const payouts = await prisma.payout.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       include: {
-        commissions: true
+        incentives: true
       }
     });
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       }))
     });
   } catch (error) {
-    console.error('Affiliate payouts API error:', error);
+    console.error('Association payouts API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch payouts' },
       { status: 500 }

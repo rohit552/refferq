@@ -46,7 +46,7 @@ export default function RegisterPage() {
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, role: 'AFFILIATE' }),
+        body: JSON.stringify({ email, name, role: 'ASSOCIATION' }),
       });
 
       const registerData = await registerRes.json();
@@ -108,7 +108,7 @@ export default function RegisterPage() {
           if (user.role === 'ADMIN') {
             router.push('/admin');
           } else {
-            router.push('/affiliate');
+            router.push('/association');
           }
         }, 2000);
       } else {
@@ -166,7 +166,7 @@ export default function RegisterPage() {
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-xl">Create your account</CardTitle>
                 <CardDescription>
-                  Join as an affiliate partner and start earning
+                  Join as an association partner and start earning
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleRegister}>

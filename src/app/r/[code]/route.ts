@@ -38,7 +38,7 @@ export async function GET(
 ) {
   try {
     const { code } = await params;
-    const referralCode = code;
+    const school-leadCode = code;
     const searchParams = request.nextUrl.searchParams;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.refferq.com';
 
@@ -55,14 +55,14 @@ export async function GET(
       ? rawTarget
       : websiteUrl || appUrl; // Fallback to program website or app URL
 
-    // Find affiliate by referral code using Prisma
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { referralCode },
+    // Find association by school-lead code using Prisma
+    const association = await prisma.association.findUnique({
+      where: { school-leadCode },
       include: { user: true }
     });
 
-    if (!affiliate) {
-      // Invalid referral code - redirect to default URL
+    if (!association) {
+      // Invalid school-lead code - redirect to default URL
       return NextResponse.redirect(targetUrl);
     }
 
@@ -79,29 +79,29 @@ export async function GET(
     const fraudResult = await checkFraud({
       ipAddress: cleanIP,
       userAgent,
-      affiliateId: affiliate.id,
+      associationId: association.id,
     });
 
     // Generate attribution key
     const attributionKey = `attr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Find or create a referral record for click tracking
-    let referral = await prisma.referral.findFirst({
+    // Find or create a school-lead record for click tracking
+    let school-lead = await prisma.school-lead.findFirst({
       where: {
-        affiliateId: affiliate.id,
+        associationId: association.id,
         leadEmail: `click-${attributionKey}@tracking.internal`,
       }
     });
 
-    if (!referral) {
-      referral = await prisma.referral.create({
+    if (!school-lead) {
+      school-lead = await prisma.school-lead.create({
         data: {
-          affiliateId: affiliate.id,
+          associationId: association.id,
           leadName: 'Click Visitor',
           leadEmail: `click-${attributionKey}@tracking.internal`,
           status: 'PENDING',
           metadata: {
-            source: 'referral_link',
+            source: 'school-lead_link',
             attribution_key: attributionKey,
             target_url: targetUrl,
             params: Object.fromEntries(searchParams.entries()),
@@ -110,10 +110,10 @@ export async function GET(
       });
     }
 
-    // Track the click in ReferralClick table (always track, even if suspicious)
-    await prisma.referralClick.create({
+    // Track the click in School LeadClick table (always track, even if suspicious)
+    await prisma.school-leadClick.create({
       data: {
-        referralId: referral.id,
+        school-leadId: school-lead.id,
         ipAddress: cleanIP,
         userAgent: userAgent,
         referer: referer,
@@ -141,7 +141,7 @@ export async function GET(
       }
     });
 
-    redirectUrl.searchParams.set('ref', referralCode);
+    redirectUrl.searchParams.set('ref', school-leadCode);
     redirectUrl.searchParams.set('attr', attributionKey);
 
     const response = NextResponse.redirect(redirectUrl.toString());
@@ -150,10 +150,10 @@ export async function GET(
     const cookieExpiry = new Date();
     cookieExpiry.setDate(cookieExpiry.getDate() + 30);
 
-    response.cookies.set('affiliate_attribution', JSON.stringify({
-      referral_code: referralCode,
+    response.cookies.set('association_attribution', JSON.stringify({
+      school-lead_code: school-leadCode,
       attribution_key: attributionKey,
-      affiliate_id: affiliate.id,
+      association_id: association.id,
       timestamp: new Date().toISOString(),
     }), {
       expires: cookieExpiry,
@@ -164,7 +164,7 @@ export async function GET(
 
     return response;
   } catch (error) {
-    console.error('Referral tracking error:', error);
+    console.error('School Lead tracking error:', error);
 
     // Fallback redirect on error (safe — always redirects to app URL)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.refferq.com';

@@ -58,11 +58,11 @@ export async function POST(request: Request) {
 
     const testVariables: Record<string, string> = {
       partner_name: 'John Doe',
-      program_name: 'Test Affiliate Program',
-      referral_link: 'https://example.com/ref/ABC123',
-      referral_name: 'Jane Smith',
-      referral_email: 'jane@example.com',
-      referral_count: '5',
+      program_name: 'Test Association Program',
+      school-lead_link: 'https://example.com/ref/ABC123',
+      school-lead_name: 'Jane Smith',
+      school-lead_email: 'jane@example.com',
+      school-lead_count: '5',
       amount: '$250.00',
       payout_method: 'PayPal',
       partner_email: user.email,

@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
         info: {
             title: 'SkillHeed NEP Partner API',
             version: '1.1.0',
-            description: 'SkillHeed NEP Partner platform API. Manage partners, referrals, school onboarding, conversions, commissions, and payouts.',
+            description: 'SkillHeed NEP Partner platform API. Manage partners, school-leads, school onboarding, conversions, incentives, and payouts.',
             contact: { email: 'hello@refferq.com' },
             license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
         },
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         ],
         tags: [
             { name: 'Auth', description: 'Authentication endpoints' },
-            { name: 'Affiliate', description: 'Affiliate-facing endpoints' },
+            { name: 'Association', description: 'Association-facing endpoints' },
             { name: 'Admin', description: 'Admin management endpoints' },
             { name: 'Tracking', description: 'Click and conversion tracking' },
             { name: 'Webhooks', description: 'External webhook receivers' },
@@ -46,17 +46,17 @@ export async function GET(request: NextRequest) {
                 },
             },
 
-            // ─── Affiliate ─────────────────────────────────────────
-            '/api/affiliate/profile': {
+            // ─── Association ─────────────────────────────────────────
+            '/api/association/profile': {
                 get: {
-                    tags: ['Affiliate'],
-                    summary: 'Get affiliate profile & stats',
+                    tags: ['Association'],
+                    summary: 'Get association profile & stats',
                     security: [{ BearerAuth: [] }],
-                    responses: { '200': { description: 'Affiliate data, referrals, stats, currencySymbol' } },
+                    responses: { '200': { description: 'Association data, school-leads, stats, currencySymbol' } },
                 },
                 put: {
-                    tags: ['Affiliate'],
-                    summary: 'Update affiliate profile',
+                    tags: ['Association'],
+                    summary: 'Update association profile',
                     security: [{ BearerAuth: [] }],
                     requestBody: {
                         required: true,
@@ -65,48 +65,48 @@ export async function GET(request: NextRequest) {
                     responses: { '200': { description: 'Profile updated' } },
                 },
             },
-            '/api/affiliate/referrals': {
+            '/api/association/school-leads': {
                 post: {
-                    tags: ['Affiliate'],
-                    summary: 'Submit a new referral lead',
+                    tags: ['Association'],
+                    summary: 'Submit a new school-lead lead',
                     security: [{ BearerAuth: [] }],
                     requestBody: {
                         required: true,
-                        content: { 'application/json': { schema: { $ref: '#/components/schemas/ReferralRequest' } } },
+                        content: { 'application/json': { schema: { $ref: '#/components/schemas/School LeadRequest' } } },
                     },
                     responses: {
-                        '201': { description: 'Referral created' },
+                        '201': { description: 'School Lead created' },
                         '400': { description: 'Validation error' },
                     },
                 },
             },
-            '/api/affiliate/payouts': {
+            '/api/association/payouts': {
                 get: {
-                    tags: ['Affiliate'],
-                    summary: 'Get affiliate payout history',
+                    tags: ['Association'],
+                    summary: 'Get association payout history',
                     security: [{ BearerAuth: [] }],
                     responses: { '200': { description: 'List of payouts' } },
                 },
             },
 
             // ─── Admin ─────────────────────────────────────────────
-            '/api/admin/affiliates': {
+            '/api/admin/associations': {
                 get: {
                     tags: ['Admin'],
-                    summary: 'List all affiliates',
+                    summary: 'List all associations',
                     security: [{ BearerAuth: [] }],
-                    responses: { '200': { description: 'Array of affiliates with stats and currencySymbol' } },
+                    responses: { '200': { description: 'Array of associations with stats and currencySymbol' } },
                 },
                 post: {
                     tags: ['Admin'],
-                    summary: 'Create a new affiliate',
+                    summary: 'Create a new association',
                     security: [{ BearerAuth: [] }],
                     requestBody: {
                         required: true,
-                        content: { 'application/json': { schema: { $ref: '#/components/schemas/AffiliateCreateRequest' } } },
+                        content: { 'application/json': { schema: { $ref: '#/components/schemas/AssociationCreateRequest' } } },
                     },
                     responses: {
-                        '200': { description: 'Affiliate created, temporaryPassword included' },
+                        '200': { description: 'Association created, temporaryPassword included' },
                         '400': { description: 'Validation error or email exists' },
                     },
                 },
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
                     summary: 'List all payouts',
                     security: [{ BearerAuth: [] }],
                     parameters: [
-                        { name: 'affiliateId', in: 'query', schema: { type: 'string' }, description: 'Filter by affiliate' },
+                        { name: 'associationId', in: 'query', schema: { type: 'string' }, description: 'Filter by association' },
                         { name: 'format', in: 'query', schema: { type: 'string', enum: ['csv'] }, description: 'Export as CSV' },
                     ],
                     responses: { '200': { description: 'Array of payouts' } },
@@ -164,9 +164,9 @@ export async function GET(request: NextRequest) {
             '/r/{code}': {
                 get: {
                     tags: ['Tracking'],
-                    summary: 'Referral redirect (deep linking supported)',
+                    summary: 'School Lead redirect (deep linking supported)',
                     parameters: [
-                        { name: 'code', in: 'path', required: true, schema: { type: 'string' }, description: 'Referral code' },
+                        { name: 'code', in: 'path', required: true, schema: { type: 'string' }, description: 'School Lead code' },
                         { name: 'dest', in: 'query', schema: { type: 'string', format: 'uri' }, description: 'Deep link destination URL' },
                     ],
                     responses: {
@@ -219,10 +219,10 @@ export async function GET(request: NextRequest) {
                         id: { type: 'string' },
                         name: { type: 'string' },
                         email: { type: 'string' },
-                        role: { type: 'string', enum: ['ADMIN', 'AFFILIATE'] },
+                        role: { type: 'string', enum: ['ADMIN', 'ASSOCIATION'] },
                     },
                 },
-                ReferralRequest: {
+                School LeadRequest: {
                     type: 'object',
                     required: ['leadName', 'leadEmail'],
                     properties: {
@@ -233,7 +233,7 @@ export async function GET(request: NextRequest) {
                         estimatedValue: { type: 'number', minimum: 0 },
                     },
                 },
-                AffiliateCreateRequest: {
+                AssociationCreateRequest: {
                     type: 'object',
                     required: ['name', 'email'],
                     properties: {
@@ -244,10 +244,10 @@ export async function GET(request: NextRequest) {
                 },
                 PayoutRequest: {
                     type: 'object',
-                    required: ['affiliateId', 'commissionIds'],
+                    required: ['associationId', 'incentiveIds'],
                     properties: {
-                        affiliateId: { type: 'string' },
-                        commissionIds: { type: 'array', items: { type: 'string' }, minItems: 1 },
+                        associationId: { type: 'string' },
+                        incentiveIds: { type: 'array', items: { type: 'string' }, minItems: 1 },
                         method: { type: 'string' },
                         notes: { type: 'string' },
                     },
@@ -288,7 +288,7 @@ export async function GET(request: NextRequest) {
                 ConversionWebhook: {
                     type: 'object',
                     properties: {
-                        referralCode: { type: 'string' },
+                        school-leadCode: { type: 'string' },
                         eventType: { type: 'string', enum: ['SIGNUP', 'PURCHASE', 'TRIAL', 'LEAD'] },
                         amountCents: { type: 'integer' },
                         currency: { type: 'string' },

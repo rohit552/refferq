@@ -6,7 +6,7 @@ import { tierFromGroupName, PARTNER_TIERS, type PartnerTier } from '@/lib/partne
  * GET /api/admin/nep
  *
  * Aggregates SkillHeed NEP analytics from the existing data model
- * (Affiliate, PartnerGroup, Referral, ReferralClick) — no schema changes.
+ * (Association, PartnerGroup, School Lead, School LeadClick) — no schema changes.
  * Admin-only (enforced by middleware + the role check below).
  */
 export async function GET(request: NextRequest) {
@@ -18,19 +18,19 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Partner hierarchy counts ──────────────────────────────
-    const affiliates = await prisma.affiliate.findMany({
+    const associations = await prisma.association.findMany({
       include: { partnerGroup: true, user: { select: { name: true, email: true } } },
     });
 
     const tierCounts: Record<PartnerTier, number> = { MASTER: 0, SUB: 0, PARTNER: 0 };
-    for (const a of affiliates) {
+    for (const a of associations) {
       tierCounts[tierFromGroupName(a.partnerGroup?.name)]++;
     }
 
-    // ── NEP landing events (stored as ReferralClick with channel '/nep') ──
-    const nepClicks = await prisma.referralClick.findMany({
+    // ── NEP landing events (stored as School LeadClick with channel '/nep') ──
+    const nepClicks = await prisma.school-leadClick.findMany({
       where: { metadata: { path: ['channel'], equals: '/nep' } },
-      select: { metadata: true, createdAt: true, referral: { select: { affiliateId: true } } },
+      select: { metadata: true, createdAt: true, school-lead: { select: { associationId: true } } },
     });
 
     let pageViews = 0;
@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
       if (district) byDistrict[district] = (byDistrict[district] || 0) + 1;
     }
 
-    // ── NEP leads / school onboarding (Referral with source 'nep_landing') ──
-    const nepLeads = await prisma.referral.findMany({
+    // ── NEP leads / school onboarding (School Lead with source 'nep_landing') ──
+    const nepLeads = await prisma.school-lead.findMany({
       where: { metadata: { path: ['source'], equals: 'nep_landing' } },
-      include: { affiliate: { include: { user: { select: { name: true } } } } },
+      include: { association: { include: { user: { select: { name: true } } } } },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -78,16 +78,16 @@ export async function GET(request: NextRequest) {
 
     // Partner performance (leads per partner)
     const perfMap: Record<string, { name: string; code: string; leads: number; tier: PartnerTier }> = {};
-    for (const a of affiliates) {
+    for (const a of associations) {
       perfMap[a.id] = {
         name: a.user.name,
-        code: a.referralCode,
+        code: a.school-leadCode,
         leads: 0,
         tier: tierFromGroupName(a.partnerGroup?.name),
       };
     }
     for (const l of schoolLeads) {
-      if (perfMap[l.affiliateId]) perfMap[l.affiliateId].leads++;
+      if (perfMap[l.associationId]) perfMap[l.associationId].leads++;
     }
     const partnerPerformance = Object.values(perfMap)
       .sort((a, b) => b.leads - a.leads)
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         school: m.school_name ? String(m.school_name) : null,
         state: m.state ? String(m.state) : null,
         district: m.district ? String(m.district) : null,
-        partner: r.affiliate.user.name,
+        partner: r.association.user.name,
         status: r.status,
         createdAt: r.createdAt,
       };
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       summary: {
-        totalPartners: affiliates.length,
+        totalPartners: associations.length,
         masterPartners: tierCounts.MASTER,
         subPartners: tierCounts.SUB,
         partners: tierCounts.PARTNER,

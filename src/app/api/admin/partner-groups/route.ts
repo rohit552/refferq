@@ -32,17 +32,17 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get affiliate counts for each partner group
-    const affiliateCounts = await Promise.all(
+    // Get association counts for each partner group
+    const associationCounts = await Promise.all(
       partnerGroups.map(async (pg) => {
-        const count = await prisma.affiliate.count({
+        const count = await prisma.association.count({
           where: { partnerGroupId: pg.id } as any
         });
         return { id: pg.id, count };
       })
     );
     
-    const countMap = new Map(affiliateCounts.map(ac => [ac.id, ac.count]));
+    const countMap = new Map(associationCounts.map(ac => [ac.id, ac.count]));
 
     return NextResponse.json({
       success: true,
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         id: pg.id,
         name: pg.name,
         description: pg.description,
-        commissionRate: pg.commissionRate,
+        incentiveRate: pg.incentiveRate,
         signupUrl: pg.signupUrl,
         isDefault: pg.isDefault,
         memberCount: countMap.get(pg.id) || 0,
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, commissionRate, signupUrl, isDefault } = body;
+    const { name, description, incentiveRate, signupUrl, isDefault } = body;
 
     // Validation
     if (!name || typeof name !== 'string') {
@@ -102,9 +102,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!commissionRate || typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1) {
+    if (!incentiveRate || typeof incentiveRate !== 'number' || incentiveRate <= 0 || incentiveRate > 1) {
       return NextResponse.json(
-        { error: 'Commission rate must be a number between 0 and 1 (e.g., 0.20 for 20%)' },
+        { error: 'Incentive rate must be a number between 0 and 1 (e.g., 0.20 for 20%)' },
         { status: 400 }
       );
     }
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description: description || null,
-        commissionRate,
+        incentiveRate,
         signupUrl: signupUrl || null,
         isDefault: isDefault || false
       }
@@ -167,7 +167,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, name, description, commissionRate, signupUrl, isDefault } = body;
+    const { id, name, description, incentiveRate, signupUrl, isDefault } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -177,9 +177,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validation
-    if (commissionRate && (typeof commissionRate !== 'number' || commissionRate <= 0 || commissionRate > 1)) {
+    if (incentiveRate && (typeof incentiveRate !== 'number' || incentiveRate <= 0 || incentiveRate > 1)) {
       return NextResponse.json(
-        { error: 'Commission rate must be a number between 0 and 1' },
+        { error: 'Incentive rate must be a number between 0 and 1' },
         { status: 400 }
       );
     }
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest) {
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
-        ...(commissionRate && { commissionRate }),
+        ...(incentiveRate && { incentiveRate }),
         ...(signupUrl !== undefined && { signupUrl }),
         ...(isDefault !== undefined && { isDefault })
       }
@@ -267,8 +267,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    // Count affiliates in this group
-    const memberCount = await prisma.affiliate.count({
+    // Count associations in this group
+    const memberCount = await prisma.association.count({
       where: { partnerGroupId: id } as any
     });
 

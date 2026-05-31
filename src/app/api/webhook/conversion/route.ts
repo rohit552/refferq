@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       currency = 'USD',
       customer_email,
       attribution_key,
-      referral_code,
+      school-lead_code,
       event_metadata = {},
     } = body;
 
@@ -73,31 +73,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let affiliate = null;
+    let association = null;
     let attributionMethod = 'none';
 
-    // Try to find affiliate through attribution key first
+    // Try to find association through attribution key first
     if (attribution_key) {
       // In a real implementation, this would be stored in Redis
       // For this simulation, we'll comment out the problematic call
-      // const recentClicks = await db.getClicksByReferralId('some-referral-id');
-      // For demo purposes, we'll use referral_code method
+      // const recentClicks = await db.getClicksBySchool LeadId('some-school-lead-id');
+      // For demo purposes, we'll use school-lead_code method
       attributionMethod = 'attribution_key';
     }
 
-    // Fallback to referral code
-    if (!affiliate && referral_code) {
-      affiliate = await db.getAffiliateByReferralCode(referral_code);
-      attributionMethod = 'referral_code';
+    // Fallback to school-lead code
+    if (!association && school-lead_code) {
+      association = await db.getAssociationBySchool LeadCode(school-lead_code);
+      attributionMethod = 'school-lead_code';
     }
 
-    // If no affiliate found, log the conversion but don't create commission
-    if (!affiliate) {
-      console.log('Conversion received but no affiliate attribution found:', {
+    // If no association found, log the conversion but don't create incentive
+    if (!association) {
+      console.log('Conversion received but no association attribution found:', {
         event_type,
         customer_email,
         attribution_key,
-        referral_code,
+        school-lead_code,
       });
 
       return NextResponse.json({
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Create conversion record
     const conversion = await db.createConversion({
-      affiliateId: affiliate.id,
+      associationId: association.id,
       eventType: event_type,
       amountCents: amount_cents || 0,
       currency,
@@ -118,45 +118,45 @@ export async function POST(request: NextRequest) {
         customerEmail: customer_email,
         attributionMethod,
         attributionKey: attribution_key,
-        referralCode: referral_code,
+        school-leadCode: school-lead_code,
       },
     });
 
-    // Calculate commission
-    const commissionRules = await db.getCommissionRules();
-    let applicableRule = commissionRules.find((rule: any) => rule.isDefault);
+    // Calculate incentive
+    const incentiveRules = await db.getIncentiveRules();
+    let applicableRule = incentiveRules.find((rule: any) => rule.isDefault);
 
-    const commissionRate = applicableRule?.value || 15;
-    let commissionAmount = 0;
+    const incentiveRate = applicableRule?.value || 15;
+    let incentiveAmount = 0;
 
     if (applicableRule?.type === 'PERCENTAGE' && amount_cents) {
-      commissionAmount = Math.floor((amount_cents * commissionRate) / 100);
+      incentiveAmount = Math.floor((amount_cents * incentiveRate) / 100);
     } else if (applicableRule?.type === 'FIXED') {
-      commissionAmount = commissionRate;
+      incentiveAmount = incentiveRate;
     }
 
-    // ─── Commission Hold Period ─────────────────────────────────
+    // ─── Incentive Hold Period ─────────────────────────────────
     // Fetch hold days from ProgramSettings (default 30)
     const settings = await prisma.programSettings.findFirst();
-    const holdDays = (settings as any)?.commissionHoldDays ?? 30;
+    const holdDays = (settings as any)?.incentiveHoldDays ?? 30;
     const maturesAt = new Date();
     maturesAt.setDate(maturesAt.getDate() + holdDays);
 
-    // Create commission record with maturesAt (status stays PENDING until maturation)
-    const commission = await prisma.commission.create({
+    // Create incentive record with maturesAt (status stays PENDING until maturation)
+    const incentive = await prisma.incentive.create({
       data: {
         conversionId: conversion.id,
-        affiliateId: affiliate.id,
-        userId: affiliate.userId,
-        amountCents: commissionAmount,
-        rate: commissionRate,
+        associationId: association.id,
+        userId: association.userId,
+        amountCents: incentiveAmount,
+        rate: incentiveRate,
         status: 'PENDING',
         maturesAt,
       },
     });
 
     // NOTE: We do NOT update balanceCents here anymore.
-    // Balance is only updated when the commission matures (PENDING → APPROVED).
+    // Balance is only updated when the incentive matures (PENDING → APPROVED).
     // This protects against refunds during the hold period.
 
     // Log audit event
@@ -168,8 +168,8 @@ export async function POST(request: NextRequest) {
       payload: {
         event_type,
         amount_cents,
-        commission_amount: commissionAmount,
-        affiliate_id: affiliate.id,
+        incentive_amount: incentiveAmount,
+        association_id: association.id,
         attributionMethod,
       },
     });
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       message: 'Conversion tracked successfully',
       attributed: true,
       conversion,
-      commission,
+      incentive,
       attributionMethod,
     });
   } catch (error) {

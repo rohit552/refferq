@@ -12,7 +12,7 @@ const SUSPICIOUS_USER_AGENTS = [
 ];
 
 const MAX_CLICKS_PER_IP_PER_HOUR = 10;
-const MAX_CLICKS_PER_AFFILIATE_PER_IP_DAY = 5;
+const MAX_CLICKS_PER_ASSOCIATION_PER_IP_DAY = 5;
 
 /**
  * Checks if an IP + userAgent combination looks suspicious.
@@ -23,16 +23,16 @@ export function isBotUserAgent(userAgent: string): boolean {
 }
 
 /**
- * Comprehensive fraud check for a referral click.
+ * Comprehensive fraud check for a school-lead click.
  */
 export async function checkFraud({
     ipAddress,
     userAgent,
-    affiliateId,
+    associationId,
 }: {
     ipAddress: string;
     userAgent: string;
-    affiliateId: string;
+    associationId: string;
 }): Promise<FraudCheckResult> {
     const reasons: string[] = [];
     let riskScore = 0;
@@ -45,7 +45,7 @@ export async function checkFraud({
 
     // 2. Check click frequency from the same IP in last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentClicksFromIP = await prisma.referralClick.count({
+    const recentClicksFromIP = await prisma.school-leadClick.count({
         where: {
             ipAddress,
             createdAt: { gte: oneHourAgo },
@@ -57,24 +57,24 @@ export async function checkFraud({
         riskScore += 30;
     }
 
-    // 3. Check if same IP already clicked for this affiliate today
+    // 3. Check if same IP already clicked for this association today
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const clicksForAffiliateFromIP = await prisma.referralClick.count({
+    const clicksForAssociationFromIP = await prisma.school-leadClick.count({
         where: {
             ipAddress,
             createdAt: { gte: oneDayAgo },
-            referral: {
-                affiliateId,
+            school-lead: {
+                associationId,
             },
         },
     });
 
-    if (clicksForAffiliateFromIP >= MAX_CLICKS_PER_AFFILIATE_PER_IP_DAY) {
-        reasons.push(`Duplicate IP: ${clicksForAffiliateFromIP} clicks for same affiliate from same IP today`);
+    if (clicksForAssociationFromIP >= MAX_CLICKS_PER_ASSOCIATION_PER_IP_DAY) {
+        reasons.push(`Duplicate IP: ${clicksForAssociationFromIP} clicks for same association from same IP today`);
         riskScore += 40;
     }
 
-    // 4. Private/loopback IP ranges (could indicate self-referral or test)
+    // 4. Private/loopback IP ranges (could indicate self-school-lead or test)
     const isPrivateIP = /^(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/.test(ipAddress);
     if (isPrivateIP) {
         reasons.push('Private/internal IP address');
@@ -91,10 +91,10 @@ export async function checkFraud({
 }
 
 /**
- * Logs a fraud event to the referralClick metadata.
+ * Logs a fraud event to the school-leadClick metadata.
  */
 export async function logFraudEvent(clickId: string, fraudResult: FraudCheckResult) {
-    await prisma.referralClick.update({
+    await prisma.school-leadClick.update({
         where: { id: clickId },
         data: {
             metadata: {

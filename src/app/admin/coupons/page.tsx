@@ -31,7 +31,7 @@ interface Coupon {
   discountValue: number;
   maxUses?: number;
   usedCount: number;
-  affiliateId?: string;
+  associationId?: string;
   isActive: boolean;
   startsAt?: string;
   expiresAt?: string;
@@ -47,7 +47,7 @@ export default function CouponsPage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [form, setForm] = useState({
     code: '', description: '', discountType: 'PERCENTAGE', discountValue: '',
-    maxUses: '', affiliateId: '', expiresAt: '',
+    maxUses: '', associationId: '', expiresAt: '',
   });
 
   useEffect(() => { fetchCoupons(); }, []);
@@ -73,7 +73,7 @@ export default function CouponsPage() {
         discountType: form.discountType,
         discountValue: parseFloat(form.discountValue),
         maxUses: form.maxUses ? parseInt(form.maxUses) : null,
-        affiliateId: form.affiliateId || null,
+        associationId: form.associationId || null,
         expiresAt: form.expiresAt || null,
         ...(editing ? { id: editing.id } : {}),
       };
@@ -128,7 +128,7 @@ export default function CouponsPage() {
       discountType: c.discountType,
       discountValue: String(c.discountValue),
       maxUses: c.maxUses ? String(c.maxUses) : '',
-      affiliateId: c.affiliateId || '',
+      associationId: c.associationId || '',
       expiresAt: c.expiresAt ? c.expiresAt.slice(0, 10) : '',
     });
     setDialogOpen(true);
@@ -137,7 +137,7 @@ export default function CouponsPage() {
   const closeDialog = () => {
     setDialogOpen(false);
     setEditing(null);
-    setForm({ code: '', description: '', discountType: 'PERCENTAGE', discountValue: '', maxUses: '', affiliateId: '', expiresAt: '' });
+    setForm({ code: '', description: '', discountType: 'PERCENTAGE', discountValue: '', maxUses: '', associationId: '', expiresAt: '' });
   };
 
   const copyCode = (code: string) => {
@@ -204,7 +204,7 @@ export default function CouponsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Coupons</CardTitle>
-          <CardDescription>Discount codes for customers referred by affiliates</CardDescription>
+          <CardDescription>Discount codes for customers referred by associations</CardDescription>
         </CardHeader>
         <CardContent>
           {coupons.length === 0 ? (
@@ -220,7 +220,7 @@ export default function CouponsPage() {
                   <TableHead>Code</TableHead>
                   <TableHead>Discount</TableHead>
                   <TableHead>Usage</TableHead>
-                  <TableHead>Affiliate</TableHead>
+                  <TableHead>Association</TableHead>
                   <TableHead>Expires</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -243,7 +243,7 @@ export default function CouponsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">{c.usedCount}{c.maxUses ? `/${c.maxUses}` : ''}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{c.affiliateId ? c.affiliateId.slice(0, 8) + '...' : 'Program-wide'}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{c.associationId ? c.associationId.slice(0, 8) + '...' : 'Program-wide'}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{c.expiresAt ? formatDate(c.expiresAt) : 'Never'}</TableCell>
                     <TableCell>
                       <Switch checked={c.isActive} onCheckedChange={() => handleToggle(c.id, c.isActive)} />
@@ -267,7 +267,7 @@ export default function CouponsPage() {
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Coupon' : 'Create Coupon'}</DialogTitle>
             <DialogDescription>
-              {editing ? 'Update coupon details' : 'Create a new discount code for affiliates or customers'}
+              {editing ? 'Update coupon details' : 'Create a new discount code for associations or customers'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -306,8 +306,8 @@ export default function CouponsPage() {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label>Affiliate ID (optional)</Label>
-              <Input value={form.affiliateId} onChange={e => setForm({...form, affiliateId: e.target.value})} placeholder="Leave empty for program-wide coupon" />
+              <Label>Association ID (optional)</Label>
+              <Input value={form.associationId} onChange={e => setForm({...form, associationId: e.target.value})} placeholder="Leave empty for program-wide coupon" />
             </div>
           </div>
           <DialogFooter>

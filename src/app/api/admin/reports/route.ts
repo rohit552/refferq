@@ -32,44 +32,44 @@ export async function GET(request: NextRequest) {
 
     let reportData: any = {};
 
-    if (reportType === 'affiliates') {
-      // Affiliate Performance Report
-      const affiliates = await prisma.affiliate.findMany({
+    if (reportType === 'associations') {
+      // Association Performance Report
+      const associations = await prisma.association.findMany({
         include: {
           user: true,
-          referrals: {
+          school-leads: {
             where: dateFilter
           },
-          commissions: {
+          incentives: {
             where: dateFilter
           }
         }
       });
 
       reportData = {
-        type: 'Affiliate Performance Report',
+        type: 'Association Performance Report',
         generatedAt: new Date().toISOString(),
-        data: affiliates.map(affiliate => ({
-          affiliateId: affiliate.id,
-          name: affiliate.user.name,
-          email: affiliate.user.email,
-          referralCode: affiliate.referralCode,
-          totalReferrals: affiliate.referrals.length,
-          approvedReferrals: affiliate.referrals.filter(r => r.status === 'APPROVED').length,
-          pendingReferrals: affiliate.referrals.filter(r => r.status === 'PENDING').length,
-          totalCommissions: affiliate.commissions.length,
-          totalEarnings: affiliate.commissions.reduce((sum, c) => sum + c.amountCents, 0),
-          paidEarnings: affiliate.commissions.filter(c => c.paidAt !== null).reduce((sum, c) => sum + c.amountCents, 0),
-          balance: affiliate.balanceCents,
-          joinedDate: affiliate.createdAt
+        data: associations.map(association => ({
+          associationId: association.id,
+          name: association.user.name,
+          email: association.user.email,
+          school-leadCode: association.school-leadCode,
+          totalSchool Leads: association.school-leads.length,
+          approvedSchool Leads: association.school-leads.filter(r => r.status === 'APPROVED').length,
+          pendingSchool Leads: association.school-leads.filter(r => r.status === 'PENDING').length,
+          totalIncentives: association.incentives.length,
+          totalEarnings: association.incentives.reduce((sum, c) => sum + c.amountCents, 0),
+          paidEarnings: association.incentives.filter(c => c.paidAt !== null).reduce((sum, c) => sum + c.amountCents, 0),
+          balance: association.balanceCents,
+          joinedDate: association.createdAt
         }))
       };
-    } else if (reportType === 'referrals') {
-      // Referrals Report
-      const referrals = await prisma.referral.findMany({
+    } else if (reportType === 'school-leads') {
+      // School Leads Report
+      const school-leads = await prisma.school-lead.findMany({
         where: dateFilter,
         include: {
-          affiliate: {
+          association: {
             include: {
               user: true
             }
@@ -81,29 +81,29 @@ export async function GET(request: NextRequest) {
       });
 
       reportData = {
-        type: 'Referrals Report',
+        type: 'School Leads Report',
         generatedAt: new Date().toISOString(),
-        data: referrals.map(referral => ({
-          referralId: referral.id,
-          leadName: referral.leadName,
-          leadEmail: referral.leadEmail,
-          leadPhone: referral.leadPhone,
-          status: referral.status,
-          notes: referral.notes,
-          affiliateName: referral.affiliate.user.name,
-          affiliateCode: referral.affiliate.referralCode,
-          submittedDate: referral.createdAt,
-          reviewedDate: referral.reviewedAt,
-          reviewedBy: referral.reviewedBy,
-          reviewNotes: referral.reviewNotes
+        data: school-leads.map(school-lead => ({
+          school-leadId: school-lead.id,
+          leadName: school-lead.leadName,
+          leadEmail: school-lead.leadEmail,
+          leadPhone: school-lead.leadPhone,
+          status: school-lead.status,
+          notes: school-lead.notes,
+          associationName: school-lead.association.user.name,
+          associationCode: school-lead.association.school-leadCode,
+          submittedDate: school-lead.createdAt,
+          reviewedDate: school-lead.reviewedAt,
+          reviewedBy: school-lead.reviewedBy,
+          reviewNotes: school-lead.reviewNotes
         }))
       };
-    } else if (reportType === 'commissions') {
-      // Commissions Report
-      const commissions = await prisma.commission.findMany({
+    } else if (reportType === 'incentives') {
+      // Incentives Report
+      const incentives = await prisma.incentive.findMany({
         where: dateFilter,
         include: {
-          affiliate: {
+          association: {
             include: {
               user: true
             }
@@ -116,19 +116,19 @@ export async function GET(request: NextRequest) {
       });
 
       reportData = {
-        type: 'Commissions Report',
+        type: 'Incentives Report',
         generatedAt: new Date().toISOString(),
-        data: commissions.map(commission => ({
-          commissionId: commission.id,
-          affiliateName: commission.affiliate.user.name,
-          affiliateEmail: commission.affiliate.user.email,
-          amount: commission.amountCents,
-          rate: commission.rate,
-          status: commission.status,
-          conversionAmount: commission.conversion.amountCents,
-          createdDate: commission.createdAt,
-          approvedDate: commission.approvedAt,
-          paidDate: commission.paidAt
+        data: incentives.map(incentive => ({
+          incentiveId: incentive.id,
+          associationName: incentive.association.user.name,
+          associationEmail: incentive.association.user.email,
+          amount: incentive.amountCents,
+          rate: incentive.rate,
+          status: incentive.status,
+          conversionAmount: incentive.conversion.amountCents,
+          createdDate: incentive.createdAt,
+          approvedDate: incentive.approvedAt,
+          paidDate: incentive.paidAt
         }))
       };
     } else if (reportType === 'payouts') {
@@ -137,9 +137,9 @@ export async function GET(request: NextRequest) {
         where: dateFilter,
         include: {
           user: true,
-          commissions: {
+          incentives: {
             include: {
-              affiliate: {
+              association: {
                 include: {
                   user: true
                 }
@@ -157,8 +157,8 @@ export async function GET(request: NextRequest) {
         generatedAt: new Date().toISOString(),
         data: payouts.map(payout => ({
           payoutId: payout.id,
-          affiliateName: payout.user.name,
-          affiliateEmail: payout.user.email,
+          associationName: payout.user.name,
+          associationEmail: payout.user.email,
           amount: payout.amountCents,
           method: payout.method,
           status: payout.status,
@@ -168,12 +168,12 @@ export async function GET(request: NextRequest) {
       };
     } else {
       // Summary Report (default)
-      const totalAffiliates = await prisma.affiliate.count();
-      const totalReferrals = await prisma.referral.count({ where: dateFilter });
-      const approvedReferrals = await prisma.referral.count({ 
+      const totalAssociations = await prisma.association.count();
+      const totalSchool Leads = await prisma.school-lead.count({ where: dateFilter });
+      const approvedSchool Leads = await prisma.school-lead.count({ 
         where: { ...dateFilter, status: 'APPROVED' } 
       });
-      const totalCommissions = await prisma.commission.aggregate({
+      const totalIncentives = await prisma.incentive.aggregate({
         where: dateFilter,
         _sum: { amountCents: true },
         _count: true
@@ -189,12 +189,12 @@ export async function GET(request: NextRequest) {
         generatedAt: new Date().toISOString(),
         period: startDate && endDate ? `${startDate} to ${endDate}` : 'All time',
         summary: {
-          totalAffiliates,
-          totalReferrals,
-          approvedReferrals,
-          conversionRate: totalReferrals > 0 ? ((approvedReferrals / totalReferrals) * 100).toFixed(2) : 0,
-          totalCommissions: totalCommissions._count,
-          totalCommissionAmount: totalCommissions._sum.amountCents || 0,
+          totalAssociations,
+          totalSchool Leads,
+          approvedSchool Leads,
+          conversionRate: totalSchool Leads > 0 ? ((approvedSchool Leads / totalSchool Leads) * 100).toFixed(2) : 0,
+          totalIncentives: totalIncentives._count,
+          totalIncentiveAmount: totalIncentives._sum.amountCents || 0,
           totalPayouts: totalPayouts._count,
           totalPayoutAmount: totalPayouts._sum.amountCents || 0
         }

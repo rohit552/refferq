@@ -47,7 +47,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
-interface Referral {
+interface School Lead {
   id: string;
   leadEmail: string;
   leadName: string;
@@ -57,14 +57,14 @@ interface Referral {
   createdAt: string;
   estimatedValue: number;
   company: string;
-  affiliate: {
+  association: {
     id: string;
     name: string;
     email: string;
-    referralCode: string;
+    school-leadCode: string;
     partnerGroup: string;
     partnerGroupId: string | null;
-    commissionRate: number;
+    incentiveRate: number;
   };
 }
 
@@ -79,7 +79,7 @@ export default function CustomerDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  const [referral, setReferral] = useState<Referral | null>(null);
+  const [school-lead, setSchool Lead] = useState<School Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -92,23 +92,23 @@ export default function CustomerDetailPage() {
   const [reviewNotes, setReviewNotes] = useState('');
 
   useEffect(() => {
-    fetchReferral();
+    fetchSchool Lead();
   }, [id]);
 
-  const fetchReferral = async () => {
+  const fetchSchool Lead = async () => {
     try {
-      const res = await fetch('/api/admin/referrals');
+      const res = await fetch('/api/admin/school-leads');
       const data = await res.json();
       if (data.success) {
-        const found = data.referrals.find((r: Referral) => r.id === id);
+        const found = data.school-leads.find((r: School Lead) => r.id === id);
         if (found) {
-          setReferral(found);
+          setSchool Lead(found);
           setEditName(found.leadName);
           setEditEmail(found.leadEmail);
         }
       }
     } catch (error) {
-      console.error('Failed to fetch referral:', error);
+      console.error('Failed to fetch school-lead:', error);
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function CustomerDetailPage() {
     setSaving(true);
     setSaved(false);
     try {
-      const res = await fetch(`/api/admin/referrals/${id}`, {
+      const res = await fetch(`/api/admin/school-leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,7 +129,7 @@ export default function CustomerDetailPage() {
       if (res.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
-        await fetchReferral();
+        await fetchSchool Lead();
       }
     } catch (error) {
       console.error('Failed to save:', error);
@@ -141,13 +141,13 @@ export default function CustomerDetailPage() {
   const handleAction = async (action: 'approve' | 'reject') => {
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/referrals/${id}`, {
+      const res = await fetch(`/api/admin/school-leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, reviewNotes: reviewNotes || undefined }),
       });
       if (res.ok) {
-        await fetchReferral();
+        await fetchSchool Lead();
         setReviewNotes('');
       }
     } catch (error) {
@@ -160,7 +160,7 @@ export default function CustomerDetailPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/referrals/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/school-leads/${id}`, { method: 'DELETE' });
       if (res.ok) {
         router.push('/admin/customers');
       }
@@ -186,7 +186,7 @@ export default function CustomerDetailPage() {
     );
   }
 
-  if (!referral) {
+  if (!school-lead) {
     return (
       <div className="space-y-6">
         <Button variant="ghost" onClick={() => router.push('/admin/customers')}>
@@ -196,15 +196,15 @@ export default function CustomerDetailPage() {
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <User className="h-12 w-12 text-muted-foreground/50" />
           <h3 className="mt-4 text-lg font-semibold">Customer not found</h3>
-          <p className="text-sm text-muted-foreground">This referral lead may have been deleted</p>
+          <p className="text-sm text-muted-foreground">This school-lead lead may have been deleted</p>
         </div>
       </div>
     );
   }
 
-  const cfg = statusConfig[referral.status] || statusConfig.PENDING;
+  const cfg = statusConfig[school-lead.status] || statusConfig.PENDING;
   const StatusIcon = cfg.icon;
-  const estimatedCommission = Math.round(referral.estimatedValue * referral.affiliate.commissionRate);
+  const estimatedIncentive = Math.round(school-lead.estimatedValue * school-lead.association.incentiveRate);
 
   return (
     <div className="space-y-6">
@@ -217,12 +217,12 @@ export default function CustomerDetailPage() {
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-primary/10 text-lg">
-                {referral.leadName?.charAt(0).toUpperCase()}
+                {school-lead.leadName?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{referral.leadName}</h1>
-              <p className="text-sm text-muted-foreground">{referral.leadEmail}</p>
+              <h1 className="text-2xl font-bold tracking-tight">{school-lead.leadName}</h1>
+              <p className="text-sm text-muted-foreground">{school-lead.leadEmail}</p>
             </div>
           </div>
           <Badge variant={cfg.variant} className="ml-2">
@@ -239,10 +239,10 @@ export default function CustomerDetailPage() {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this referral lead?</AlertDialogTitle>
+              <AlertDialogTitle>Delete this school-lead lead?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete <strong>{referral.leadName}</strong> and all associated
-                conversions and commissions. This action cannot be undone.
+                This will permanently delete <strong>{school-lead.leadName}</strong> and all associated
+                conversions and incentives. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -317,35 +317,35 @@ export default function CustomerDetailPage() {
                   <Label>Phone</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" value={referral.leadPhone || '—'} readOnly disabled />
+                    <Input className="pl-9" value={school-lead.leadPhone || '—'} readOnly disabled />
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <Label>Company</Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" value={referral.company || '—'} readOnly disabled />
+                    <Input className="pl-9" value={school-lead.company || '—'} readOnly disabled />
                   </div>
                 </div>
               </div>
-              {referral.notes && (
+              {school-lead.notes && (
                 <div className="grid gap-2">
                   <Label>Notes</Label>
-                  <div className="rounded-md border bg-muted/50 p-3 text-sm">{referral.notes}</div>
+                  <div className="rounded-md border bg-muted/50 p-3 text-sm">{school-lead.notes}</div>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Review Actions Card - only for PENDING */}
-          {referral.status === 'PENDING' && (
+          {school-lead.status === 'PENDING' && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
                   Review Lead
                 </CardTitle>
-                <CardDescription>Approve or reject this referral lead</CardDescription>
+                <CardDescription>Approve or reject this school-lead lead</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-2">
@@ -400,19 +400,19 @@ export default function CustomerDetailPage() {
                 <span className="text-sm text-muted-foreground">Estimated Value</span>
                 <span className="flex items-center gap-1 font-semibold">
                   <IndianRupee className="h-3.5 w-3.5" />
-                  {referral.estimatedValue.toLocaleString('en-IN')}
+                  {school-lead.estimatedValue.toLocaleString('en-IN')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Commission Rate</span>
-                <span className="font-semibold">{(referral.affiliate.commissionRate * 100).toFixed(0)}%</span>
+                <span className="text-sm text-muted-foreground">Incentive Rate</span>
+                <span className="font-semibold">{(school-lead.association.incentiveRate * 100).toFixed(0)}%</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Est. Commission</span>
+                <span className="text-sm font-medium">Est. Incentive</span>
                 <span className="flex items-center gap-1 text-lg font-bold text-primary">
                   <IndianRupee className="h-4 w-4" />
-                  {estimatedCommission.toLocaleString('en-IN')}
+                  {estimatedIncentive.toLocaleString('en-IN')}
                 </span>
               </div>
             </CardContent>
@@ -430,25 +430,25 @@ export default function CustomerDetailPage() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
                   <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                    {referral.affiliate.name?.charAt(0).toUpperCase()}
+                    {school-lead.association.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{referral.affiliate.name}</p>
-                  <p className="text-xs text-muted-foreground">{referral.affiliate.email}</p>
+                  <p className="text-sm font-medium">{school-lead.association.name}</p>
+                  <p className="text-xs text-muted-foreground">{school-lead.association.email}</p>
                 </div>
               </div>
               <Separator />
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Referral Code</span>
+                  <span className="text-muted-foreground">School Lead Code</span>
                   <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                    {referral.affiliate.referralCode}
+                    {school-lead.association.school-leadCode}
                   </code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Partner Group</span>
-                  <Badge variant="outline" className="text-xs">{referral.affiliate.partnerGroup}</Badge>
+                  <Badge variant="outline" className="text-xs">{school-lead.association.partnerGroup}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -471,13 +471,13 @@ export default function CustomerDetailPage() {
                   <div>
                     <p className="text-sm font-medium">Lead Submitted</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(referral.createdAt).toLocaleDateString('en-IN', {
+                      {new Date(school-lead.createdAt).toLocaleDateString('en-IN', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
                       })}
                       {' at '}
-                      {new Date(referral.createdAt).toLocaleTimeString('en-IN', {
+                      {new Date(school-lead.createdAt).toLocaleTimeString('en-IN', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
@@ -486,30 +486,30 @@ export default function CustomerDetailPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className={`mt-0.5 rounded-full p-1 ${
-                    referral.status === 'APPROVED'
+                    school-lead.status === 'APPROVED'
                       ? 'bg-green-100'
-                      : referral.status === 'REJECTED'
+                      : school-lead.status === 'REJECTED'
                         ? 'bg-red-100'
                         : 'bg-yellow-100'
                   }`}>
                     <StatusIcon className={`h-3 w-3 ${
-                      referral.status === 'APPROVED'
+                      school-lead.status === 'APPROVED'
                         ? 'text-green-600'
-                        : referral.status === 'REJECTED'
+                        : school-lead.status === 'REJECTED'
                           ? 'text-red-600'
                           : 'text-yellow-600'
                     }`} />
                   </div>
                   <div>
                     <p className="text-sm font-medium">
-                      {referral.status === 'APPROVED'
+                      {school-lead.status === 'APPROVED'
                         ? 'Approved'
-                        : referral.status === 'REJECTED'
+                        : school-lead.status === 'REJECTED'
                           ? 'Rejected'
                           : 'Awaiting Review'}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {referral.status === 'PENDING'
+                      {school-lead.status === 'PENDING'
                         ? 'Needs admin review'
                         : 'Decision recorded'}
                     </p>

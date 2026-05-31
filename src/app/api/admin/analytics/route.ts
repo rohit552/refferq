@@ -23,20 +23,20 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    // Top performing affiliates
-    const topAffiliates = await prisma.affiliate.findMany({
+    // Top performing associations
+    const topAssociations = await prisma.association.findMany({
       take: 10,
       orderBy: {
         balanceCents: 'desc'
       },
       include: {
         user: true,
-        referrals: {
+        school-leads: {
           where: {
             status: 'APPROVED'
           }
         },
-        commissions: {
+        incentives: {
           where: {
             status: 'APPROVED'
           }
@@ -44,21 +44,21 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Referral conversion rate
-    const totalReferrals = await prisma.referral.count({
+    // School Lead conversion rate
+    const totalSchool Leads = await prisma.school-lead.count({
       where: {
         createdAt: { gte: startDate }
       }
     });
 
-    const approvedReferrals = await prisma.referral.count({
+    const approvedSchool Leads = await prisma.school-lead.count({
       where: {
         status: 'APPROVED',
         createdAt: { gte: startDate }
       }
     });
 
-    const conversionRate = totalReferrals > 0 ? (approvedReferrals / totalReferrals) * 100 : 0;
+    const conversionRate = totalSchool Leads > 0 ? (approvedSchool Leads / totalSchool Leads) * 100 : 0;
 
     // Revenue over time (daily)
     const dailyRevenue = await prisma.conversion.groupBy({
@@ -71,8 +71,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Commission statistics
-    const totalCommissions = await prisma.commission.aggregate({
+    // Incentive statistics
+    const totalIncentives = await prisma.incentive.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const paidCommissions = await prisma.commission.aggregate({
+    const paidIncentives = await prisma.incentive.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Referral status breakdown
-    const referralsByStatus = await prisma.referral.groupBy({
+    // School Lead status breakdown
+    const school-leadsByStatus = await prisma.school-lead.groupBy({
       by: ['status'],
       _count: true,
       where: {
@@ -100,23 +100,23 @@ export async function GET(request: NextRequest) {
 
     const analytics = {
       overview: {
-        totalReferrals,
-        approvedReferrals,
+        totalSchool Leads,
+        approvedSchool Leads,
         conversionRate: conversionRate.toFixed(2),
-        totalRevenue: totalCommissions._sum.amountCents || 0,
-        totalCommissionsPaid: paidCommissions._sum.amountCents || 0,
-        pendingCommissions: (totalCommissions._sum.amountCents || 0) - (paidCommissions._sum.amountCents || 0)
+        totalRevenue: totalIncentives._sum.amountCents || 0,
+        totalIncentivesPaid: paidIncentives._sum.amountCents || 0,
+        pendingIncentives: (totalIncentives._sum.amountCents || 0) - (paidIncentives._sum.amountCents || 0)
       },
-      topAffiliates: topAffiliates.map(affiliate => ({
-        id: affiliate.id,
-        name: affiliate.user.name,
-        email: affiliate.user.email,
-        referralCode: affiliate.referralCode,
-        totalReferrals: affiliate.referrals.length,
-        totalEarnings: affiliate.balanceCents,
-        totalCommissions: affiliate.commissions.length
+      topAssociations: topAssociations.map(association => ({
+        id: association.id,
+        name: association.user.name,
+        email: association.user.email,
+        school-leadCode: association.school-leadCode,
+        totalSchool Leads: association.school-leads.length,
+        totalEarnings: association.balanceCents,
+        totalIncentives: association.incentives.length
       })),
-      referralsByStatus: referralsByStatus.map(item => ({
+      school-leadsByStatus: school-leadsByStatus.map(item => ({
         status: item.status,
         count: item._count
       })),
@@ -124,18 +124,18 @@ export async function GET(request: NextRequest) {
         date: item.createdAt,
         amount: item._sum.amountCents || 0
       })),
-      commissionStats: {
+      incentiveStats: {
         total: {
-          count: totalCommissions._count,
-          amount: totalCommissions._sum.amountCents || 0
+          count: totalIncentives._count,
+          amount: totalIncentives._sum.amountCents || 0
         },
         paid: {
-          count: paidCommissions._count,
-          amount: paidCommissions._sum.amountCents || 0
+          count: paidIncentives._count,
+          amount: paidIncentives._sum.amountCents || 0
         },
         pending: {
-          count: totalCommissions._count - paidCommissions._count,
-          amount: (totalCommissions._sum.amountCents || 0) - (paidCommissions._sum.amountCents || 0)
+          count: totalIncentives._count - paidIncentives._count,
+          amount: (totalIncentives._sum.amountCents || 0) - (paidIncentives._sum.amountCents || 0)
         }
       }
     };

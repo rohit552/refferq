@@ -1,9 +1,9 @@
 /**
- * Refferq Tracking Script
- * Embed this on your website to track referrals and conversions
+ * SkillHeed NEP Tracking Script
+ * Embed this on your website to track school interest and associations
  * 
  * Usage:
- * <script src="https://your-domain.com/scripts/refferq-tracker.js" data-api-key="your_public_key"></script>
+ * <script src="https://your-domain.com/scripts/skillheed-tracker.js" data-api-key="your_public_key"></script>
  */
 
 (function() {
@@ -15,7 +15,7 @@
   const apiUrl = script.getAttribute('data-api-url') || window.location.origin;
   
   if (!apiKey) {
-    console.error('[Refferq] API key is required. Add data-api-key attribute to script tag.');
+    console.error('[SkillHeed NEP] API key is required. Add data-api-key attribute to script tag.');
     return;
   }
 
@@ -41,14 +41,14 @@
     }
   };
 
-  // Get referral code from URL parameter
-  function getReferralCodeFromURL() {
+  // Get association code from URL parameter
+  function getAssociationCodeFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('ref') || urlParams.get('referral') || urlParams.get('affiliate');
+    return urlParams.get('partner_id') || urlParams.get('ref') || urlParams.get('association');
   }
 
-  // Track referral click
-  function trackReferral(referralCode) {
+  // Track association click
+  function trackAssociation(associationCode) {
     fetch(apiUrl + '/api/track/referral', {
       method: 'POST',
       headers: {
@@ -56,7 +56,7 @@
         'X-API-Key': apiKey,
       },
       body: JSON.stringify({
-        referralCode: referralCode,
+        referralCode: associationCode,
         url: window.location.href,
         referrer: document.referrer,
         userAgent: navigator.userAgent,
@@ -66,25 +66,25 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        console.log('[Refferq] Referral tracked successfully');
-        // Store referral code in cookie (30 days default)
-        Cookies.set('refferq_ref', referralCode, 30);
+        console.log('[SkillHeed NEP] Association tracked successfully');
+        // Store association code in cookie (30 days default)
+        Cookies.set('skillheed_partner', associationCode, 30);
       } else {
-        console.error('[Refferq] Failed to track referral:', data.error);
+        console.error('[SkillHeed NEP] Failed to track association:', data.error);
       }
     })
     .catch(error => {
-      console.error('[Refferq] Error tracking referral:', error);
+      console.error('[SkillHeed NEP] Error tracking association:', error);
     });
   }
 
-  // Track conversion
-  function trackConversion(options) {
-    const referralCode = Cookies.get('refferq_ref');
+  // Track school onboarding
+  function trackSchoolOnboarding(options) {
+    const associationCode = Cookies.get('skillheed_partner');
     
-    if (!referralCode) {
-      console.warn('[Refferq] No referral code found in cookies');
-      return Promise.resolve({ success: false, error: 'No referral code' });
+    if (!associationCode) {
+      console.warn('[SkillHeed NEP] No association code found in cookies');
+      return Promise.resolve({ success: false, error: 'No association code' });
     }
 
     return fetch(apiUrl + '/api/track/conversion', {
@@ -94,11 +94,11 @@
         'X-API-Key': apiKey,
       },
       body: JSON.stringify({
-        referralCode: referralCode,
+        referralCode: associationCode,
         customerEmail: options.email,
         customerName: options.name,
         amount: options.amount || 0,
-        currency: options.currency || 'USD',
+        currency: options.currency || 'INR',
         orderId: options.orderId,
         metadata: options.metadata || {},
         url: window.location.href,
@@ -108,49 +108,49 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        console.log('[Refferq] Conversion tracked successfully');
-        // Clear referral cookie after conversion
-        Cookies.delete('refferq_ref');
+        console.log('[SkillHeed NEP] School onboarding tracked successfully');
+        // Clear association cookie after onboarding
+        Cookies.delete('skillheed_partner');
       } else {
-        console.error('[Refferq] Failed to track conversion:', data.error);
+        console.error('[SkillHeed NEP] Failed to track school onboarding:', data.error);
       }
       return data;
     })
     .catch(error => {
-      console.error('[Refferq] Error tracking conversion:', error);
+      console.error('[SkillHeed NEP] Error tracking school onboarding:', error);
       return { success: false, error: error.message };
     });
   }
 
   // Initialize tracking
   function init() {
-    // Check for referral code in URL
-    const refCode = getReferralCodeFromURL();
+    // Check for association code in URL
+    const partnerCode = getAssociationCodeFromURL();
     
-    if (refCode) {
-      // Validate referral code format before tracking
-      if (/^[A-Za-z0-9\-]{3,32}$/.test(refCode)) {
-        trackReferral(refCode);
+    if (partnerCode) {
+      // Validate association code format before tracking
+      if (/^[A-Za-z0-9\-]{3,32}$/.test(partnerCode)) {
+        trackAssociation(partnerCode);
       }
     } else {
-      // Check if we have a stored referral code
-      const storedRef = Cookies.get('refferq_ref');
-      if (storedRef) {
-        // Stored referral code found
+      // Check if we have a stored association code
+      const storedPartner = Cookies.get('skillheed_partner');
+      if (storedPartner) {
+        // Stored association code found
       }
     }
   }
 
   // Public API
-  window.Refferq = {
-    trackConversion: trackConversion,
-    getReferralCode: function() {
-      return Cookies.get('refferq_ref');
+  window.SkillHeedNEP = {
+    trackSchoolOnboarding: trackSchoolOnboarding,
+    getAssociationCode: function() {
+      return Cookies.get('skillheed_partner');
     },
-    clearReferralCode: function() {
-      Cookies.delete('refferq_ref');
+    clearAssociationCode: function() {
+      Cookies.delete('skillheed_partner');
     },
-    version: '1.0.0'
+    version: '2.0.0'
   };
 
   // Auto-initialize when DOM is ready

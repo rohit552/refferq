@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { logAuditAction } from '@/lib/audit';
 
 /**
- * POST /api/admin/commissions/mature
+ * POST /api/admin/incentives/mature
  * 
- * Cron/admin endpoint that matures all PENDING commissions whose hold period
- * has expired. Moves them to APPROVED and credits the affiliate balance.
+ * Cron/admin endpoint that matures all PENDING incentives whose hold period
+ * has expired. Moves them to APPROVED and credits the association balance.
  * 
  * Can be called by:
  * - A cron job (e.g. Vercel Cron, Railway Cron)
@@ -39,37 +39,37 @@ export async function POST(request: NextRequest) {
 
         const now = new Date();
 
-        // Find all PENDING commissions that have matured
-        const maturedCommissions = await prisma.commission.findMany({
+        // Find all PENDING incentives that have matured
+        const maturedIncentives = await prisma.incentive.findMany({
             where: {
                 status: 'PENDING',
                 maturesAt: { lte: now },
             },
             include: {
-                affiliate: true,
+                association: true,
             },
         });
 
-        if (maturedCommissions.length === 0) {
+        if (maturedIncentives.length === 0) {
             return NextResponse.json({
                 success: true,
-                message: 'No commissions to mature',
+                message: 'No incentives to mature',
                 matured: 0,
             });
         }
 
-        // Group by affiliate for batch balance updates
-        const affiliateUpdates = new Map<string, number>();
+        // Group by association for batch balance updates
+        const associationUpdates = new Map<string, number>();
         const maturedIds: string[] = [];
 
-        for (const commission of maturedCommissions) {
-            maturedIds.push(commission.id);
-            const current = affiliateUpdates.get(commission.affiliateId) || 0;
-            affiliateUpdates.set(commission.affiliateId, current + commission.amountCents);
+        for (const incentive of maturedIncentives) {
+            maturedIds.push(incentive.id);
+            const current = associationUpdates.get(incentive.associationId) || 0;
+            associationUpdates.set(incentive.associationId, current + incentive.amountCents);
         }
 
         // Batch update: mark all as APPROVED
-        await prisma.commission.updateMany({
+        await prisma.incentive.updateMany({
             where: { id: { in: maturedIds } },
             data: {
                 status: 'APPROVED',
@@ -78,10 +78,10 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // Update each affiliate's balance
-        for (const [affiliateId, totalCents] of affiliateUpdates.entries()) {
-            await prisma.affiliate.update({
-                where: { id: affiliateId },
+        // Update each association's balance
+        for (const [associationId, totalCents] of associationUpdates.entries()) {
+            await prisma.association.update({
+                where: { id: associationId },
                 data: {
                     balanceCents: { increment: totalCents },
                 },
@@ -91,26 +91,26 @@ export async function POST(request: NextRequest) {
         // Log audit
         await logAuditAction({
             actorId: userId || 'system-cron',
-            action: 'MATURE_COMMISSIONS',
-            objectType: 'COMMISSION',
+            action: 'MATURE_INCENTIVES',
+            objectType: 'INCENTIVE',
             objectId: 'batch',
             payload: {
                 count: maturedIds.length,
-                totalCents: Array.from(affiliateUpdates.values()).reduce((a, b) => a + b, 0),
-                affiliateCount: affiliateUpdates.size,
+                totalCents: Array.from(associationUpdates.values()).reduce((a, b) => a + b, 0),
+                associationCount: associationUpdates.size,
             },
         });
 
         return NextResponse.json({
             success: true,
-            message: `${maturedIds.length} commission(s) matured and approved`,
+            message: `${maturedIds.length} incentive(s) matured and approved`,
             matured: maturedIds.length,
-            affiliatesUpdated: affiliateUpdates.size,
+            associationsUpdated: associationUpdates.size,
         });
     } catch (error) {
-        console.error('Commission maturation error:', error);
+        console.error('Incentive maturation error:', error);
         return NextResponse.json(
-            { error: 'Failed to mature commissions' },
+            { error: 'Failed to mature incentives' },
             { status: 500 }
         );
     }

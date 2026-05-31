@@ -26,16 +26,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate platform stats
-    const totalAffiliates = await prisma.affiliate.count();
+    const totalAssociations = await prisma.association.count();
     const totalUsers = await prisma.user.count();
-    const totalReferrals = await prisma.referral.count();
+    const totalSchool Leads = await prisma.school-lead.count();
     const totalConversions = await prisma.conversion.count();
     
-    const pendingReferrals = await prisma.referral.count({
+    const pendingSchool Leads = await prisma.school-lead.count({
       where: { status: 'PENDING' }
     });
     
-    const approvedReferrals = await prisma.referral.count({
+    const approvedSchool Leads = await prisma.school-lead.count({
       where: { status: 'APPROVED' }
     });
     
@@ -44,49 +44,49 @@ export async function GET(request: NextRequest) {
       _sum: { amountCents: true }
     });
     
-    // Calculate ESTIMATED revenue from referrals (leads)
-    const referrals = await prisma.referral.findMany({
+    // Calculate ESTIMATED revenue from school-leads (leads)
+    const school-leads = await prisma.school-lead.findMany({
       include: {
-        affiliate: true
+        association: true
       }
     });
     
-    // Get all partner groups for commission rate lookup
+    // Get all partner groups for incentive rate lookup
     const partnerGroups = await prisma.partnerGroup.findMany();
     const partnerGroupMap = new Map(
-      partnerGroups.map(pg => [pg.id, pg.commissionRate])
+      partnerGroups.map(pg => [pg.id, pg.incentiveRate])
     );
     
     let totalEstimatedRevenue = 0;
-    let totalEstimatedCommission = 0;
+    let totalEstimatedIncentive = 0;
     
-    referrals.forEach((ref) => {
+    school-leads.forEach((ref) => {
       const metadata = ref.metadata as any;
       const estimatedValue = Number(metadata?.estimated_value) || 0;
       const valueInCents = estimatedValue * 100;
       
-      // Get commission rate from partner group or default to 20%
-      const affiliate = ref.affiliate as any;
-      const partnerGroupId = affiliate.partnerGroupId;
-      const commissionRate = partnerGroupId 
+      // Get incentive rate from partner group or default to 20%
+      const association = ref.association as any;
+      const partnerGroupId = association.partnerGroupId;
+      const incentiveRate = partnerGroupId 
         ? (partnerGroupMap.get(partnerGroupId) || 0.20)
         : 0.20;
-      const commissionInCents = Math.floor(valueInCents * commissionRate);
+      const incentiveInCents = Math.floor(valueInCents * incentiveRate);
       
       totalEstimatedRevenue += valueInCents;
-      totalEstimatedCommission += commissionInCents;
+      totalEstimatedIncentive += incentiveInCents;
     });
 
     const stats = {
-      totalAffiliates,
+      totalAssociations,
       totalUsers,
-      totalReferrals,
+      totalSchool Leads,
       totalConversions,
-      pendingReferrals,
-      approvedReferrals,
+      pendingSchool Leads,
+      approvedSchool Leads,
       totalRevenue: totalRevenue._sum?.amountCents || 0, // Actual transaction revenue
       totalEstimatedRevenue, // Estimated revenue from all leads
-      totalEstimatedCommission, // Total commission to be paid
+      totalEstimatedIncentive, // Total incentive to be paid
     };
 
     return NextResponse.json({ success: true, stats });

@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
-function generateReferralCode(name: string): string {
+function generateSchool LeadCode(name: string): string {
   const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase();
   const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
   return `${cleanName.substr(0, 6)}-${random}`;
 }
 
 /**
- * POST /api/affiliate/generate-code - Generate or regenerate referral code
+ * POST /api/association/generate-code - Generate or regenerate school-lead code
  */
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -30,23 +30,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { success: false, error: 'Access denied. Affiliate role required.' },
+        { success: false, error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    let affiliate = user.affiliate;
+    let association = user.association;
 
-    // If affiliate record doesn't exist, create it
-    if (!affiliate) {
-      const referralCode = generateReferralCode(user.name);
+    // If association record doesn't exist, create it
+    if (!association) {
+      const school-leadCode = generateSchool LeadCode(user.name);
       
-      affiliate = await prisma.affiliate.create({
+      association = await prisma.association.create({
         data: {
           userId: user.id,
-          referralCode,
+          school-leadCode,
           payoutDetails: {},
           balanceCents: 0
         }
@@ -54,38 +54,38 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Affiliate profile created with referral code',
-        affiliate,
+        message: 'Association profile created with school-lead code',
+        association,
       });
     }
 
-    // If affiliate exists but no referral code, generate one
-    if (!affiliate.referralCode || affiliate.referralCode.trim() === '') {
-      const referralCode = generateReferralCode(user.name);
+    // If association exists but no school-lead code, generate one
+    if (!association.school-leadCode || association.school-leadCode.trim() === '') {
+      const school-leadCode = generateSchool LeadCode(user.name);
       
-      affiliate = await prisma.affiliate.update({
-        where: { id: affiliate.id },
-        data: { referralCode }
+      association = await prisma.association.update({
+        where: { id: association.id },
+        data: { school-leadCode }
       });
 
       return NextResponse.json({
         success: true,
-        message: 'Referral code generated',
-        affiliate,
+        message: 'School Lead code generated',
+        association,
       });
     }
 
-    // Affiliate already has a referral code
+    // Association already has a school-lead code
     return NextResponse.json({
       success: true,
-      message: 'Referral code already exists',
-      affiliate,
+      message: 'School Lead code already exists',
+      association,
     });
 
   } catch (error) {
     console.error('Generate code API error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to generate referral code' },
+      { success: false, error: 'Failed to generate school-lead code' },
       { status: 500 }
     );
   }

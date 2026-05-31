@@ -3,7 +3,7 @@ import { UserStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 
-// Batch update affiliates
+// Batch update associations
 export async function POST(request: NextRequest) {
   try {
     const userId = request.headers.get('x-user-id')!;
@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { affiliateIds, action, status, group } = body;
+    const { associationIds, action, status, group } = body;
 
-    if (!affiliateIds || !Array.isArray(affiliateIds) || affiliateIds.length === 0) {
+    if (!associationIds || !Array.isArray(associationIds) || associationIds.length === 0) {
       return NextResponse.json(
-        { error: 'affiliateIds array is required' },
+        { error: 'associationIds array is required' },
         { status: 400 }
       );
     }
@@ -56,12 +56,12 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Get all affiliates to find their userIds
-        const affiliates = await prisma.affiliate.findMany({
-          where: { id: { in: affiliateIds } }
+        // Get all associations to find their userIds
+        const associations = await prisma.association.findMany({
+          where: { id: { in: associationIds } }
         });
 
-        const userIds = affiliates.map(aff => aff.userId);
+        const userIds = associations.map(aff => aff.userId);
 
         // Update user statuses
         const result = await prisma.user.updateMany({
@@ -75,11 +75,11 @@ export async function POST(request: NextRequest) {
         await prisma.auditLog.create({
           data: {
             actorId: user.id,
-            action: 'BATCH_UPDATE_AFFILIATE_STATUS',
-            objectType: 'AFFILIATE',
+            action: 'BATCH_UPDATE_ASSOCIATION_STATUS',
+            objectType: 'ASSOCIATION',
             objectId: 'BATCH',
             payload: {
-              affiliateIds,
+              associationIds,
               newStatus: status,
               count: updatedCount
             }
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: `Updated ${updatedCount} affiliate(s) status to ${status}`,
+          message: `Updated ${updatedCount} association(s) status to ${status}`,
           count: updatedCount
         });
 
@@ -100,15 +100,15 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Update affiliate metadata with group
-        for (const affiliateId of affiliateIds) {
-          await prisma.affiliate.update({
-            where: { id: affiliateId },
+        // Update association metadata with group
+        for (const associationId of associationIds) {
+          await prisma.association.update({
+            where: { id: associationId },
             data: {
               payoutDetails: {
                 // Preserve existing data and add/update group
-                ...(await prisma.affiliate.findUnique({
-                  where: { id: affiliateId },
+                ...(await prisma.association.findUnique({
+                  where: { id: associationId },
                   select: { payoutDetails: true }
                 }).then(a => a?.payoutDetails as any) || {}),
                 group
@@ -121,11 +121,11 @@ export async function POST(request: NextRequest) {
         await prisma.auditLog.create({
           data: {
             actorId: user.id,
-            action: 'BATCH_UPDATE_AFFILIATE_GROUP',
-            objectType: 'AFFILIATE',
+            action: 'BATCH_UPDATE_ASSOCIATION_GROUP',
+            objectType: 'ASSOCIATION',
             objectId: 'BATCH',
             payload: {
-              affiliateIds,
+              associationIds,
               newGroup: group,
               count: updatedCount
             }
@@ -134,20 +134,20 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: `Updated ${updatedCount} affiliate(s) group to ${group}`,
+          message: `Updated ${updatedCount} association(s) group to ${group}`,
           count: updatedCount
         });
 
       case 'delete':
-        // Get all affiliates to find their userIds
-        const affiliatesToDelete = await prisma.affiliate.findMany({
-          where: { id: { in: affiliateIds } },
+        // Get all associations to find their userIds
+        const associationsToDelete = await prisma.association.findMany({
+          where: { id: { in: associationIds } },
           include: { user: true }
         });
 
-        const userIdsToDelete = affiliatesToDelete.map(aff => aff.userId);
+        const userIdsToDelete = associationsToDelete.map(aff => aff.userId);
 
-        // Delete users (will cascade delete affiliates)
+        // Delete users (will cascade delete associations)
         const deleteResult = await prisma.user.deleteMany({
           where: { id: { in: userIdsToDelete } }
         });
@@ -157,20 +157,20 @@ export async function POST(request: NextRequest) {
         await prisma.auditLog.create({
           data: {
             actorId: user.id,
-            action: 'BATCH_DELETE_AFFILIATES',
-            objectType: 'AFFILIATE',
+            action: 'BATCH_DELETE_ASSOCIATIONS',
+            objectType: 'ASSOCIATION',
             objectId: 'BATCH',
             payload: {
-              affiliateIds,
+              associationIds,
               count: updatedCount,
-              deletedEmails: affiliatesToDelete.map(a => a.user.email)
+              deletedEmails: associationsToDelete.map(a => a.user.email)
             }
           }
         });
 
         return NextResponse.json({
           success: true,
-          message: `Deleted ${updatedCount} affiliate(s)`,
+          message: `Deleted ${updatedCount} association(s)`,
           count: updatedCount
         });
 
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Batch update affiliates error:', error);
+    console.error('Batch update associations error:', error);
     return NextResponse.json(
       { error: 'Failed to process batch update' },
       { status: 500 }

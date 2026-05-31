@@ -1,4 +1,4 @@
-// Authentication and session management for the affiliate platform
+// Authentication and session management for the association platform
 import { type User, Role, UserStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
@@ -19,13 +19,13 @@ export interface RegisterData {
   email: string;
   password: string;
   name: string;
-  role: string; // 'affiliate' or 'admin' from the form
+  role: string; // 'association' or 'admin' from the form
 }
 
 class AuthService {
   private readonly TOKEN_EXPIRY_HOURS = 24;
 
-  private generateReferralCode(name: string): string {
+  private generateSchool LeadCode(name: string): string {
     const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase();
     const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
     return `${cleanName.substr(0, 6)}-${random}`;
@@ -65,14 +65,14 @@ class AuthService {
         }
       });
 
-      // If affiliate, create affiliate record
-      if (userRoleLower === 'affiliate') {
-        const referralCode = this.generateReferralCode(data.name);
+      // If association, create association record
+      if (userRoleLower === 'association') {
+        const school-leadCode = this.generateSchool LeadCode(data.name);
 
-        await prisma.affiliate.create({
+        await prisma.association.create({
           data: {
             userId: user.id,
-            referralCode,
+            school-leadCode,
             payoutDetails: {},
             balanceCents: 0
           }

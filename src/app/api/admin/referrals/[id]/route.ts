@@ -31,27 +31,27 @@ export async function PUT(
       );
     }
 
-    const referral = await prisma.referral.findUnique({
+    const school-lead = await prisma.school-lead.findUnique({
       where: { id: params.id },
       include: {
-        affiliate: {
+        association: {
           include: { partnerGroup: true }
         }
       }
     });
 
-    if (!referral) {
+    if (!school-lead) {
       return NextResponse.json(
-        { error: 'Referral not found' },
+        { error: 'School Lead not found' },
         { status: 404 }
       );
     }
 
-    // Get estimated value from referral metadata
-    const metadata = referral.metadata as Record<string, any> || {};
+    // Get estimated value from school-lead metadata
+    const metadata = school-lead.metadata as Record<string, any> || {};
     const estimatedValueCents = Number(metadata?.estimated_value) * 100 || 10000;
 
-    const updatedReferral = await prisma.referral.update({
+    const updatedSchool Lead = await prisma.school-lead.update({
       where: { id: params.id },
       data: {
         status: action === 'approve' ? 'APPROVED' : 'REJECTED',
@@ -61,32 +61,32 @@ export async function PUT(
       }
     });
 
-    // If approved, create conversion and commission
+    // If approved, create conversion and incentive
     if (action === 'approve') {
-      // Get commission rate from partner group or use default 10%
-      const commissionRate = referral.affiliate.partnerGroup?.commissionRate
-        ? referral.affiliate.partnerGroup.commissionRate / 100
+      // Get incentive rate from partner group or use default 10%
+      const incentiveRate = school-lead.association.partnerGroup?.incentiveRate
+        ? school-lead.association.partnerGroup.incentiveRate / 100
         : 0.1;
 
       const conversion = await prisma.conversion.create({
         data: {
-          affiliateId: referral.affiliateId,
-          referralId: referral.id,
+          associationId: school-lead.associationId,
+          school-leadId: school-lead.id,
           eventType: 'PURCHASE',
           amountCents: estimatedValueCents,
           status: 'PENDING'
         }
       });
 
-      const commissionAmount = Math.round(estimatedValueCents * commissionRate);
+      const incentiveAmount = Math.round(estimatedValueCents * incentiveRate);
 
-      await prisma.commission.create({
+      await prisma.incentive.create({
         data: {
-          affiliateId: referral.affiliateId,
+          associationId: school-lead.associationId,
           conversionId: conversion.id,
-          userId: referral.affiliate.userId,
-          rate: commissionRate,
-          amountCents: commissionAmount,
+          userId: school-lead.association.userId,
+          rate: incentiveRate,
+          amountCents: incentiveAmount,
           status: 'PENDING'
         }
       });
@@ -94,20 +94,20 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      message: `Referral ${action}d successfully`,
-      referral: updatedReferral
+      message: `School Lead ${action}d successfully`,
+      school-lead: updatedSchool Lead
     });
 
   } catch (error) {
-    console.error('Referral approval error:', error);
+    console.error('School Lead approval error:', error);
     return NextResponse.json(
-      { error: 'Failed to process referral' },
+      { error: 'Failed to process school-lead' },
       { status: 500 }
     );
   }
 }
 
-// Add PATCH method for updating referral/customer details
+// Add PATCH method for updating school-lead/customer details
 export async function PATCH(
   request: NextRequest, 
   context: { params: Promise<{ id: string }> }
@@ -130,22 +130,22 @@ export async function PATCH(
     const body = await request.json();
     const { action, leadName, leadEmail, status, reviewNotes } = body;
 
-    // Check if referral exists
-    const referral = await prisma.referral.findUnique({
+    // Check if school-lead exists
+    const school-lead = await prisma.school-lead.findUnique({
       where: { id: params.id },
-      include: { affiliate: { include: { partnerGroup: true } } }
+      include: { association: { include: { partnerGroup: true } } }
     });
 
-    if (!referral) {
+    if (!school-lead) {
       return NextResponse.json(
-        { error: 'Referral not found' },
+        { error: 'School Lead not found' },
         { status: 404 }
       );
     }
 
     // If action is provided, handle approve/reject (legacy behavior)
     if (action && ['approve', 'reject'].includes(action)) {
-      const updatedReferral = await prisma.referral.update({
+      const updatedSchool Lead = await prisma.school-lead.update({
         where: { id: params.id },
         data: {
           status: action === 'approve' ? 'APPROVED' : 'REJECTED',
@@ -155,33 +155,33 @@ export async function PATCH(
         }
       });
 
-      // If approved, create conversion and commission
+      // If approved, create conversion and incentive
       if (action === 'approve') {
-        const refMetadata = referral.metadata as Record<string, any> || {};
+        const refMetadata = school-lead.metadata as Record<string, any> || {};
         const estValueCents = Number(refMetadata?.estimated_value) * 100 || 10000;
-        const commissionRate = referral.affiliate.partnerGroup?.commissionRate
-          ? referral.affiliate.partnerGroup.commissionRate / 100
+        const incentiveRate = school-lead.association.partnerGroup?.incentiveRate
+          ? school-lead.association.partnerGroup.incentiveRate / 100
           : 0.1;
 
         const conversion = await prisma.conversion.create({
           data: {
-            affiliateId: referral.affiliateId,
-            referralId: referral.id,
+            associationId: school-lead.associationId,
+            school-leadId: school-lead.id,
             eventType: 'PURCHASE',
             amountCents: estValueCents,
             status: 'PENDING'
           }
         });
 
-        const commissionAmount = Math.round(estValueCents * commissionRate);
+        const incentiveAmount = Math.round(estValueCents * incentiveRate);
         
-        await prisma.commission.create({
+        await prisma.incentive.create({
           data: {
-            affiliateId: referral.affiliateId,
+            associationId: school-lead.associationId,
             conversionId: conversion.id,
-            userId: referral.affiliate.userId,
-            rate: commissionRate,
-            amountCents: commissionAmount,
+            userId: school-lead.association.userId,
+            rate: incentiveRate,
+            amountCents: incentiveAmount,
             status: 'PENDING'
           }
         });
@@ -189,8 +189,8 @@ export async function PATCH(
 
       return NextResponse.json({
         success: true,
-        message: `Referral ${action}d successfully`,
-        referral: updatedReferral
+        message: `School Lead ${action}d successfully`,
+        school-lead: updatedSchool Lead
       });
     }
 
@@ -206,7 +206,7 @@ export async function PATCH(
       updateData.reviewedAt = new Date();
     }
 
-    const updatedReferral = await prisma.referral.update({
+    const updatedSchool Lead = await prisma.school-lead.update({
       where: { id: params.id },
       data: updateData
     });
@@ -214,19 +214,19 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       message: 'Customer updated successfully',
-      referral: updatedReferral
+      school-lead: updatedSchool Lead
     });
 
   } catch (error) {
-    console.error('Update referral error:', error);
+    console.error('Update school-lead error:', error);
     return NextResponse.json(
-      { error: 'Failed to update referral' },
+      { error: 'Failed to update school-lead' },
       { status: 500 }
     );
   }
 }
 
-// Add DELETE method to allow admins to delete referrals
+// Add DELETE method to allow admins to delete school-leads
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -246,32 +246,32 @@ export async function DELETE(
       );
     }
 
-    // Check if referral exists
-    const referral = await prisma.referral.findUnique({
+    // Check if school-lead exists
+    const school-lead = await prisma.school-lead.findUnique({
       where: { id: params.id }
     });
 
-    if (!referral) {
+    if (!school-lead) {
       return NextResponse.json(
-        { error: 'Referral not found' },
+        { error: 'School Lead not found' },
         { status: 404 }
       );
     }
 
-    // Delete the referral (will cascade delete related commissions due to Prisma schema)
-    await prisma.referral.delete({
+    // Delete the school-lead (will cascade delete related incentives due to Prisma schema)
+    await prisma.school-lead.delete({
       where: { id: params.id }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Referral deleted successfully'
+      message: 'School Lead deleted successfully'
     });
 
   } catch (error) {
-    console.error('Delete referral error:', error);
+    console.error('Delete school-lead error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete referral' },
+      { error: 'Failed to delete school-lead' },
       { status: 500 }
     );
   }

@@ -32,13 +32,13 @@ export interface EmailTemplate {
 export interface WelcomeEmailData {
   name: string;
   email: string;
-  role: 'affiliate' | 'admin';
+  role: 'association' | 'admin';
   loginUrl: string;
   password?: string;
 }
 
-export interface ReferralNotificationData {
-  affiliateName: string;
+export interface School LeadNotificationData {
+  associationName: string;
   leadName: string;
   leadEmail: string;
   company?: string;
@@ -46,39 +46,39 @@ export interface ReferralNotificationData {
 }
 
 export interface ApprovalEmailData {
-  affiliateName: string;
-  referralId: string;
+  associationName: string;
+  school-leadId: string;
   leadName: string;
-  commissionAmount: number;
+  incentiveAmount: number;
   status: 'approved' | 'rejected';
   notes?: string;
 }
 
 export interface PayoutNotificationData {
-  affiliateName: string;
-  affiliateEmail: string;
+  associationName: string;
+  associationEmail: string;
   amount: number;
   method: 'bank_csv' | 'stripe_connect';
   processingDate: string;
 }
 
 export interface ConversionNotificationData {
-  affiliateName: string;
-  affiliateEmail: string;
+  associationName: string;
+  associationEmail: string;
   leadName: string;
   leadEmail: string;
   company?: string;
   convertedAmountCents: number;
-  commissionCents: number;
+  incentiveCents: number;
 }
 
-export interface CommissionNotificationData {
-  affiliateName: string;
-  affiliateEmail: string;
+export interface IncentiveNotificationData {
+  associationName: string;
+  associationEmail: string;
   customerName: string;
   amountCents: number;
-  commissionCents: number;
-  commissionRate: number;
+  incentiveCents: number;
+  incentiveRate: number;
   transactionId: string;
 }
 
@@ -193,24 +193,24 @@ class EmailService {
       </div>
       <div class="content">
         <h2>Hello ${this.escapeHtml(data.name)}!</h2>
-        <p>Thank you for joining our affiliate platform as a <strong>${this.escapeHtml(data.role)}</strong>.</p>
+        <p>Thank you for joining our association platform as a <strong>${this.escapeHtml(data.role)}</strong>.</p>
         
-        ${data.role === 'affiliate' ? `
+        ${data.role === 'association' ? `
         <p>Your account is currently pending approval. Our admin team will review your application and activate your account within 24-48 hours.</p>
         <p>Once approved, you'll be able to:</p>
         <ul>
-          <li>Generate unique referral links</li>
-          <li>Submit manual referrals</li>
-          <li>Track your commissions and earnings</li>
+          <li>Generate unique school-lead links</li>
+          <li>Submit manual school-leads</li>
+          <li>Track your incentives and earnings</li>
           <li>Access marketing materials</li>
         </ul>
         ` : `
         <p>Your admin account has been created and is ready to use.</p>
         <p>You can now:</p>
         <ul>
-          <li>Manage affiliate applications</li>
-          <li>Review and approve referrals</li>
-          <li>Process commission payments</li>
+          <li>Manage association applications</li>
+          <li>Review and approve school-leads</li>
+          <li>Process incentive payments</li>
           <li>Access platform analytics</li>
         </ul>
         `}
@@ -240,13 +240,13 @@ class EmailService {
     `;
   }
 
-  private generateReferralNotificationHTML(data: ReferralNotificationData, _symbol?: string): string {
+  private generateSchool LeadNotificationHTML(data: School LeadNotificationData, _symbol?: string): string {
     return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
-      <title>New Referral Submission</title>
+      <title>New School Lead Submission</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -257,15 +257,15 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>New Referral Submission 📋</h1>
+        <h1>New School Lead Submission 📋</h1>
       </div>
       <div class="content">
         <h2>Hello Admin!</h2>
-        <p>A new referral has been submitted and requires your review.</p>
+        <p>A new school-lead has been submitted and requires your review.</p>
         
         <div class="details">
-          <h3>Referral Details:</h3>
-          <p><strong>Affiliate:</strong> ${this.escapeHtml(data.affiliateName)}</p>
+          <h3>School Lead Details:</h3>
+          <p><strong>Association:</strong> ${this.escapeHtml(data.associationName)}</p>
           <p><strong>Lead Name:</strong> ${this.escapeHtml(data.leadName)}</p>
           <p><strong>Lead Email:</strong> ${this.escapeHtml(data.leadEmail)}</p>
           ${data.company ? `<p><strong>Company:</strong> ${this.escapeHtml(data.company)}</p>` : ''}
@@ -273,10 +273,10 @@ class EmailService {
         </div>
         
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" class="button">Review Referral</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" class="button">Review School Lead</a>
         </div>
         
-        <p>Please review this referral in the admin dashboard and approve or reject it accordingly.</p>
+        <p>Please review this school-lead in the admin dashboard and approve or reject it accordingly.</p>
         
         <p>Best regards,<br>The SkillHeed System</p>
       </div>
@@ -296,7 +296,7 @@ class EmailService {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Referral ${statusText}</title>
+      <title>School Lead ${statusText}</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: ${statusColor}; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -307,28 +307,28 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>Referral ${statusText} ${emoji}</h1>
+        <h1>School Lead ${statusText} ${emoji}</h1>
       </div>
       <div class="content">
-        <h2>Hello ${this.escapeHtml(data.affiliateName)}!</h2>
-        <p>Your referral submission has been <strong>${statusText.toLowerCase()}</strong>.</p>
+        <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
+        <p>Your school-lead submission has been <strong>${statusText.toLowerCase()}</strong>.</p>
         
         <div class="details">
-          <h3>Referral Details:</h3>
+          <h3>School Lead Details:</h3>
           <p><strong>Lead Name:</strong> ${this.escapeHtml(data.leadName)}</p>
           <p><strong>Status:</strong> ${statusText}</p>
-          ${isApproved ? `<p><strong>Commission Amount:</strong> $${(data.commissionAmount / 100).toFixed(2)}</p>` : ''}
+          ${isApproved ? `<p><strong>Incentive Amount:</strong> $${(data.incentiveAmount / 100).toFixed(2)}</p>` : ''}
           ${data.notes ? `<p><strong>Notes:</strong> ${this.escapeHtml(data.notes)}</p>` : ''}
         </div>
         
         ${isApproved ? `
-        <p>🎉 Congratulations! Your referral has been approved and the commission has been added to your account.</p>
+        <p>🎉 Congratulations! Your school-lead has been approved and the incentive has been added to your account.</p>
         ` : `
-        <p>Unfortunately, this referral did not meet our approval criteria. Please review the feedback and feel free to submit future referrals.</p>
+        <p>Unfortunately, this school-lead did not meet our approval criteria. Please review the feedback and feel free to submit future school-leads.</p>
         `}
         
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Dashboard</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Dashboard</a>
         </div>
         
         <p>Best regards,<br>The SkillHeed Team</p>
@@ -358,8 +358,8 @@ class EmailService {
         <h1>Payout Processed 💰</h1>
       </div>
       <div class="content">
-        <h2>Hello ${this.escapeHtml(data.affiliateName)}!</h2>
-        <p>Great news! Your commission payout has been processed.</p>
+        <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
+        <p>Great news! Your incentive payout has been processed.</p>
         
         <div class="details">
           <h3>Payout Details:</h3>
@@ -375,10 +375,10 @@ class EmailService {
         `}
         
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Dashboard</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Dashboard</a>
         </div>
         
-        <p>Thank you for being a valued affiliate partner!</p>
+        <p>Thank you for being a valued association partner!</p>
         
         <p>Best regards,<br>The SkillHeed Team</p>
       </div>
@@ -394,7 +394,7 @@ class EmailService {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Referral Converted!</title>
+      <title>School Lead Converted!</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -405,10 +405,10 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>🎉 Referral Converted!</h1>
+        <h1>🎉 School Lead Converted!</h1>
       </div>
       <div class="content">
-        <h2>Hello ${this.escapeHtml(data.affiliateName)}!</h2>
+        <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
         <p>Great news! Your referred lead, <strong>${this.escapeHtml(data.leadName)}</strong>, has successfully converted!</p>
         
         <div class="details">
@@ -417,13 +417,13 @@ class EmailService {
           <p><strong>Lead Email:</strong> ${this.escapeHtml(data.leadEmail)}</p>
           ${data.company ? `<p><strong>Company:</strong> ${this.escapeHtml(data.company)}</p>` : ''}
           <p><strong>Converted Amount:</strong> ${this.formatAmount(data.convertedAmountCents, symbol)}</p>
-          <p><strong>Your Commission:</strong> ${this.formatAmount(data.commissionCents, symbol)}</p>
+          <p><strong>Your Incentive:</strong> ${this.formatAmount(data.incentiveCents, symbol)}</p>
         </div>
         
-        <p>The commission for this conversion has been added to your pending earnings.</p>
+        <p>The incentive for this conversion has been added to your pending earnings.</p>
         
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Your Dashboard</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Your Dashboard</a>
         </div>
         
         <p>Keep up the fantastic work!</p>
@@ -435,24 +435,24 @@ class EmailService {
     `;
   }
 
-  // New private method for Commission Notification HTML
-  private generateCommissionNotificationHTML(data: CommissionNotificationData, symbol: string): string {
+  // New private method for Incentive Notification HTML
+  private generateIncentiveNotificationHTML(data: IncentiveNotificationData, symbol: string): string {
     const amount = this.formatAmount(data.amountCents, symbol);
-    const commission = this.formatAmount(data.commissionCents, symbol);
-    const rate = (data.commissionRate * 100).toFixed(0);
+    const incentive = this.formatAmount(data.incentiveCents, symbol);
+    const rate = (data.incentiveRate * 100).toFixed(0);
 
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>New Commission Earned!</title>
+        <title>New Incentive Earned!</title>
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
           .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
           .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
           .amount-box { background: white; border: 2px solid #10b981; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0; }
-          .commission { font-size: 36px; font-weight: bold; color: #10b981; }
+          .incentive { font-size: 36px; font-weight: bold; color: #10b981; }
           .button { display: inline-block; background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
           .details { background: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
           .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
@@ -460,16 +460,16 @@ class EmailService {
       </head>
       <body>
         <div class="header">
-          <h1>💰 New Commission Earned!</h1>
+          <h1>💰 New Incentive Earned!</h1>
         </div>
         <div class="content">
-          <h2>Great news, ${this.escapeHtml(data.affiliateName)}!</h2>
-          <p>A customer you referred has made a payment, and you've earned a commission!</p>
+          <h2>Great news, ${this.escapeHtml(data.associationName)}!</h2>
+          <p>A customer you referred has made a payment, and you've earned a incentive!</p>
           
           <div class="amount-box">
             <div style="font-size: 14px; color: #666; margin-bottom: 10px;">You earned</div>
-            <div class="commission">${commission}</div>
-            <div style="font-size: 14px; color: #666; margin-top: 10px;">${rate}% commission</div>
+            <div class="incentive">${incentive}</div>
+            <div style="font-size: 14px; color: #666; margin-top: 10px;">${rate}% incentive</div>
           </div>
           
           <div class="details">
@@ -483,11 +483,11 @@ class EmailService {
               <strong>${amount}</strong>
             </div>
             <div class="detail-row">
-              <span>Your Commission:</span>
-              <strong style="color: #10b981;">${commission}</strong>
+              <span>Your Incentive:</span>
+              <strong style="color: #10b981;">${incentive}</strong>
             </div>
             <div class="detail-row">
-              <span>Commission Rate:</span>
+              <span>Incentive Rate:</span>
               <strong>${rate}%</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
@@ -496,14 +496,14 @@ class EmailService {
             </div>
           </div>
           
-          <p>This commission is currently <strong>pending</strong> and will be included in your next payout.</p>
+          <p>This incentive is currently <strong>pending</strong> and will be included in your next payout.</p>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Your Dashboard</a>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Your Dashboard</a>
           </div>
           
           <p style="margin-top: 30px; color: #666; font-size: 14px;">
-            Keep up the great work! Continue referring customers to earn more commissions.
+            Keep up the great work! Continue referring customers to earn more incentives.
           </p>
           
           <p>Best regards,<br>The SkillHeed Team</p>
@@ -517,13 +517,13 @@ class EmailService {
     return this.sendTemplatedEmail({
       to: data.email,
       templateType: 'WELCOME_EMAIL',
-      fallbackSubject: `Welcome to SkillHeed - ${data.role === 'affiliate' ? 'Affiliate' : 'Admin'} Account Created`,
+      fallbackSubject: `Welcome to SkillHeed - ${data.role === 'association' ? 'Association' : 'Admin'} Account Created`,
       variables: data,
       generateFallbackHtml: () => this.generateWelcomeEmailHTML(data),
     });
   }
 
-  async sendReferralNotification(data: ReferralNotificationData): Promise<{ success: boolean; message: string }> {
+  async sendSchool LeadNotification(data: School LeadNotificationData): Promise<{ success: boolean; message: string }> {
     const adminEmails = process.env.ADMIN_EMAILS?.split(',') || ['admin@yourdomain.com'];
     const symbol = await this.getCurrencySymbol();
 
@@ -531,10 +531,10 @@ class EmailService {
       adminEmails.map(email =>
         this.sendTemplatedEmail({
           to: email.trim(),
-          templateType: 'NEW_REFERRAL',
-          fallbackSubject: `New Referral Submission from ${data.affiliateName}`,
+          templateType: 'NEW_SCHOOL_LEAD',
+          fallbackSubject: `New School Lead Submission from ${data.associationName}`,
           variables: { ...data, symbol },
-          generateFallbackHtml: () => this.generateReferralNotificationHTML(data, symbol),
+          generateFallbackHtml: () => this.generateSchool LeadNotificationHTML(data, symbol),
         })
       )
     );
@@ -542,17 +542,17 @@ class EmailService {
     const success = results.every(r => r.success);
     return {
       success,
-      message: success ? 'Referral notifications sent' : 'Some notifications failed'
+      message: success ? 'School Lead notifications sent' : 'Some notifications failed'
     };
   }
 
-  async sendApprovalEmail(affiliateEmail: string, data: ApprovalEmailData): Promise<{ success: boolean; message: string }> {
+  async sendApprovalEmail(associationEmail: string, data: ApprovalEmailData): Promise<{ success: boolean; message: string }> {
     const statusText = data.status === 'approved' ? 'Approved' : 'Rejected';
     const symbol = await this.getCurrencySymbol();
     return this.sendTemplatedEmail({
-      to: affiliateEmail,
+      to: associationEmail,
       templateType: data.status === 'approved' ? 'PARTNER_APPROVAL' : 'PARTNER_DECLINED',
-      fallbackSubject: `Referral ${statusText} - ${data.leadName}`,
+      fallbackSubject: `School Lead ${statusText} - ${data.leadName}`,
       variables: { ...data, statusText, symbol }, // Pass statusText and symbol for template variables
       generateFallbackHtml: () => this.generateApprovalEmailHTML(data, symbol),
     });
@@ -561,7 +561,7 @@ class EmailService {
   async sendPayoutNotification(data: PayoutNotificationData): Promise<{ success: boolean; message: string }> {
     const symbol = await this.getCurrencySymbol();
     return this.sendTemplatedEmail({
-      to: data.affiliateEmail,
+      to: data.associationEmail,
       templateType: 'PAYOUT_PROCESSED',
       fallbackSubject: `Payout Processed - ${this.formatAmount(data.amount, symbol)}`,
       variables: { ...data, symbol },
@@ -573,23 +573,23 @@ class EmailService {
   async sendConversionNotification(data: ConversionNotificationData): Promise<{ success: boolean; message: string }> {
     const symbol = await this.getCurrencySymbol();
     return this.sendTemplatedEmail({
-      to: data.affiliateEmail,
-      templateType: 'REFERRAL_CONVERTED',
-      fallbackSubject: `🎉 Your Referral for ${data.leadName} Converted!`,
+      to: data.associationEmail,
+      templateType: 'SCHOOL_LEAD_CONVERTED',
+      fallbackSubject: `🎉 Your School Lead for ${data.leadName} Converted!`,
       variables: { ...data, symbol },
       generateFallbackHtml: () => this.generateConversionNotificationHTML(data, symbol),
     });
   }
 
-  // New method for Commission Notification
-  async sendCommissionNotification(data: CommissionNotificationData): Promise<{ success: boolean; message: string }> {
+  // New method for Incentive Notification
+  async sendIncentiveNotification(data: IncentiveNotificationData): Promise<{ success: boolean; message: string }> {
     const symbol = await this.getCurrencySymbol();
     return this.sendTemplatedEmail({
-      to: data.affiliateEmail,
-      templateType: 'COMMISSION_EARNED',
-      fallbackSubject: `💰 New Commission: ${this.formatAmount(data.commissionCents, symbol)} Earned!`,
+      to: data.associationEmail,
+      templateType: 'INCENTIVE_EARNED',
+      fallbackSubject: `💰 New Incentive: ${this.formatAmount(data.incentiveCents, symbol)} Earned!`,
       variables: { ...data, symbol },
-      generateFallbackHtml: () => this.generateCommissionNotificationHTML(data, symbol),
+      generateFallbackHtml: () => this.generateIncentiveNotificationHTML(data, symbol),
     });
   }
 
@@ -620,7 +620,7 @@ class EmailService {
         </div>
         <div class="content">
           <h2>Hello!</h2>
-          <p>We received a request to reset your password for your affiliate platform account.</p>
+          <p>We received a request to reset your password for your association platform account.</p>
           
           <div style="text-align: center;">
             <a href="${resetUrl}" class="button">Reset Your Password</a>
@@ -672,7 +672,7 @@ class EmailService {
         </div>
         <div class="content">
           <h2>Hello!</h2>
-          <p>Thank you for registering with our affiliate platform. Please verify your email address to complete your registration.</p>
+          <p>Thank you for registering with our association platform. Please verify your email address to complete your registration.</p>
           
           <div style="text-align: center;">
             <a href="${verificationUrl}" class="button">Verify Email Address</a>
@@ -692,33 +692,33 @@ class EmailService {
   }
 
   async sendTransactionCreatedEmail(
-    affiliateEmail: string,
+    associationEmail: string,
     data: {
-      affiliateName: string;
+      associationName: string;
       customerName: string;
       amountCents: number;
-      commissionCents: number;
-      commissionRate: number;
+      incentiveCents: number;
+      incentiveRate: number;
       transactionId: string;
     }
   ): Promise<{ success: boolean; message: string }> {
     const symbol = await this.getCurrencySymbol();
-    const commission = this.formatAmount(data.commissionCents, symbol);
+    const incentive = this.formatAmount(data.incentiveCents, symbol);
     return this.sendTemplatedEmail({
-      to: affiliateEmail,
-      templateType: 'COMMISSION_EARNED', // Re-use commission earned template
-      fallbackSubject: `💰 New Commission: ${commission} Earned!`,
+      to: associationEmail,
+      templateType: 'INCENTIVE_EARNED', // Re-use incentive earned template
+      fallbackSubject: `💰 New Incentive: ${incentive} Earned!`,
       variables: { ...data, symbol },
-      generateFallbackHtml: () => this.generateCommissionNotificationHTML({ ...data, affiliateEmail }, symbol),
+      generateFallbackHtml: () => this.generateIncentiveNotificationHTML({ ...data, associationEmail }, symbol),
     });
   }
 
   async sendPayoutCreatedEmail(
-    affiliateEmail: string,
+    associationEmail: string,
     data: {
-      affiliateName: string;
+      associationName: string;
       amountCents: number;
-      commissionCount: number;
+      incentiveCount: number;
       payoutId: string;
       method?: string;
     }
@@ -726,7 +726,7 @@ class EmailService {
     const symbol = await this.getCurrencySymbol();
     const amount = (data.amountCents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return this.sendTemplatedEmail({
-      to: affiliateEmail,
+      to: associationEmail,
       templateType: 'PAYOUT_GENERATED',
       fallbackSubject: `🎉 Payout Initiated: ₹${amount}`,
       variables: { ...data, amount: this.formatAmount(data.amountCents, symbol), symbol },
@@ -752,8 +752,8 @@ class EmailService {
           <h1>🎉 Payout Initiated!</h1>
         </div>
         <div class="content">
-          <h2>Hello ${this.escapeHtml(data.affiliateName)}!</h2>
-          <p>Good news! A payout has been initiated for your earned commissions.</p>
+          <h2>Hello ${this.escapeHtml(data.associationName)}!</h2>
+          <p>Good news! A payout has been initiated for your earned incentives.</p>
           
           <div class="amount-box">
             <div style="font-size: 14px; color: #666; margin-bottom: 10px;">Payout Amount</div>
@@ -765,7 +765,7 @@ class EmailService {
           
           <div class="details">
             <h3 style="margin-top: 0;">Payout Details</h3>
-            <p><strong>Commissions Included:</strong> ${data.commissionCount} commission${data.commissionCount > 1 ? 's' : ''}</p>
+            <p><strong>Incentives Included:</strong> ${data.incentiveCount} incentive${data.incentiveCount > 1 ? 's' : ''}</p>
             ${data.method ? `<p><strong>Payment Method:</strong> ${this.escapeHtml(data.method)}</p>` : ''}
             <p><strong>Payout ID:</strong> <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${this.escapeHtml(data.payoutId)}</code></p>
           </div>
@@ -778,7 +778,7 @@ class EmailService {
           </div>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Payout Status</a>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Payout Status</a>
           </div>
           
           <p style="margin-top: 30px; color: #666; font-size: 14px;">
@@ -794,11 +794,11 @@ class EmailService {
   }
 
   async sendPayoutCompletedEmail(
-    affiliateEmail: string,
+    associationEmail: string,
     data: {
-      affiliateName: string;
+      associationName: string;
       amountCents: number;
-      commissionCount: number;
+      incentiveCount: number;
       payoutId: string;
       method?: string;
       processedAt: string;
@@ -812,7 +812,7 @@ class EmailService {
       day: 'numeric'
     });
     return this.sendTemplatedEmail({
-      to: affiliateEmail,
+      to: associationEmail,
       templateType: 'PARTNER_PAID',
       fallbackSubject: `✅ Payment Completed: ₹${amount} Paid!`,
       variables: { ...data, amount: this.formatAmount(data.amountCents, symbol), date, symbol },
@@ -841,7 +841,7 @@ class EmailService {
         <div class="content">
           <div class="celebration">🎊 🎉 🥳</div>
           
-          <h2>Congratulations, ${this.escapeHtml(data.affiliateName)}!</h2>
+          <h2>Congratulations, ${this.escapeHtml(data.associationName)}!</h2>
           <p>Your payout has been successfully processed and the funds have been transferred.</p>
           
           <div class="amount-box">
@@ -854,7 +854,7 @@ class EmailService {
           
           <div class="details">
             <h3 style="margin-top: 0;">Payment Details</h3>
-            <p><strong>Commissions Paid:</strong> ${data.commissionCount} commission${data.commissionCount > 1 ? 's' : ''}</p>
+            <p><strong>Incentives Paid:</strong> ${data.incentiveCount} incentive${data.incentiveCount > 1 ? 's' : ''}</p>
             ${data.method ? `<p><strong>Payment Method:</strong> ${this.escapeHtml(data.method)}</p>` : ''}
             <p><strong>Payout ID:</strong> <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${this.escapeHtml(data.payoutId)}</code></p>
           </div>
@@ -865,11 +865,11 @@ class EmailService {
           </div>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Dashboard</a>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/association" class="button">View Dashboard</a>
           </div>
           
           <p style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
-            Keep up the excellent work! Continue referring customers to earn more commissions.
+            Keep up the excellent work! Continue referring customers to earn more incentives.
           </p>
           
           <p>Best regards,<br>The SkillHeed Team</p>

@@ -41,7 +41,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [referralCode, setReferralCode] = useState('');
+  const [school-leadCode, setSchool LeadCode] = useState('');
   const [saving, setSaving] = useState(false);
 
   const [settingsForm, setSettingsForm] = useState({
@@ -60,11 +60,11 @@ export default function SettingsPage() {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/affiliate/profile');
+      const res = await fetch('/api/association/profile');
       const data = await res.json();
       if (data.success) {
-        const pd = data.affiliate?.payoutDetails || {};
-        setReferralCode(data.affiliate?.referralCode || '');
+        const pd = data.association?.payoutDetails || {};
+        setSchool LeadCode(data.association?.school-leadCode || '');
         setSettingsForm({
           name: data.user?.name || user?.name || '',
           company: pd.company || '',
@@ -84,7 +84,7 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/affiliate/profile', {
+      const res = await fetch('/api/association/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsForm),
@@ -104,10 +104,10 @@ export default function SettingsPage() {
 
   const handleGenerateCode = async () => {
     try {
-      const res = await fetch('/api/affiliate/generate-code', { method: 'POST' });
+      const res = await fetch('/api/association/generate-code', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        showNotification('success', 'Referral code generated!');
+        showNotification('success', 'School Lead code generated!');
         loadProfile();
       } else {
         showNotification('error', 'Failed to generate code: ' + data.error);
@@ -118,7 +118,7 @@ export default function SettingsPage() {
   };
 
   const copyCode = () => {
-    navigator.clipboard.writeText(referralCode);
+    navigator.clipboard.writeText(school-leadCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -151,26 +151,26 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Manage your account and payment preferences</p>
       </div>
 
-      {/* Referral Code */}
+      {/* School Lead Code */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Key className="h-4 w-4" />
-            Referral Code
+            School Lead Code
           </CardTitle>
-          <CardDescription>Your unique referral identifier</CardDescription>
+          <CardDescription>Your unique school-lead identifier</CardDescription>
         </CardHeader>
         <CardContent>
-          {referralCode ? (
+          {school-leadCode ? (
             <div className="flex items-center gap-2">
-              <Input readOnly value={referralCode} className="font-mono max-w-xs" />
+              <Input readOnly value={school-leadCode} className="font-mono max-w-xs" />
               <Button variant="outline" size="icon" onClick={copyCode}>
                 {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">No referral code generated yet.</p>
+              <p className="text-sm text-muted-foreground">No school-lead code generated yet.</p>
               <Button onClick={handleGenerateCode}>Generate Code</Button>
             </div>
           )}

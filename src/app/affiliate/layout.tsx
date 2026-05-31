@@ -51,24 +51,24 @@ interface BrandSettings {
 }
 
 const mainNavItems = [
-  { title: 'Dashboard', url: '/affiliate', icon: LayoutDashboard },
-  { title: 'Referrals', url: '/affiliate/referrals', icon: Users },
-  { title: 'Payouts', url: '/affiliate/payouts', icon: Wallet },
-  { title: 'Resources', url: '/affiliate/resources', icon: BookOpen },
-  { title: 'Reports', url: '/affiliate/reports', icon: BarChart3, badge: 'BETA' },
+  { title: 'Dashboard', url: '/association', icon: LayoutDashboard },
+  { title: 'School Leads', url: '/association/school-leads', icon: Users },
+  { title: 'Payouts', url: '/association/payouts', icon: Wallet },
+  { title: 'Resources', url: '/association/resources', icon: BookOpen },
+  { title: 'Reports', url: '/association/reports', icon: BarChart3, badge: 'BETA' },
 ];
 
 const accountNavItems = [
-  { title: 'Settings', url: '/affiliate/settings', icon: Settings },
+  { title: 'Settings', url: '/association/settings', icon: Settings },
 ];
 
-function AffiliateSidebar({ brand }: { brand: BrandSettings }) {
+function AssociationSidebar({ brand }: { brand: BrandSettings }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
 
   const isActive = (url: string) => {
-    if (url === '/affiliate') return pathname === '/affiliate';
+    if (url === '/association') return pathname === '/association';
     return pathname.startsWith(url);
   };
 
@@ -90,7 +90,7 @@ function AffiliateSidebar({ brand }: { brand: BrandSettings }) {
               )}
               <div className="flex flex-col">
                 <span className="text-sm font-bold">{brandName}</span>
-                <span className="text-xs text-muted-foreground">Affiliate Portal</span>
+                <span className="text-xs text-muted-foreground">Association Portal</span>
               </div>
             </div>
           </SidebarMenuItem>
@@ -171,7 +171,7 @@ function AffiliateSidebar({ brand }: { brand: BrandSettings }) {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem onClick={() => router.push('/affiliate/settings')}>
+                <DropdownMenuItem onClick={() => router.push('/association/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
@@ -191,12 +191,12 @@ function AffiliateSidebar({ brand }: { brand: BrandSettings }) {
   );
 }
 
-export default function AffiliateLayout({ children }: { children: React.ReactNode }) {
+export default function AssociationLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [brand, setBrand] = useState<BrandSettings>({});
 
   useEffect(() => {
-    fetch('/api/affiliate/branding')
+    fetch('/api/association/branding')
       .then(res => res.json())
       .then(data => {
         if (data.success && data.settings) setBrand(data.settings);
@@ -218,7 +218,7 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!user || !user.hasAffiliate) {
+  if (!user || !user.hasAssociation) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center space-y-4">
@@ -226,7 +226,7 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
             <span className="text-3xl">🔒</span>
           </div>
           <h1 className="text-xl font-bold">Access Denied</h1>
-          <p className="text-sm text-muted-foreground">Affiliate account required to access this page</p>
+          <p className="text-sm text-muted-foreground">Association account required to access this page</p>
           <Button asChild>
             <a href="/login">Go to Login</a>
           </Button>
@@ -237,7 +237,7 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <AffiliateSidebar brand={brand} />
+      <AssociationSidebar brand={brand} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />

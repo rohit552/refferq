@@ -150,7 +150,7 @@ export default function ResourcesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Resources</h1>
-          <p className="text-muted-foreground">Manage marketing assets for affiliates</p>
+          <p className="text-muted-foreground">Manage marketing assets for associations</p>
         </div>
         <Button onClick={() => { setEditing(null); setForm({ title: '', description: '', type: 'BANNER', fileUrl: '', fileName: '', fileSize: '', category: '' }); setDialogOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" />
@@ -185,7 +185,7 @@ export default function ResourcesPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Resources</CardTitle>
-          <CardDescription>Assets available to affiliates for promotion</CardDescription>
+          <CardDescription>Assets available to associations for promotion</CardDescription>
         </CardHeader>
         <CardContent>
           {resources.length === 0 ? (
@@ -250,7 +250,7 @@ export default function ResourcesPage() {
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Resource' : 'Add Resource'}</DialogTitle>
             <DialogDescription>
-              {editing ? 'Update resource details' : 'Add a new marketing asset for affiliates'}
+              {editing ? 'Update resource details' : 'Add a new marketing asset for associations'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

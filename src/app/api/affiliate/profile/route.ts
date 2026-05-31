@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -20,74 +20,74 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    const affiliate = user.affiliate as any;
-    if (!affiliate) {
+    const association = user.association as any;
+    if (!association) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
 
-    // Get affiliate statistics
-    const referrals = await prisma.referral.findMany({
-      where: { affiliateId: affiliate.id },
+    // Get association statistics
+    const school-leads = await prisma.school-lead.findMany({
+      where: { associationId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     const conversions = await prisma.conversion.findMany({
-      where: { affiliateId: affiliate.id },
+      where: { associationId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    const commissions = await prisma.commission.findMany({
-      where: { affiliateId: affiliate.id },
+    const incentives = await prisma.incentive.findMany({
+      where: { associationId: association.id },
       orderBy: { createdAt: 'desc' }
     });
 
     // Calculate stats
     // Available earnings = COMPLETED (PAID) + APPROVED but not yet paid
-    const availableEarnings = commissions
+    const availableEarnings = incentives
       .filter(c => c.status === 'PAID' || c.status === 'APPROVED')
       .reduce((sum, c) => sum + c.amountCents, 0);
 
-    const pendingCommissionsList = commissions.filter(c => c.status === 'PENDING');
-    const pendingEarningsCents = pendingCommissionsList.reduce((sum, c) => sum + c.amountCents, 0);
+    const pendingIncentivesList = incentives.filter(c => c.status === 'PENDING');
+    const pendingEarningsCents = pendingIncentivesList.reduce((sum, c) => sum + c.amountCents, 0);
 
-    const totalCommissions = commissions.length;
-    const pendingCommissionsCount = pendingCommissionsList.length;
+    const totalIncentives = incentives.length;
+    const pendingIncentivesCount = pendingIncentivesList.length;
     const totalConversions = conversions.length;
-    const totalClicks = referrals.reduce((sum, r) => {
+    const totalClicks = school-leads.reduce((sum, r) => {
       const metadata = r.metadata as any;
       return sum + (metadata?.clicks || 0);
     }, 0);
     const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
-    // Next maturation date for pending commissions
-    const nextMaturesAt = pendingCommissionsList
+    // Next maturation date for pending incentives
+    const nextMaturesAt = pendingIncentivesList
       .filter(c => (c as any).maturesAt)
       .sort((a, b) => ((a as any).maturesAt.getTime() - (b as any).maturesAt.getTime()))[0]?.maturesAt || null;
 
     const stats = {
       totalEarnings: availableEarnings,
       pendingEarnings: pendingEarningsCents,
-      pendingEarningsList: pendingCommissionsList.length,
+      pendingEarningsList: pendingIncentivesList.length,
       nextMaturesAt,
-      totalCommissions,
-      pendingCommissions: pendingCommissionsCount,
+      totalIncentives,
+      pendingIncentives: pendingIncentivesCount,
       totalConversions,
       totalClicks,
       conversionRate
     };
 
-    // Map referrals to include estimatedValue from metadata
-    const mappedReferrals = referrals.map(ref => {
+    // Map school-leads to include estimatedValue from metadata
+    const mappedSchool Leads = school-leads.map(ref => {
       const metadata = ref.metadata as any;
       return {
         ...ref,
@@ -108,17 +108,17 @@ export async function GET(request: NextRequest) {
         email: user.email,
         role: user.role
       },
-      affiliate: affiliate,
+      association: association,
       stats,
-      referrals: mappedReferrals,
+      school-leads: mappedSchool Leads,
       conversions,
-      commissions,
+      incentives,
       currencySymbol,
     });
   } catch (error) {
-    console.error('Affiliate profile API error:', error);
+    console.error('Association profile API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch affiliate profile' },
+      { error: 'Failed to fetch association profile' },
       { status: 500 }
     );
   }
@@ -132,7 +132,7 @@ export async function PUT(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -143,9 +143,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
@@ -179,8 +179,8 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    // Update affiliate payout details if provided
-    if (user.affiliate) {
+    // Update association payout details if provided
+    if (user.association) {
       const payoutDetails: any = {};
 
       if (company) payoutDetails.company = company.trim();
@@ -188,8 +188,8 @@ export async function PUT(request: NextRequest) {
       if (paymentMethod) payoutDetails.paymentMethod = paymentMethod;
       if (paymentEmail) payoutDetails.paymentEmail = paymentEmail.trim();
 
-      await prisma.affiliate.update({
-        where: { id: user.affiliate.id },
+      await prisma.association.update({
+        where: { id: user.association.id },
         data: {
           payoutDetails: payoutDetails
         }
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest) {
       message: 'Profile updated successfully',
     });
   } catch (error) {
-    console.error('Affiliate profile update API error:', error);
+    console.error('Association profile update API error:', error);
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }

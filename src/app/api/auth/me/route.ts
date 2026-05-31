@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
-        hasAffiliate: !!user.affiliate,
+        hasAssociation: !!user.association,
         profilePicture: user.profilePicture,
       }
     });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 /**
- * POST /api/track/referral - Track referral clicks
+ * POST /api/track/school-lead - Track school-lead clicks
  */
 export async function POST(req: NextRequest) {
   try {
@@ -31,18 +31,18 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { referralCode, url, referrer, userAgent, timestamp } = body;
+    const { school-leadCode, url, referrer, userAgent, timestamp } = body;
 
-    if (!referralCode) {
+    if (!school-leadCode) {
       return NextResponse.json(
-        { success: false, error: 'Referral code is required' },
+        { success: false, error: 'School Lead code is required' },
         { status: 400 }
       );
     }
 
-    // Find affiliate by referral code
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { referralCode },
+    // Find association by school-lead code
+    const association = await prisma.association.findUnique({
+      where: { school-leadCode },
       include: {
         user: {
           select: {
@@ -55,44 +55,44 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!affiliate) {
+    if (!association) {
       return NextResponse.json(
-        { success: false, error: 'Invalid referral code' },
+        { success: false, error: 'Invalid school-lead code' },
         { status: 404 }
       );
     }
 
-    if (affiliate.user.status !== 'ACTIVE') {
+    if (association.user.status !== 'ACTIVE') {
       return NextResponse.json(
-        { success: false, error: 'Affiliate is not active' },
+        { success: false, error: 'Association is not active' },
         { status: 403 }
       );
     }
 
-    // Log the referral click
-    console.log('✅ Referral click tracked:', {
-      affiliateId: affiliate.id,
-      referralCode,
+    // Log the school-lead click
+    console.log('✅ School Lead click tracked:', {
+      associationId: association.id,
+      school-leadCode,
       url,
       referrer,
       timestamp,
     });
 
-    // You can optionally create a ReferralClick record or update stats
+    // You can optionally create a School LeadClick record or update stats
     // For now, we'll just log it and return success
 
     return NextResponse.json({
       success: true,
-      message: 'Referral tracked successfully',
-      affiliate: {
-        name: affiliate.user.name,
-        code: affiliate.referralCode,
+      message: 'School Lead tracked successfully',
+      association: {
+        name: association.user.name,
+        code: association.school-leadCode,
       },
     });
   } catch (error) {
-    console.error('POST /api/track/referral error:', error);
+    console.error('POST /api/track/school-lead error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to track referral' },
+      { success: false, error: 'Failed to track school-lead' },
       { status: 500 }
     );
   }

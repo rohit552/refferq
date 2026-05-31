@@ -28,35 +28,35 @@ export async function GET(request: NextRequest) {
     const months = monthsMap[period] || 6;
     const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    // Get all affiliates created within the period
-    const affiliates = await prisma.affiliate.findMany({
+    // Get all associations created within the period
+    const associations = await prisma.association.findMany({
       where: { createdAt: { gte: startDate } },
       include: {
         user: { select: { name: true, email: true, status: true, createdAt: true } },
-        referrals: {
+        school-leads: {
           select: { id: true, status: true, createdAt: true },
         },
-        commissions: {
+        incentives: {
           select: { id: true, amountCents: true, status: true, createdAt: true },
         },
       },
       orderBy: { createdAt: 'asc' },
     });
 
-    // Group affiliates into cohorts by join month/week
+    // Group associations into cohorts by join month/week
     const cohorts = new Map<string, {
       label: string;
       startDate: Date;
-      affiliateCount: number;
-      totalReferrals: number;
-      approvedReferrals: number;
-      totalCommissions: number;
+      associationCount: number;
+      totalSchool Leads: number;
+      approvedSchool Leads: number;
+      totalIncentives: number;
       totalEarnings: number;
       retention: Record<string, number>; // period label → active count
     }>();
 
-    for (const affiliate of affiliates) {
-      const joinDate = affiliate.createdAt;
+    for (const association of associations) {
+      const joinDate = association.createdAt;
       let cohortKey: string;
       let cohortLabel: string;
       let cohortStart: Date;
@@ -78,25 +78,25 @@ export async function GET(request: NextRequest) {
         cohorts.set(cohortKey, {
           label: cohortLabel,
           startDate: cohortStart,
-          affiliateCount: 0,
-          totalReferrals: 0,
-          approvedReferrals: 0,
-          totalCommissions: 0,
+          associationCount: 0,
+          totalSchool Leads: 0,
+          approvedSchool Leads: 0,
+          totalIncentives: 0,
           totalEarnings: 0,
           retention: {},
         });
       }
 
       const cohort = cohorts.get(cohortKey)!;
-      cohort.affiliateCount++;
-      cohort.totalReferrals += affiliate.referrals.length;
-      cohort.approvedReferrals += affiliate.referrals.filter((r) => r.status === 'APPROVED').length;
-      cohort.totalCommissions += affiliate.commissions.length;
-      cohort.totalEarnings += affiliate.commissions.reduce((sum, c) => sum + c.amountCents, 0);
+      cohort.associationCount++;
+      cohort.totalSchool Leads += association.school-leads.length;
+      cohort.approvedSchool Leads += association.school-leads.filter((r) => r.status === 'APPROVED').length;
+      cohort.totalIncentives += association.incentives.length;
+      cohort.totalEarnings += association.incentives.reduce((sum, c) => sum + c.amountCents, 0);
 
-      // Calculate retention: which periods after joining did this affiliate have activity?
-      for (const referral of affiliate.referrals) {
-        const refDate = new Date(referral.createdAt);
+      // Calculate retention: which periods after joining did this association have activity?
+      for (const school-lead of association.school-leads) {
+        const refDate = new Date(school-lead.createdAt);
         const monthsAfterJoin = Math.floor(
           (refDate.getTime() - cohortStart.getTime()) / (30 * 24 * 60 * 60 * 1000)
         );
@@ -112,25 +112,25 @@ export async function GET(request: NextRequest) {
       cohortKey: key,
       label: cohort.label,
       startDate: cohort.startDate,
-      affiliateCount: cohort.affiliateCount,
-      totalReferrals: cohort.totalReferrals,
-      approvedReferrals: cohort.approvedReferrals,
-      conversionRate: cohort.totalReferrals > 0
-        ? ((cohort.approvedReferrals / cohort.totalReferrals) * 100).toFixed(1)
+      associationCount: cohort.associationCount,
+      totalSchool Leads: cohort.totalSchool Leads,
+      approvedSchool Leads: cohort.approvedSchool Leads,
+      conversionRate: cohort.totalSchool Leads > 0
+        ? ((cohort.approvedSchool Leads / cohort.totalSchool Leads) * 100).toFixed(1)
         : '0',
-      totalCommissions: cohort.totalCommissions,
+      totalIncentives: cohort.totalIncentives,
       totalEarningsCents: cohort.totalEarnings,
-      avgEarningsPerAffiliateCents: cohort.affiliateCount > 0
-        ? Math.round(cohort.totalEarnings / cohort.affiliateCount)
+      avgEarningsPerAssociationCents: cohort.associationCount > 0
+        ? Math.round(cohort.totalEarnings / cohort.associationCount)
         : 0,
       retention: cohort.retention,
     }));
 
     // Overall summary
-    const totalAffiliates = affiliates.length;
-    const activeAffiliates = affiliates.filter((a) => a.referrals.length > 0).length;
-    const avgReferralsPerAffiliate = totalAffiliates > 0
-      ? (affiliates.reduce((sum, a) => sum + a.referrals.length, 0) / totalAffiliates).toFixed(1)
+    const totalAssociations = associations.length;
+    const activeAssociations = associations.filter((a) => a.school-leads.length > 0).length;
+    const avgSchool LeadsPerAssociation = totalAssociations > 0
+      ? (associations.reduce((sum, a) => sum + a.school-leads.length, 0) / totalAssociations).toFixed(1)
       : '0';
 
     return NextResponse.json({
@@ -140,12 +140,12 @@ export async function GET(request: NextRequest) {
         groupBy,
         summary: {
           totalCohorts: cohortData.length,
-          totalAffiliates,
-          activeAffiliates,
-          activationRate: totalAffiliates > 0
-            ? ((activeAffiliates / totalAffiliates) * 100).toFixed(1)
+          totalAssociations,
+          activeAssociations,
+          activationRate: totalAssociations > 0
+            ? ((activeAssociations / totalAssociations) * 100).toFixed(1)
             : '0',
-          avgReferralsPerAffiliate,
+          avgSchool LeadsPerAssociation,
         },
         cohorts: cohortData,
       },

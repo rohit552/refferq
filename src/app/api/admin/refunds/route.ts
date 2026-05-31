@@ -13,7 +13,7 @@ async function verifyAdmin(request: NextRequest) {
 }
 
 // POST - Process a refund for a transaction
-// Automatically reverses associated commissions
+// Automatically reverses associated incentives
 export async function POST(request: NextRequest) {
   const admin = await verifyAdmin(request);
   if (!admin) {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Get transaction
     const transaction = await (prisma as any).transaction.findUnique({
       where: { id: transactionId },
-      include: { affiliate: true },
+      include: { association: true },
     });
 
     if (!transaction) {
@@ -41,19 +41,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Transaction already refunded' }, { status: 400 });
     }
 
-    // Find associated commissions for this affiliate that are pending/approved
-    const commissions = await prisma.commission.findMany({
+    // Find associated incentives for this association that are pending/approved
+    const incentives = await prisma.incentive.findMany({
       where: {
-        affiliateId: transaction.affiliateId,
+        associationId: transaction.associationId,
         status: { in: ['PENDING', 'APPROVED'] },
       },
     });
 
     const results = {
       transactionRefunded: false,
-      commissionReversed: false,
+      incentiveReversed: false,
       balanceDeducted: false,
-      reversedCommissionId: null as string | null,
+      reversedIncentiveId: null as string | null,
       reversedAmountCents: 0,
       deductedAmountCents: 0,
     };
@@ -68,31 +68,31 @@ export async function POST(request: NextRequest) {
     });
     results.transactionRefunded = true;
 
-    // 2. Reverse associated commission (mark as CANCELLED)
-    if (commissions.length > 0) {
-      const matchingCommission = commissions[0]; // Take most recent matching
-      await prisma.commission.update({
-        where: { id: matchingCommission.id },
+    // 2. Reverse associated incentive (mark as CANCELLED)
+    if (incentives.length > 0) {
+      const matchingIncentive = incentives[0]; // Take most recent matching
+      await prisma.incentive.update({
+        where: { id: matchingIncentive.id },
         data: { status: 'CANCELLED' },
       });
-      results.commissionReversed = true;
-      results.reversedCommissionId = matchingCommission.id;
-      results.reversedAmountCents = matchingCommission.amountCents;
+      results.incentiveReversed = true;
+      results.reversedIncentiveId = matchingIncentive.id;
+      results.reversedAmountCents = matchingIncentive.amountCents;
 
-      // 3. Deduct from affiliate balance if applicable
-      const affiliate = await prisma.affiliate.findUnique({
-        where: { id: transaction.affiliateId },
+      // 3. Deduct from association balance if applicable
+      const association = await prisma.association.findUnique({
+        where: { id: transaction.associationId },
       });
 
-      if (affiliate && affiliate.balanceCents >= matchingCommission.amountCents) {
-        await prisma.affiliate.update({
-          where: { id: transaction.affiliateId },
+      if (association && association.balanceCents >= matchingIncentive.amountCents) {
+        await prisma.association.update({
+          where: { id: transaction.associationId },
           data: {
-            balanceCents: { decrement: matchingCommission.amountCents },
+            balanceCents: { decrement: matchingIncentive.amountCents },
           },
         });
         results.balanceDeducted = true;
-        results.deductedAmountCents = matchingCommission.amountCents;
+        results.deductedAmountCents = matchingIncentive.amountCents;
       }
     }
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         payload: {
           reason: reason || 'No reason provided',
           transactionAmountCents: transaction.amountCents,
-          commissionReversed: results.commissionReversed,
+          incentiveReversed: results.incentiveReversed,
           reversedAmountCents: results.reversedAmountCents,
           balanceDeducted: results.balanceDeducted,
         },
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
   try {
     const transactions = await (prisma as any).transaction.findMany({
       where: { status: 'REFUNDED' },
-      include: { affiliate: { include: { user: { select: { name: true, email: true } } } } },
+      include: { association: { include: { user: { select: { name: true, email: true } } } } },
       orderBy: { updatedAt: 'desc' },
       take: 100,
     });

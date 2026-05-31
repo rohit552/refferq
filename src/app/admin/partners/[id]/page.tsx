@@ -64,9 +64,9 @@ interface Partner {
   id: string;
   name: string;
   email: string;
-  referralCode: string;
+  school-leadCode: string;
   partnerGroup?: string;
-  commissionRate: number;
+  incentiveRate: number;
   status: string;
   totalClicks: number;
   totalLeads: number;
@@ -83,7 +83,7 @@ interface Customer {
   createdAt: string;
 }
 
-interface Commission {
+interface Incentive {
   id: string;
   transactionId: string;
   customerName: string;
@@ -97,7 +97,7 @@ interface Commission {
 interface Payout {
   id: string;
   amountCents: number;
-  commissionCount: number;
+  incentiveCount: number;
   status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
   method?: string;
   createdAt: string;
@@ -112,11 +112,11 @@ export default function PartnerDetailPage() {
 
   const [partner, setPartner] = useState<Partner | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [commissions, setCommissions] = useState<Commission[]>([]);
+  const [incentives, setIncentives] = useState<Incentive[]>([]);
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [selectedCommissions, setSelectedCommissions] = useState<string[]>([]);
+  const [selectedIncentives, setSelectedIncentives] = useState<string[]>([]);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [editingPayout, setEditingPayout] = useState<Payout | null>(null);
@@ -130,30 +130,30 @@ export default function PartnerDetailPage() {
     if (user && partnerId) {
       fetchPartnerData();
       fetchCustomers();
-      fetchCommissions();
+      fetchIncentives();
       fetchPayouts();
     }
   }, [authLoading, user, partnerId]);
 
   const fetchPartnerData = async () => {
     try {
-      const res = await fetch('/api/admin/affiliates');
+      const res = await fetch('/api/admin/associations');
       if (res.ok) {
         const data = await res.json();
-        const affiliate = data.affiliates?.find((a: any) => a.id === partnerId);
-        if (affiliate) {
+        const association = data.associations?.find((a: any) => a.id === partnerId);
+        if (association) {
           setPartner({
-            id: affiliate.id,
-            name: affiliate.name,
-            email: affiliate.email,
-            referralCode: affiliate.referralCode,
-            partnerGroup: affiliate.partnerGroup,
-            commissionRate: affiliate.commissionRate || 0.20,
-            status: affiliate.status,
-            totalClicks: affiliate.totalClicks || 0,
-            totalLeads: affiliate.totalLeads || 0,
-            totalRevenue: affiliate.totalRevenue || 0,
-            createdAt: affiliate.createdAt,
+            id: association.id,
+            name: association.name,
+            email: association.email,
+            school-leadCode: association.school-leadCode,
+            partnerGroup: association.partnerGroup,
+            incentiveRate: association.incentiveRate || 0.20,
+            status: association.status,
+            totalClicks: association.totalClicks || 0,
+            totalLeads: association.totalLeads || 0,
+            totalRevenue: association.totalRevenue || 0,
+            createdAt: association.createdAt,
           });
         }
       }
@@ -166,11 +166,11 @@ export default function PartnerDetailPage() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch('/api/admin/referrals');
+      const res = await fetch('/api/admin/school-leads');
       if (res.ok) {
         const data = await res.json();
-        const partnerCustomers = data.referrals
-          ?.filter((r: any) => r.affiliateId === partnerId)
+        const partnerCustomers = data.school-leads
+          ?.filter((r: any) => r.associationId === partnerId)
           .map((r: any) => ({
             id: r.id,
             name: r.leadName,
@@ -186,31 +186,31 @@ export default function PartnerDetailPage() {
     }
   };
 
-  const fetchCommissions = async () => {
+  const fetchIncentives = async () => {
     try {
-      const res = await fetch(`/api/admin/transactions?affiliateId=${partnerId}`);
+      const res = await fetch(`/api/admin/transactions?associationId=${partnerId}`);
       if (res.ok) {
         const data = await res.json();
         const comms = data.transactions?.map((txn: any) => ({
           id: txn.id,
           transactionId: txn.id,
           customerName: txn.customerName,
-          amountCents: txn.commissionCents,
-          rate: txn.commissionRate,
+          amountCents: txn.incentiveCents,
+          rate: txn.incentiveRate,
           status: txn.status === 'COMPLETED' ? 'PENDING' : txn.status,
           createdAt: txn.createdAt,
           paidAt: txn.paidAt,
         })) || [];
-        setCommissions(comms);
+        setIncentives(comms);
       }
     } catch (error) {
-      console.error('Error fetching commissions:', error);
+      console.error('Error fetching incentives:', error);
     }
   };
 
   const fetchPayouts = async () => {
     try {
-      const res = await fetch(`/api/admin/payouts?affiliateId=${partnerId}`);
+      const res = await fetch(`/api/admin/payouts?associationId=${partnerId}`);
       if (res.ok) {
         const data = await res.json();
         setPayouts(data.payouts || []);
@@ -221,8 +221,8 @@ export default function PartnerDetailPage() {
   };
 
   const handleCreatePayout = async () => {
-    if (selectedCommissions.length === 0) {
-      alert('Please select at least one commission to create a payout');
+    if (selectedIncentives.length === 0) {
+      alert('Please select at least one incentive to create a payout');
       return;
     }
     setPayoutLoading(true);
@@ -230,13 +230,13 @@ export default function PartnerDetailPage() {
       const res = await fetch('/api/admin/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ affiliateId: partnerId, commissionIds: selectedCommissions }),
+        body: JSON.stringify({ associationId: partnerId, incentiveIds: selectedIncentives }),
       });
       if (res.ok) {
         alert('Payout created successfully!');
         setShowPayoutModal(false);
-        setSelectedCommissions([]);
-        fetchCommissions();
+        setSelectedIncentives([]);
+        fetchIncentives();
         fetchPayouts();
       } else {
         const error = await res.json();
@@ -282,9 +282,9 @@ export default function PartnerDetailPage() {
     setShowStatusModal(true);
   };
 
-  const toggleCommissionSelection = (commissionId: string) => {
-    setSelectedCommissions((prev) =>
-      prev.includes(commissionId) ? prev.filter((id) => id !== commissionId) : [...prev, commissionId]
+  const toggleIncentiveSelection = (incentiveId: string) => {
+    setSelectedIncentives((prev) =>
+      prev.includes(incentiveId) ? prev.filter((id) => id !== incentiveId) : [...prev, incentiveId]
     );
   };
 
@@ -294,10 +294,10 @@ export default function PartnerDetailPage() {
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 
-  const pendingCommissions = commissions.filter((c) => c.status === 'PENDING');
-  const pendingAmount = pendingCommissions.reduce((sum, c) => sum + c.amountCents, 0);
-  const paidCommissions = commissions.filter((c) => c.status === 'PAID');
-  const paidAmount = paidCommissions.reduce((sum, c) => sum + c.amountCents, 0);
+  const pendingIncentives = incentives.filter((c) => c.status === 'PENDING');
+  const pendingAmount = pendingIncentives.reduce((sum, c) => sum + c.amountCents, 0);
+  const paidIncentives = incentives.filter((c) => c.status === 'PAID');
+  const paidAmount = paidIncentives.reduce((sum, c) => sum + c.amountCents, 0);
 
   const getStatusBadge = (status: string) => {
     const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType }> = {
@@ -361,7 +361,7 @@ export default function PartnerDetailPage() {
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="font-mono text-xs gap-1">
                   <Copy className="h-3 w-3" />
-                  {partner.referralCode}
+                  {partner.school-leadCode}
                 </Badge>
                 {partner.partnerGroup && (
                   <Badge variant="secondary" className="text-xs">
@@ -369,7 +369,7 @@ export default function PartnerDetailPage() {
                   </Badge>
                 )}
                 <Badge variant="outline" className="text-xs">
-                  {(partner.commissionRate * 100).toFixed(0)}% commission
+                  {(partner.incentiveRate * 100).toFixed(0)}% incentive
                 </Badge>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function PartnerDetailPage() {
         </div>
         <Button
           onClick={() => setShowPayoutModal(true)}
-          disabled={pendingCommissions.length === 0}
+          disabled={pendingIncentives.length === 0}
           className="gap-1.5"
         >
           <Plus className="h-4 w-4" />
@@ -446,7 +446,7 @@ export default function PartnerDetailPage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="customers">Customers ({customers.length})</TabsTrigger>
-          <TabsTrigger value="commissions">Commissions ({commissions.length})</TabsTrigger>
+          <TabsTrigger value="incentives">Incentives ({incentives.length})</TabsTrigger>
           <TabsTrigger value="payouts">Payouts ({payouts.length})</TabsTrigger>
         </TabsList>
 
@@ -461,9 +461,9 @@ export default function PartnerDetailPage() {
                 {[
                   { label: 'Name', value: partner.name },
                   { label: 'Email', value: partner.email },
-                  { label: 'Referral Code', value: partner.referralCode, mono: true },
+                  { label: 'School Lead Code', value: partner.school-leadCode, mono: true },
                   { label: 'Partner Group', value: partner.partnerGroup || 'Default' },
-                  { label: 'Commission Rate', value: `${(partner.commissionRate * 100).toFixed(0)}%` },
+                  { label: 'Incentive Rate', value: `${(partner.incentiveRate * 100).toFixed(0)}%` },
                   { label: 'Partner Since', value: formatDate(partner.createdAt) },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between">
@@ -507,8 +507,8 @@ export default function PartnerDetailPage() {
                 <Separator />
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total Commissions</span>
-                    <span className="text-sm font-bold">{commissions.length}</span>
+                    <span className="text-sm text-muted-foreground">Total Incentives</span>
+                    <span className="text-sm font-bold">{incentives.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Pending Amount</span>
@@ -571,17 +571,17 @@ export default function PartnerDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* Commissions */}
-        <TabsContent value="commissions">
+        {/* Incentives */}
+        <TabsContent value="incentives">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">Commission History</CardTitle>
+                <CardTitle className="text-base">Incentive History</CardTitle>
                 <CardDescription>
                   Pending: {formatCurrency(pendingAmount)} · Paid: {formatCurrency(paidAmount)}
                 </CardDescription>
               </div>
-              {pendingCommissions.length > 0 && (
+              {pendingIncentives.length > 0 && (
                 <Button size="sm" onClick={() => setShowPayoutModal(true)}>
                   <Plus className="mr-1 h-3.5 w-3.5" />
                   Create Payout
@@ -589,7 +589,7 @@ export default function PartnerDetailPage() {
               )}
             </CardHeader>
             <CardContent className="p-0">
-              {commissions.length > 0 ? (
+              {incentives.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -601,7 +601,7 @@ export default function PartnerDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {commissions.map((comm) => (
+                    {incentives.map((comm) => (
                       <TableRow key={comm.id}>
                         <TableCell className="text-muted-foreground text-sm">{formatDate(comm.createdAt)}</TableCell>
                         <TableCell className="font-medium">{comm.customerName}</TableCell>
@@ -615,7 +615,7 @@ export default function PartnerDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <IndianRupee className="h-10 w-10 text-muted-foreground/40 mb-3" />
-                  <p className="text-sm font-medium text-muted-foreground">No commissions yet</p>
+                  <p className="text-sm font-medium text-muted-foreground">No incentives yet</p>
                 </div>
               )}
             </CardContent>
@@ -630,7 +630,7 @@ export default function PartnerDetailPage() {
                 <CardTitle className="text-base">Payout History</CardTitle>
                 <CardDescription>{payouts.length} payout{payouts.length !== 1 ? 's' : ''}</CardDescription>
               </div>
-              {pendingCommissions.length > 0 && (
+              {pendingIncentives.length > 0 && (
                 <Button size="sm" onClick={() => setShowPayoutModal(true)}>
                   <Plus className="mr-1 h-3.5 w-3.5" />
                   Create Payout
@@ -644,7 +644,7 @@ export default function PartnerDetailPage() {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead className="text-right">Amount</TableHead>
-                      <TableHead className="text-right">Commissions</TableHead>
+                      <TableHead className="text-right">Incentives</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Processed</TableHead>
@@ -656,7 +656,7 @@ export default function PartnerDetailPage() {
                       <TableRow key={payout.id}>
                         <TableCell className="text-muted-foreground text-sm">{formatDate(payout.createdAt)}</TableCell>
                         <TableCell className="text-right font-semibold text-emerald-600">{formatCurrency(payout.amountCents)}</TableCell>
-                        <TableCell className="text-right">{payout.commissionCount}</TableCell>
+                        <TableCell className="text-right">{payout.incentiveCount}</TableCell>
                         <TableCell>{getStatusBadge(payout.status)}</TableCell>
                         <TableCell className="text-muted-foreground">{payout.method || '\u2014'}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">
@@ -675,7 +675,7 @@ export default function PartnerDetailPage() {
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Wallet className="h-10 w-10 text-muted-foreground/40 mb-3" />
                   <p className="text-sm font-medium text-muted-foreground">No payouts yet</p>
-                  {pendingCommissions.length > 0 && (
+                  {pendingIncentives.length > 0 && (
                     <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowPayoutModal(true)}>
                       Create First Payout
                     </Button>
@@ -690,43 +690,43 @@ export default function PartnerDetailPage() {
       {/* Create Payout Dialog */}
       <Dialog open={showPayoutModal} onOpenChange={(open) => {
         setShowPayoutModal(open);
-        if (!open) setSelectedCommissions([]);
+        if (!open) setSelectedIncentives([]);
       }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Create Payout</DialogTitle>
-            <DialogDescription>Select commissions to include in this payout</DialogDescription>
+            <DialogDescription>Select incentives to include in this payout</DialogDescription>
           </DialogHeader>
 
           <div className="rounded-lg bg-muted/50 p-4">
             <p className="text-sm text-muted-foreground">Selected total</p>
             <p className="text-2xl font-bold text-primary">
               {formatCurrency(
-                selectedCommissions.reduce((sum, id) => {
-                  const comm = pendingCommissions.find((c) => c.id === id);
+                selectedIncentives.reduce((sum, id) => {
+                  const comm = pendingIncentives.find((c) => c.id === id);
                   return sum + (comm?.amountCents || 0);
                 }, 0)
               )}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              {selectedCommissions.length} of {pendingCommissions.length} commissions
+              {selectedIncentives.length} of {pendingIncentives.length} incentives
             </p>
           </div>
 
           <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-            {pendingCommissions.map((comm) => (
+            {pendingIncentives.map((comm) => (
               <div
                 key={comm.id}
                 className={`flex items-center gap-3 rounded-lg border p-3 transition-colors cursor-pointer ${
-                  selectedCommissions.includes(comm.id)
+                  selectedIncentives.includes(comm.id)
                     ? 'border-primary/50 bg-primary/5'
                     : 'hover:bg-muted/50'
                 }`}
-                onClick={() => toggleCommissionSelection(comm.id)}
+                onClick={() => toggleIncentiveSelection(comm.id)}
               >
                 <Checkbox
-                  checked={selectedCommissions.includes(comm.id)}
-                  onCheckedChange={() => toggleCommissionSelection(comm.id)}
+                  checked={selectedIncentives.includes(comm.id)}
+                  onCheckedChange={() => toggleIncentiveSelection(comm.id)}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{comm.customerName}</p>
@@ -742,12 +742,12 @@ export default function PartnerDetailPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowPayoutModal(false); setSelectedCommissions([]); }}>
+            <Button variant="outline" onClick={() => { setShowPayoutModal(false); setSelectedIncentives([]); }}>
               Cancel
             </Button>
-            <Button onClick={handleCreatePayout} disabled={payoutLoading || selectedCommissions.length === 0}>
+            <Button onClick={handleCreatePayout} disabled={payoutLoading || selectedIncentives.length === 0}>
               {payoutLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Payout ({selectedCommissions.length})
+              Create Payout ({selectedIncentives.length})
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -770,7 +770,7 @@ export default function PartnerDetailPage() {
                 <p className="text-sm text-muted-foreground">Payout Amount</p>
                 <p className="text-2xl font-bold text-emerald-600">{formatCurrency(editingPayout.amountCents)}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {editingPayout.commissionCount} commissions · Created {formatDate(editingPayout.createdAt)}
+                  {editingPayout.incentiveCount} incentives · Created {formatDate(editingPayout.createdAt)}
                 </p>
               </div>
 
@@ -788,7 +788,7 @@ export default function PartnerDetailPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  {newStatus === 'COMPLETED' && 'Affiliate will be notified of payment completion'}
+                  {newStatus === 'COMPLETED' && 'Association will be notified of payment completion'}
                   {newStatus === 'PROCESSING' && 'Payout is being processed'}
                   {newStatus === 'FAILED' && 'Payment failed, may need manual intervention'}
                   {newStatus === 'PENDING' && 'Payout is waiting to be processed'}

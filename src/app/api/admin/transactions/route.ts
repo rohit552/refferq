@@ -27,19 +27,19 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const referralId = searchParams.get('referralId');
-    const affiliateId = searchParams.get('affiliateId');
+    const school-leadId = searchParams.get('school-leadId');
+    const associationId = searchParams.get('associationId');
 
     // Build where clause
     const where: any = {};
-    if (referralId) where.referralId = referralId;
-    if (affiliateId) where.affiliateId = affiliateId;
+    if (school-leadId) where.school-leadId = school-leadId;
+    if (associationId) where.associationId = associationId;
 
     const transactions = await (prisma as any).transaction.findMany({
       where,
       include: {
-        referral: true,
-        affiliate: {
+        school-lead: true,
+        association: {
           include: {
             user: true,
             partnerGroup: true
@@ -54,34 +54,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       transactions: transactions.map((txn: any) => {
-        const affiliate = txn.affiliate as any;
+        const association = txn.association as any;
         return {
           id: txn.id,
           customerId: txn.customerId,
           customerName: txn.customerName,
           customerEmail: txn.customerEmail,
           amountCents: txn.amountCents,
-          commissionCents: txn.commissionCents,
-          commissionRate: txn.commissionRate,
+          incentiveCents: txn.incentiveCents,
+          incentiveRate: txn.incentiveRate,
           status: txn.status,
           description: txn.description,
           invoiceId: txn.invoiceId,
           paymentMethod: txn.paymentMethod,
           paidAt: txn.paidAt,
           createdAt: txn.createdAt,
-          referral: {
-            id: txn.referral.id,
-            leadName: txn.referral.leadName,
-            leadEmail: txn.referral.leadEmail,
-            status: txn.referral.status
+          school-lead: {
+            id: txn.school-lead.id,
+            leadName: txn.school-lead.leadName,
+            leadEmail: txn.school-lead.leadEmail,
+            status: txn.school-lead.status
           },
-          affiliate: {
-            id: affiliate.id,
-            name: affiliate.user.name,
-            email: affiliate.user.email,
-            referralCode: affiliate.referralCode,
-            partnerGroup: affiliate.partnerGroupId ? 
-              (affiliate.partnerGroup?.name || 'Default') : 
+          association: {
+            id: association.id,
+            name: association.user.name,
+            email: association.user.email,
+            school-leadCode: association.school-leadCode,
+            partnerGroup: association.partnerGroupId ? 
+              (association.partnerGroup?.name || 'Default') : 
               'Default'
           }
         };
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      referralId,
+      school-leadId,
       amount,
       description,
       invoiceId,
@@ -131,56 +131,56 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!referralId || !amount) {
+    if (!school-leadId || !amount) {
       return NextResponse.json(
-        { error: 'Referral ID and amount are required' },
+        { error: 'School Lead ID and amount are required' },
         { status: 400 }
       );
     }
 
-    // Get referral with affiliate and partner group
-    const referral = await prisma.referral.findUnique({
-      where: { id: referralId },
+    // Get school-lead with association and partner group
+    const school-lead = await prisma.school-lead.findUnique({
+      where: { id: school-leadId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
-    if (!referral) {
+    if (!school-lead) {
       return NextResponse.json(
-        { error: 'Referral not found' },
+        { error: 'School Lead not found' },
         { status: 404 }
       );
     }
 
-    // Get partner group commission rate
-    const affiliate = referral.affiliate as any;
-    let commissionRate = 0.20; // Default 20%
+    // Get partner group incentive rate
+    const association = school-lead.association as any;
+    let incentiveRate = 0.20; // Default 20%
 
-    if (affiliate.partnerGroupId) {
+    if (association.partnerGroupId) {
       const partnerGroup = await prisma.partnerGroup.findUnique({
-        where: { id: affiliate.partnerGroupId }
+        where: { id: association.partnerGroupId }
       });
       if (partnerGroup) {
-        commissionRate = partnerGroup.commissionRate;
+        incentiveRate = partnerGroup.incentiveRate;
       }
     }
 
-    // Calculate commission
+    // Calculate incentive
     const amountCents = Math.floor(Number(amount) * 100);
-    const commissionCents = Math.floor(amountCents * commissionRate);
+    const incentiveCents = Math.floor(amountCents * incentiveRate);
 
     // Create transaction
     const transaction = await (prisma as any).transaction.create({
       data: {
-        referralId,
-        affiliateId: referral.affiliateId,
-        customerId: referral.subscriptionId,
-        customerName: referral.leadName,
-        customerEmail: referral.leadEmail,
+        school-leadId,
+        associationId: school-lead.associationId,
+        customerId: school-lead.subscriptionId,
+        customerName: school-lead.leadName,
+        customerEmail: school-lead.leadEmail,
         amountCents,
-        commissionCents,
-        commissionRate,
+        incentiveCents,
+        incentiveRate,
         status: 'COMPLETED',
         description,
         invoiceId,
@@ -190,37 +190,37 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Also create a commission record for tracking
+    // Also create a incentive record for tracking
     await prisma.conversion.create({
       data: {
-        affiliateId: referral.affiliateId,
-        referralId: referral.id,
+        associationId: school-lead.associationId,
+        school-leadId: school-lead.id,
         eventType: 'PURCHASE',
         amountCents,
         status: 'APPROVED',
         currency: 'INR',
         eventMetadata: {
           transactionId: transaction.id,
-          commissionCents,
-          commissionRate
+          incentiveCents,
+          incentiveRate
         }
       }
     });
 
-    // Send email notification to affiliate
+    // Send email notification to association
     try {
-      const affiliateUser = await prisma.user.findUnique({
-        where: { id: affiliate.userId }
+      const associationUser = await prisma.user.findUnique({
+        where: { id: association.userId }
       });
 
-      if (affiliateUser?.email) {
+      if (associationUser?.email) {
         const { emailService } = await import('@/lib/email');
-        await emailService.sendTransactionCreatedEmail(affiliateUser.email, {
-          affiliateName: affiliate.name || affiliateUser.name || 'Partner',
-          customerName: referral.leadName,
+        await emailService.sendTransactionCreatedEmail(associationUser.email, {
+          associationName: association.name || associationUser.name || 'Partner',
+          customerName: school-lead.leadName,
           amountCents,
-          commissionCents,
-          commissionRate,
+          incentiveCents,
+          incentiveRate,
           transactionId: transaction.id
         });
       }

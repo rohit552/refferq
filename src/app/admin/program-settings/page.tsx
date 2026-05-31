@@ -72,11 +72,11 @@ interface ProgramSettings {
   portalSubdomain: string;
   minimumPayoutThreshold: number;
   payoutTerm: string;
-  commissionHoldDays: number;
-  commissionRules: CommissionRule[];
+  incentiveHoldDays: number;
+  incentiveRules: IncentiveRule[];
 }
 
-interface CommissionRule {
+interface IncentiveRule {
   id: string;
   name: string;
   type: string;
@@ -93,9 +93,9 @@ export default function ProgramSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Commission rule dialog
+  // Incentive rule dialog
   const [ruleDialog, setRuleDialog] = useState(false);
-  const [editingRule, setEditingRule] = useState<CommissionRule | null>(null);
+  const [editingRule, setEditingRule] = useState<IncentiveRule | null>(null);
   const [ruleForm, setRuleForm] = useState({
     name: '',
     type: 'PERCENTAGE',
@@ -147,7 +147,7 @@ export default function ProgramSettingsPage() {
           portalSubdomain: settings.portalSubdomain,
           minimumPayoutThreshold: settings.minimumPayoutThreshold,
           payoutTerm: settings.payoutTerm,
-          commissionHoldDays: settings.commissionHoldDays,
+          incentiveHoldDays: settings.incentiveHoldDays,
         }),
       });
       if (res.ok) {
@@ -188,7 +188,7 @@ export default function ProgramSettingsPage() {
   };
 
   const handleDeleteRule = async (id: string) => {
-    if (!confirm('Delete this commission rule?')) return;
+    if (!confirm('Delete this incentive rule?')) return;
     try {
       await fetch('/api/admin/settings', {
         method: 'POST',
@@ -207,7 +207,7 @@ export default function ProgramSettingsPage() {
     setRuleDialog(true);
   };
 
-  const openEditRule = (rule: CommissionRule) => {
+  const openEditRule = (rule: IncentiveRule) => {
     setEditingRule(rule);
     setRuleForm({
       name: rule.name,
@@ -240,7 +240,7 @@ export default function ProgramSettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Program Settings</h1>
-        <p className="text-muted-foreground">Configure your affiliate program</p>
+        <p className="text-muted-foreground">Configure your association program</p>
       </div>
 
       {/* General Settings */}
@@ -358,21 +358,21 @@ export default function ProgramSettingsPage() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="commissionHoldDays">Commission Hold Period (Days)</Label>
+              <Label htmlFor="incentiveHoldDays">Incentive Hold Period (Days)</Label>
               <div className="relative">
                 <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="commissionHoldDays"
+                  id="incentiveHoldDays"
                   type="number"
                   className="pl-9"
-                  value={settings.commissionHoldDays}
+                  value={settings.incentiveHoldDays}
                   onChange={(e) =>
-                    setSettings({ ...settings, commissionHoldDays: parseInt(e.target.value) || 0 })
+                    setSettings({ ...settings, incentiveHoldDays: parseInt(e.target.value) || 0 })
                   }
                   placeholder="30"
                 />
               </div>
-              <p className="text-[10px] text-muted-foreground">Number of days to hold commissions for refund protection</p>
+              <p className="text-[10px] text-muted-foreground">Number of days to hold incentives for refund protection</p>
             </div>
           </div>
           <div className="rounded-md bg-muted p-3">
@@ -383,16 +383,16 @@ export default function ProgramSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Commission Rules */}
+      {/* Incentive Rules */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Percent className="h-5 w-5" />
-                Commission Rules
+                Incentive Rules
               </CardTitle>
-              <CardDescription>Define how commissions are calculated</CardDescription>
+              <CardDescription>Define how incentives are calculated</CardDescription>
             </div>
             <Dialog open={ruleDialog} onOpenChange={setRuleDialog}>
               <DialogTrigger asChild>
@@ -403,9 +403,9 @@ export default function ProgramSettingsPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingRule ? 'Edit Rule' : 'New Commission Rule'}</DialogTitle>
+                  <DialogTitle>{editingRule ? 'Edit Rule' : 'New Incentive Rule'}</DialogTitle>
                   <DialogDescription>
-                    {editingRule ? 'Update commission rule details' : 'Create a new commission calculation rule'}
+                    {editingRule ? 'Update incentive rule details' : 'Create a new incentive calculation rule'}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -414,7 +414,7 @@ export default function ProgramSettingsPage() {
                     <Input
                       value={ruleForm.name}
                       onChange={(e) => setRuleForm({ ...ruleForm, name: e.target.value })}
-                      placeholder="e.g., Standard Commission"
+                      placeholder="e.g., Standard Incentive"
                     />
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
@@ -467,11 +467,11 @@ export default function ProgramSettingsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {settings.commissionRules.length === 0 ? (
+          {settings.incentiveRules.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Percent className="h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-semibold">No commission rules</h3>
-              <p className="text-sm text-muted-foreground">Create your first commission rule to get started</p>
+              <h3 className="mt-4 text-lg font-semibold">No incentive rules</h3>
+              <p className="text-sm text-muted-foreground">Create your first incentive rule to get started</p>
             </div>
           ) : (
             <Table>
@@ -486,7 +486,7 @@ export default function ProgramSettingsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {settings.commissionRules.map((rule) => (
+                {settings.incentiveRules.map((rule) => (
                   <TableRow key={rule.id}>
                     <TableCell className="font-medium">{rule.name}</TableCell>
                     <TableCell>
@@ -526,10 +526,10 @@ export default function ProgramSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Code2 className="h-5 w-5" />
-            Referral Tracking Widget
+            School Lead Tracking Widget
           </CardTitle>
           <CardDescription>
-            Embed this script on <strong>{settings.websiteUrl || 'your website'}</strong> to automatically track referral visits and conversions
+            Embed this script on <strong>{settings.websiteUrl || 'your website'}</strong> to automatically track school-lead visits and conversions
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -546,7 +546,7 @@ export default function ProgramSettingsPage() {
             <TabsList>
               <TabsTrigger value="script">Tracking Script</TabsTrigger>
               <TabsTrigger value="conversion">Conversion Tracking</TabsTrigger>
-              <TabsTrigger value="referral">Referral Links</TabsTrigger>
+              <TabsTrigger value="school-lead">School Lead Links</TabsTrigger>
             </TabsList>
 
             {/* ── Tab: Tracking Script ── */}
@@ -571,10 +571,10 @@ export default function ProgramSettingsPage() {
               <div className="rounded-md border p-4 space-y-3">
                 <h4 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4" />How it works</h4>
                 <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                  <li>A visitor arrives on <strong>{settings.websiteUrl || 'your site'}</strong> via a referral link (e.g. <code className="rounded bg-muted px-1 py-0.5 text-xs">?ref=CODE</code>)</li>
+                  <li>A visitor arrives on <strong>{settings.websiteUrl || 'your site'}</strong> via a school-lead link (e.g. <code className="rounded bg-muted px-1 py-0.5 text-xs">?ref=CODE</code>)</li>
                   <li>The script automatically detects the <code className="rounded bg-muted px-1 py-0.5 text-xs">ref</code> parameter and stores a 30-day cookie</li>
-                  <li>When the visitor converts (signup, purchase, etc.), you call <code className="rounded bg-muted px-1 py-0.5 text-xs">Refferq.trackConversion()</code></li>
-                  <li>The referral and commission are recorded in your dashboard automatically</li>
+                  <li>When the visitor converts (signup, purchase, etc.), you call <code className="rounded bg-muted px-1 py-0.5 text-xs">SkillHeed.trackConversion()</code></li>
+                  <li>The school-lead and incentive are recorded in your dashboard automatically</li>
                 </ol>
               </div>
             </TabsContent>
@@ -584,13 +584,13 @@ export default function ProgramSettingsPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-sm font-medium">Call this when a visitor completes a conversion event</Label>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('conversion', `// Track a conversion (e.g. after signup or purchase)\nRefferq.trackConversion({\n  email: customer.email,\n  name: customer.name,\n  amount: 4999,        // amount in smallest unit (e.g. paise / cents)\n  currency: '${settings.currency || 'INR'}',\n  orderId: 'ORD-12345' // optional\n});`)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('conversion', `// Track a conversion (e.g. after signup or purchase)\nSkillHeed.trackConversion({\n  email: customer.email,\n  name: customer.name,\n  amount: 4999,        // amount in smallest unit (e.g. paise / cents)\n  currency: '${settings.currency || 'INR'}',\n  orderId: 'ORD-12345' // optional\n});`)}>
                     {copiedSnippet === 'conversion' ? <><CheckCircle2 className="mr-1 h-3.5 w-3.5 text-green-600" />Copied</> : <><Copy className="mr-1 h-3.5 w-3.5" />Copy</>}
                   </Button>
                 </div>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm overflow-x-auto whitespace-pre">
                   {`// Track a conversion (e.g. after signup or purchase)
-Refferq.trackConversion({
+SkillHeed.trackConversion({
   email: customer.email,
   name: customer.name,
   amount: 4999,        // amount in smallest unit (e.g. paise / cents)
@@ -605,40 +605,40 @@ Refferq.trackConversion({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-sm font-medium">Other helpers</Label>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('helpers', `// Get the current referral code (or null)\nconst code = Refferq.getReferralCode();\n\n// Clear the stored referral code\nRefferq.clearReferralCode();`)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleCopySnippet('helpers', `// Get the current school-lead code (or null)\nconst code = SkillHeed.getSchool LeadCode();\n\n// Clear the stored school-lead code\nSkillHeed.clearSchool LeadCode();`)}>
                     {copiedSnippet === 'helpers' ? <><CheckCircle2 className="mr-1 h-3.5 w-3.5 text-green-600" />Copied</> : <><Copy className="mr-1 h-3.5 w-3.5" />Copy</>}
                   </Button>
                 </div>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm overflow-x-auto whitespace-pre">
-                  {`// Get the current referral code (or null)
-const code = Refferq.getReferralCode();
+                  {`// Get the current school-lead code (or null)
+const code = SkillHeed.getSchool LeadCode();
 
-// Clear the stored referral code
-Refferq.clearReferralCode();`}
+// Clear the stored school-lead code
+SkillHeed.clearSchool LeadCode();`}
                 </div>
               </div>
             </TabsContent>
 
-            {/* ── Tab: Referral Links ── */}
-            <TabsContent value="referral" className="space-y-4">
+            {/* ── Tab: School Lead Links ── */}
+            <TabsContent value="school-lead" className="space-y-4">
               <div className="rounded-md border p-4 space-y-3">
-                <h4 className="text-sm font-medium">Referral link format</h4>
+                <h4 className="text-sm font-medium">School Lead link format</h4>
                 <p className="text-sm text-muted-foreground">
-                  Affiliates share links to your website with a <code className="rounded bg-muted px-1 py-0.5 text-xs">ref</code> query parameter.
+                  Associations share links to your website with a <code className="rounded bg-muted px-1 py-0.5 text-xs">ref</code> query parameter.
                   The tracking script picks this up automatically.
                 </p>
                 <div className="rounded-md bg-muted p-3 font-mono text-sm break-all">
                   {settings.websiteUrl || 'https://yoursite.com'}/<span className="text-blue-600">?ref=</span><span className="text-green-600">PARTNER-CODE</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  The script also recognizes <code className="rounded bg-muted px-1 py-0.5 text-xs">?referral=</code> and <code className="rounded bg-muted px-1 py-0.5 text-xs">?affiliate=</code> parameters.
+                  The script also recognizes <code className="rounded bg-muted px-1 py-0.5 text-xs">?school-lead=</code> and <code className="rounded bg-muted px-1 py-0.5 text-xs">?association=</code> parameters.
                 </p>
               </div>
 
               <div className="rounded-md border p-4 space-y-3">
-                <h4 className="text-sm font-medium">Direct referral route</h4>
+                <h4 className="text-sm font-medium">Direct school-lead route</h4>
                 <p className="text-sm text-muted-foreground">
-                  You can also use the built-in redirect route to send visitors through Refferq first:
+                  You can also use the built-in redirect route to send visitors through SkillHeed first:
                 </p>
                 <div className="rounded-md bg-muted p-3 font-mono text-sm break-all">
                   {appUrl}/<span className="text-blue-600">r/</span><span className="text-green-600">PARTNER-CODE</span>

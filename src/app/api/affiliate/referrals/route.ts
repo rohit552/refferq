@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -22,16 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    if (!user.affiliate) {
+    if (!user.association) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate with Zod
-    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.referralSchema.safeParse(body));
+    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.school-leadSchema.safeParse(body));
 
     if (!success) {
       return NextResponse.json(
@@ -50,10 +50,10 @@ export async function POST(request: NextRequest) {
 
     const { leadName, leadEmail, company, notes, estimatedValue } = data;
 
-    // Create the referral
-    const referral = await prisma.referral.create({
+    // Create the school-lead
+    const school-lead = await prisma.school-lead.create({
       data: {
-        affiliateId: user.affiliate.id,
+        associationId: user.association.id,
         leadName: leadName.trim(),
         leadEmail: leadEmail.toLowerCase().trim(),
         status: 'PENDING',
@@ -68,13 +68,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Referral submitted successfully',
-      referral,
+      message: 'School Lead submitted successfully',
+      school-lead,
     });
   } catch (error) {
-    console.error('Submit referral API error:', error);
+    console.error('Submit school-lead API error:', error);
     return NextResponse.json(
-      { error: 'Failed to submit referral' },
+      { error: 'Failed to submit school-lead' },
       { status: 500 }
     );
   }
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        affiliate: true
+        association: true
       }
     });
 
@@ -101,27 +101,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'AFFILIATE') {
+    if (user.role !== 'ASSOCIATION') {
       return NextResponse.json(
-        { error: 'Access denied. Affiliate role required.' },
+        { error: 'Access denied. Association role required.' },
         { status: 403 }
       );
     }
 
-    if (!user.affiliate) {
+    if (!user.association) {
       return NextResponse.json(
-        { error: 'Affiliate profile not found' },
+        { error: 'Association profile not found' },
         { status: 404 }
       );
     }
 
-    const referrals = await prisma.referral.findMany({
-      where: { affiliateId: user.affiliate.id },
+    const school-leads = await prisma.school-lead.findMany({
+      where: { associationId: user.association.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Map referrals to include estimatedValue from metadata
-    const mappedReferrals = referrals.map((ref: any) => {
+    // Map school-leads to include estimatedValue from metadata
+    const mappedSchool Leads = school-leads.map((ref: any) => {
       const metadata = ref.metadata as any;
       return {
         ...ref,
@@ -132,12 +132,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      referrals: mappedReferrals,
+      school-leads: mappedSchool Leads,
     });
   } catch (error) {
-    console.error('Get referrals API error:', error);
+    console.error('Get school-leads API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch referrals' },
+      { error: 'Failed to fetch school-leads' },
       { status: 500 }
     );
   }

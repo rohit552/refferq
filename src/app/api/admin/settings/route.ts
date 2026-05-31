@@ -28,19 +28,19 @@ export async function GET(request: NextRequest) {
         data: {
           programId: `prg_${Date.now()}`,
           productName: 'BsBot',
-          programName: "BsBot's Affiliate Program",
+          programName: "BsBot's Association Program",
           websiteUrl: 'https://kyns.com',
           currency: 'INR',
           portalSubdomain: 'bsbot.tolt.io',
           minimumPayoutThreshold: 0,
           payoutTerm: 'NET-15',
-          commissionHoldDays: 30
+          incentiveHoldDays: 30
         }
       });
     }
 
-    // Get all commission rules
-    const commissionRules = await prisma.commissionRule.findMany({
+    // Get all incentive rules
+    const incentiveRules = await prisma.incentiveRule.findMany({
       orderBy: {
         createdAt: 'desc'
       }
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       success: true,
       settings: {
         ...programSettings,
-        commissionRules: commissionRules.map(rule => ({
+        incentiveRules: incentiveRules.map(rule => ({
           id: rule.id,
           name: rule.name,
           type: rule.type,
@@ -97,7 +97,7 @@ export async function PUT(request: NextRequest) {
         data: {
           programId: `prg_${Date.now()}`,
           productName: 'BsBot',
-          programName: "BsBot's Affiliate Program",
+          programName: "BsBot's Association Program",
           websiteUrl: 'https://kyns.com',
           currency: 'INR',
           portalSubdomain: 'bsbot.tolt.io'
@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest) {
       'programName', 'productName', 'websiteUrl', 'currency', 'portalSubdomain',
       'companyName', 'companyLogo', 'primaryColor', 'secondaryColor',
       'cookieDuration', 'minimumPayout', 'payoutFrequency', 'autoApprove',
-      'commissionType', 'commissionValue', 'brandingEnabled', 'commissionHoldDays'
+      'incentiveType', 'incentiveValue', 'brandingEnabled', 'incentiveHoldDays'
     ];
     const sanitizedData: Record<string, any> = {};
     for (const key of allowedFields) {
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     const { action, ruleData } = body;
 
     if (action === 'create') {
-      // Create new commission rule
+      // Create new incentive rule
       const { name, type, value, conditions, isDefault } = ruleData;
 
       if (!name || !type || value === undefined) {
@@ -183,13 +183,13 @@ export async function POST(request: NextRequest) {
 
       // If setting as default, unset other defaults
       if (isDefault) {
-        await prisma.commissionRule.updateMany({
+        await prisma.incentiveRule.updateMany({
           where: { isDefault: true },
           data: { isDefault: false }
         });
       }
 
-      const newRule = await prisma.commissionRule.create({
+      const newRule = await prisma.incentiveRule.create({
         data: {
           name,
           type,
@@ -203,8 +203,8 @@ export async function POST(request: NextRequest) {
       // Log the action
       await logAuditAction({
         actorId: user.id,
-        action: 'CREATE_COMMISSION_RULE',
-        objectType: 'COMMISSION_RULE',
+        action: 'CREATE_INCENTIVE_RULE',
+        objectType: 'INCENTIVE_RULE',
         objectId: newRule.id,
         payload: ruleData
       });
@@ -214,13 +214,13 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Commission rule created successfully',
+        message: 'Incentive rule created successfully',
         rule: newRule
       });
     }
 
     if (action === 'update') {
-      // Update existing commission rule
+      // Update existing incentive rule
       const { id, ...updates } = ruleData;
 
       if (!id) {
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
 
       // If setting as default, unset other defaults
       if (updates.isDefault) {
-        await prisma.commissionRule.updateMany({
+        await prisma.incentiveRule.updateMany({
           where: {
             id: { not: id },
             isDefault: true
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      const updatedRule = await prisma.commissionRule.update({
+      const updatedRule = await prisma.incentiveRule.update({
         where: { id },
         data: updates
       });
@@ -251,13 +251,13 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Commission rule updated successfully',
+        message: 'Incentive rule updated successfully',
         rule: updatedRule
       });
     }
 
     if (action === 'delete') {
-      // Delete commission rule
+      // Delete incentive rule
       const { id } = ruleData;
 
       if (!id) {
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await prisma.commissionRule.delete({
+      await prisma.incentiveRule.delete({
         where: { id }
       });
 
@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Commission rule deleted successfully'
+        message: 'Incentive rule deleted successfully'
       });
     }
 

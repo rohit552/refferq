@@ -26,29 +26,29 @@ function isUrlSafe(urlString: string): boolean {
 
 // Webhook event types
 export type WebhookEventType = 
-  | 'affiliate.created'
-  | 'affiliate.approved'
-  | 'affiliate.rejected'
-  | 'referral.submitted'
-  | 'referral.approved'
-  | 'referral.rejected'
-  | 'commission.created'
-  | 'commission.approved'
-  | 'commission.paid'
+  | 'association.created'
+  | 'association.approved'
+  | 'association.rejected'
+  | 'school-lead.submitted'
+  | 'school-lead.approved'
+  | 'school-lead.rejected'
+  | 'incentive.created'
+  | 'incentive.approved'
+  | 'incentive.paid'
   | 'payout.requested'
   | 'payout.completed'
   | 'payout.failed';
 
 export const AVAILABLE_EVENTS: WebhookEventType[] = [
-  'affiliate.created',
-  'affiliate.approved',
-  'affiliate.rejected',
-  'referral.submitted',
-  'referral.approved',
-  'referral.rejected',
-  'commission.created',
-  'commission.approved',
-  'commission.paid',
+  'association.created',
+  'association.approved',
+  'association.rejected',
+  'school-lead.submitted',
+  'school-lead.approved',
+  'school-lead.rejected',
+  'incentive.created',
+  'incentive.approved',
+  'incentive.paid',
   'payout.requested',
   'payout.completed',
   'payout.failed'

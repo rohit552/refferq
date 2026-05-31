@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const affiliateId = searchParams.get('affiliateId');
+    const associationId = searchParams.get('associationId');
 
-    const where = affiliateId ? { affiliateId } : {};
+    const where = associationId ? { associationId } : {};
     const invoices = await prisma.invoice.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -42,10 +42,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { affiliateId, payoutId, amountCents, taxCents, lineItems, billingInfo, notes, dueAt } = body;
+    const { associationId, payoutId, amountCents, taxCents, lineItems, billingInfo, notes, dueAt } = body;
 
-    if (!affiliateId || !amountCents) {
-      return NextResponse.json({ error: 'Affiliate ID and amount are required' }, { status: 400 });
+    if (!associationId || !amountCents) {
+      return NextResponse.json({ error: 'Association ID and amount are required' }, { status: 400 });
     }
 
     // Generate invoice number
@@ -59,12 +59,12 @@ export async function POST(request: NextRequest) {
     const invoice = await prisma.invoice.create({
       data: {
         invoiceNumber,
-        affiliateId,
+        associationId,
         payoutId: payoutId || null,
         amountCents,
         taxCents: tax,
         totalCents: total,
-        lineItems: lineItems || [{ description: 'Affiliate commission payout', qty: 1, unitPrice: amountCents, total: amountCents }],
+        lineItems: lineItems || [{ description: 'Association incentive payout', qty: 1, unitPrice: amountCents, total: amountCents }],
         billingInfo: billingInfo || {},
         notes: notes || null,
         status: 'ISSUED',

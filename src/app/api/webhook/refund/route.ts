@@ -19,12 +19,12 @@ function verifyWebhookSignature(payload: string, signature: string | null, secre
  * POST /api/webhook/refund
  * 
  * Receives refund events from payment providers (Stripe, etc.) and
- * automatically reverses or claws back the associated commission.
+ * automatically reverses or claws back the associated incentive.
  * 
  * Expected body:
  * {
  *   customer_email: string,         // Email of the customer who refunded
- *   referral_code?: string,         // Referral code (optional, for faster lookup)
+ *   school-lead_code?: string,         // School Lead code (optional, for faster lookup)
  *   amount_cents: number,           // Refund amount in cents
  *   reason?: string,                // Reason for refund
  *   external_id?: string,           // Payment provider's refund ID
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         const body = JSON.parse(rawBody);
         const {
             customer_email,
-            referral_code,
+            school-lead_code,
             amount_cents,
             reason = 'Customer refund',
             external_id,
@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
                 },
             },
             include: {
-                commissions: true,
-                affiliate: true,
+                incentives: true,
+                association: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -101,74 +101,74 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // ─── Process Refund for Each Commission ────────────────────
+        // ─── Process Refund for Each Incentive ────────────────────
         let reversedCount = 0;
         let totalReversedCents = 0;
-        const results: Array<{ commissionId: string; action: string; amountCents: number }> = [];
+        const results: Array<{ incentiveId: string; action: string; amountCents: number }> = [];
 
         for (const conversion of conversions) {
-            for (const commission of conversion.commissions) {
-                // Skip already cancelled/clawedback commissions
-                if (commission.status === 'CANCELLED' || commission.status === 'CLAWBACK') {
-                    results.push({ commissionId: commission.id, action: 'already_cancelled', amountCents: 0 });
+            for (const incentive of conversion.incentives) {
+                // Skip already cancelled/clawedback incentives
+                if (incentive.status === 'CANCELLED' || incentive.status === 'CLAWBACK') {
+                    results.push({ incentiveId: incentive.id, action: 'already_cancelled', amountCents: 0 });
                     continue;
                 }
 
-                if (commission.status === 'PENDING') {
+                if (incentive.status === 'PENDING') {
                     // ── Case 1: Still in hold period → simply cancel (no balance impact)
-                    await prisma.commission.update({
-                        where: { id: commission.id },
+                    await prisma.incentive.update({
+                        where: { id: incentive.id },
                         data: {
                             status: 'CANCELLED',
                             clawbackNote: `Refund: ${reason}. External ID: ${external_id || 'N/A'}`,
                         },
                     });
 
-                    results.push({ commissionId: commission.id, action: 'cancelled_pending', amountCents: commission.amountCents });
+                    results.push({ incentiveId: incentive.id, action: 'cancelled_pending', amountCents: incentive.amountCents });
 
-                } else if (commission.status === 'APPROVED') {
+                } else if (incentive.status === 'APPROVED') {
                     // ── Case 2: Already approved (in balance) → cancel + deduct from balance
-                    await prisma.commission.update({
-                        where: { id: commission.id },
+                    await prisma.incentive.update({
+                        where: { id: incentive.id },
                         data: {
                             status: 'CANCELLED',
                             clawbackNote: `Refund clawback: ${reason}. External ID: ${external_id || 'N/A'}`,
                         },
                     });
 
-                    // Deduct from affiliate balance
-                    await prisma.affiliate.update({
-                        where: { id: commission.affiliateId },
+                    // Deduct from association balance
+                    await prisma.association.update({
+                        where: { id: incentive.associationId },
                         data: {
-                            balanceCents: { decrement: commission.amountCents },
+                            balanceCents: { decrement: incentive.amountCents },
                         },
                     });
 
-                    results.push({ commissionId: commission.id, action: 'clawback_approved', amountCents: commission.amountCents });
+                    results.push({ incentiveId: incentive.id, action: 'clawback_approved', amountCents: incentive.amountCents });
 
-                } else if (commission.status === 'PAID') {
+                } else if (incentive.status === 'PAID') {
                     // ── Case 3: Already paid out → create negative balance (clawback for next payout)
-                    await prisma.commission.update({
-                        where: { id: commission.id },
+                    await prisma.incentive.update({
+                        where: { id: incentive.id },
                         data: {
                             status: 'CLAWBACK',
-                            clawbackNote: `Paid commission clawback: ${reason}. Will be deducted from next payout. External ID: ${external_id || 'N/A'}`,
+                            clawbackNote: `Paid incentive clawback: ${reason}. Will be deducted from next payout. External ID: ${external_id || 'N/A'}`,
                         },
                     });
 
                     // Create negative balance to offset next payout
-                    await prisma.affiliate.update({
-                        where: { id: commission.affiliateId },
+                    await prisma.association.update({
+                        where: { id: incentive.associationId },
                         data: {
-                            balanceCents: { decrement: commission.amountCents },
+                            balanceCents: { decrement: incentive.amountCents },
                         },
                     });
 
-                    results.push({ commissionId: commission.id, action: 'clawback_paid', amountCents: commission.amountCents });
+                    results.push({ incentiveId: incentive.id, action: 'clawback_paid', amountCents: incentive.amountCents });
                 }
 
                 reversedCount++;
-                totalReversedCents += commission.amountCents;
+                totalReversedCents += incentive.amountCents;
             }
 
             // Update conversion status
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
             objectId: external_id || `refund-${Date.now()}`,
             payload: {
                 customer_email,
-                referral_code,
+                school-lead_code,
                 amount_cents,
                 reason,
                 reversedCount,
@@ -195,18 +195,18 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // ─── Send email notification to affected affiliates ────────
+        // ─── Send email notification to affected associations ────────
         try {
-            const affectedAffiliateIds = [...new Set(conversions.map(c => c.affiliateId))];
-            for (const affId of affectedAffiliateIds) {
-                const affiliateUser = await prisma.user.findFirst({
-                    where: { affiliate: { id: affId } },
+            const affectedAssociationIds = [...new Set(conversions.map(c => c.associationId))];
+            for (const affId of affectedAssociationIds) {
+                const associationUser = await prisma.user.findFirst({
+                    where: { association: { id: affId } },
                 });
-                if (affiliateUser?.email) {
+                if (associationUser?.email) {
                     const { emailService } = await import('@/lib/email');
-                    await emailService.sendGenericEmail(affiliateUser.email, {
-                        subject: 'Commission Reversed — Customer Refund',
-                        body: `A commission has been reversed due to a customer refund. Reason: ${reason}. This has been reflected in your balance.`,
+                    await emailService.sendGenericEmail(associationUser.email, {
+                        subject: 'Incentive Reversed — Customer Refund',
+                        body: `A incentive has been reversed due to a customer refund. Reason: ${reason}. This has been reflected in your balance.`,
                     });
                 }
             }
@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            message: `Refund processed: ${reversedCount} commission(s) reversed`,
+            message: `Refund processed: ${reversedCount} incentive(s) reversed`,
             reversed: reversedCount,
             totalReversedCents,
             details: results,

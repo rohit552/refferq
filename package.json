@@ -1,28 +1,30 @@
 {
-  "name": "refferq",
-  "version": "1.1.0",
-  "description": "Open-source affiliate marketing platform with comprehensive tracking, commission management, and payout automation. Built with Next.js, TypeScript, and PostgreSQL.",
-  "author": "Refferq Team <hello@refferq.com>",
+  "name": "skillheed-nep",
+  "version": "2.0.0",
+  "description": "SkillHeed NEP Partner Platform - Comprehensive partner and school onboarding system with tracking, incentive management, and payout automation. Built with Next.js, TypeScript, and PostgreSQL.",
+  "author": "SkillHeed Team <hello@skillheed.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/refferq/refferq.git"
+    "url": "https://github.com/Refferq/Refferq.git"
   },
   "keywords": [
-    "affiliate",
-    "marketing",
-    "referral",
+    "partner",
+    "school",
+    "onboarding",
+    "nep",
+    "association",
     "tracking",
-    "commission",
+    "incentive",
     "payout",
     "nextjs",
     "typescript",
     "postgresql",
     "prisma"
   ],
-  "homepage": "https://github.com/refferq/refferq#readme",
+  "homepage": "https://github.com/Refferq/Refferq#readme",
   "bugs": {
-    "url": "https://github.com/refferq/refferq/issues"
+    "url": "https://github.com/Refferq/Refferq/issues"
   },
   "scripts": {
     "dev": "next dev",

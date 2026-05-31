@@ -71,7 +71,7 @@ import {
 // ────────────────────────────────────────────────
 //  Types
 // ────────────────────────────────────────────────
-type ReportType = 'summary' | 'affiliates' | 'referrals' | 'commissions' | 'payouts';
+type ReportType = 'summary' | 'associations' | 'school-leads' | 'incentives' | 'payouts';
 
 interface ScheduledReport {
   id: string;
@@ -102,13 +102,13 @@ interface SavedReport {
 interface CohortData {
   cohortKey: string;
   label: string;
-  affiliateCount: number;
-  totalReferrals: number;
-  approvedReferrals: number;
+  associationCount: number;
+  totalSchool Leads: number;
+  approvedSchool Leads: number;
   conversionRate: string;
-  totalCommissions: number;
+  totalIncentives: number;
   totalEarningsCents: number;
-  avgEarningsPerAffiliateCents: number;
+  avgEarningsPerAssociationCents: number;
   retention: Record<string, number>;
 }
 
@@ -117,10 +117,10 @@ interface CohortAnalysis {
   groupBy: string;
   summary: {
     totalCohorts: number;
-    totalAffiliates: number;
-    activeAffiliates: number;
+    totalAssociations: number;
+    activeAssociations: number;
     activationRate: string;
-    avgReferralsPerAffiliate: string;
+    avgSchool LeadsPerAssociation: string;
   };
   cohorts: CohortData[];
 }
@@ -130,9 +130,9 @@ interface CohortAnalysis {
 // ────────────────────────────────────────────────
 const reportTypes: { value: ReportType; label: string; description: string; icon: React.ElementType }[] = [
   { value: 'summary', label: 'Summary', description: 'Overview of all metrics', icon: BarChart3 },
-  { value: 'affiliates', label: 'Affiliates', description: 'Partner performance data', icon: Users },
-  { value: 'referrals', label: 'Referrals', description: 'Referral lead details', icon: Link2 },
-  { value: 'commissions', label: 'Commissions', description: 'Commission records', icon: IndianRupee },
+  { value: 'associations', label: 'Associations', description: 'Partner performance data', icon: Users },
+  { value: 'school-leads', label: 'School Leads', description: 'School Lead lead details', icon: Link2 },
+  { value: 'incentives', label: 'Incentives', description: 'Incentive records', icon: IndianRupee },
   { value: 'payouts', label: 'Payouts', description: 'Payout history', icon: Wallet },
 ];
 
@@ -594,7 +594,7 @@ export default function ReportsPage() {
                       <div className="space-y-4 py-4">
                         <div className="grid gap-2">
                           <Label>Name</Label>
-                          <Input placeholder="e.g., Monthly Affiliate Performance" value={saveForm.name} onChange={(e: any) => setSaveForm({ ...saveForm, name: e.target.value })} />
+                          <Input placeholder="e.g., Monthly Association Performance" value={saveForm.name} onChange={(e: any) => setSaveForm({ ...saveForm, name: e.target.value })} />
                         </div>
                         <div className="grid gap-2">
                           <Label>Description (optional)</Label>
@@ -830,7 +830,7 @@ export default function ReportsPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" />Cohort Analysis</CardTitle>
-                  <CardDescription>Analyze affiliate behavior and retention by join date</CardDescription>
+                  <CardDescription>Analyze association behavior and retention by join date</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Select value={cohortPeriod} onValueChange={setCohortPeriod}>
@@ -865,12 +865,12 @@ export default function ReportsPage() {
                       <CardContent><div className="text-2xl font-bold">{cohort.summary.totalCohorts}</div></CardContent>
                     </Card>
                     <Card>
-                      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Affiliates</CardTitle></CardHeader>
-                      <CardContent><div className="text-2xl font-bold">{cohort.summary.totalAffiliates}</div></CardContent>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Associations</CardTitle></CardHeader>
+                      <CardContent><div className="text-2xl font-bold">{cohort.summary.totalAssociations}</div></CardContent>
                     </Card>
                     <Card>
-                      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Active Affiliates</CardTitle></CardHeader>
-                      <CardContent><div className="text-2xl font-bold">{cohort.summary.activeAffiliates}</div></CardContent>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Active Associations</CardTitle></CardHeader>
+                      <CardContent><div className="text-2xl font-bold">{cohort.summary.activeAssociations}</div></CardContent>
                     </Card>
                     <Card>
                       <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Activation Rate</CardTitle></CardHeader>
@@ -884,29 +884,29 @@ export default function ReportsPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Cohort</TableHead>
-                          <TableHead className="text-right">Affiliates</TableHead>
-                          <TableHead className="text-right">Referrals</TableHead>
+                          <TableHead className="text-right">Associations</TableHead>
+                          <TableHead className="text-right">School Leads</TableHead>
                           <TableHead className="text-right">Approved</TableHead>
                           <TableHead className="text-right">Conv. Rate</TableHead>
-                          <TableHead className="text-right">Commissions</TableHead>
+                          <TableHead className="text-right">Incentives</TableHead>
                           <TableHead className="text-right">Total Earnings</TableHead>
-                          <TableHead className="text-right">Avg / Affiliate</TableHead>
+                          <TableHead className="text-right">Avg / Association</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {cohort.cohorts.map((c) => (
                           <TableRow key={c.cohortKey}>
                             <TableCell className="font-medium whitespace-nowrap">{c.label}</TableCell>
-                            <TableCell className="text-right">{c.affiliateCount}</TableCell>
-                            <TableCell className="text-right">{c.totalReferrals}</TableCell>
-                            <TableCell className="text-right">{c.approvedReferrals}</TableCell>
+                            <TableCell className="text-right">{c.associationCount}</TableCell>
+                            <TableCell className="text-right">{c.totalSchool Leads}</TableCell>
+                            <TableCell className="text-right">{c.approvedSchool Leads}</TableCell>
                             <TableCell className="text-right">{c.conversionRate}%</TableCell>
-                            <TableCell className="text-right">{c.totalCommissions}</TableCell>
+                            <TableCell className="text-right">{c.totalIncentives}</TableCell>
                             <TableCell className="text-right font-medium">
                               ₹{(c.totalEarningsCents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </TableCell>
                             <TableCell className="text-right text-muted-foreground">
-                              ₹{(c.avgEarningsPerAffiliateCents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              ₹{(c.avgEarningsPerAssociationCents / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </TableCell>
                           </TableRow>
                         ))}

@@ -59,24 +59,24 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const affiliateId = searchParams.get('affiliateId');
+    const associationId = searchParams.get('associationId');
 
     // Build where clause
     const where: any = {};
-    if (affiliateId) {
-      where.affiliateId = affiliateId;
+    if (associationId) {
+      where.associationId = associationId;
     }
 
     // Fetch payouts from database
     const payouts = await (prisma as any).payout.findMany({
       where,
       include: {
-        affiliate: {
+        association: {
           select: {
             id: true,
             name: true,
             email: true,
-            referralCode: true,
+            school-leadCode: true,
           },
         },
       },
@@ -88,11 +88,11 @@ export async function GET(request: NextRequest) {
     // Format response
     const formattedPayouts = payouts.map((payout: any) => ({
       id: payout.id,
-      affiliateId: payout.affiliateId,
-      affiliateName: payout.affiliate.name,
-      affiliateEmail: payout.affiliate.email,
+      associationId: payout.associationId,
+      associationName: payout.association.name,
+      associationEmail: payout.association.email,
       amountCents: payout.amountCents,
-      commissionCount: payout.commissionCount || 0,
+      incentiveCount: payout.incentiveCount || 0,
       status: payout.status,
       method: payout.method,
       notes: payout.notes,
@@ -145,50 +145,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Validation failed', details: validationError.issues }, { status: 400 });
     }
 
-    const { affiliateId, commissionIds, method, notes } = data;
+    const { associationId, incentiveIds, method, notes } = data;
 
-    // Verify affiliate exists
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { id: affiliateId },
+    // Verify association exists
+    const association = await prisma.association.findUnique({
+      where: { id: associationId },
     });
 
-    if (!affiliate) {
-      return NextResponse.json({ error: 'Affiliate not found' }, { status: 404 });
+    if (!association) {
+      return NextResponse.json({ error: 'Association not found' }, { status: 404 });
     }
 
-    // Fetch commissions for these IDs (must be APPROVED)
-    const commissions = await prisma.commission.findMany({
+    // Fetch incentives for these IDs (must be APPROVED)
+    const incentives = await prisma.incentive.findMany({
       where: {
-        id: { in: commissionIds },
-        affiliateId: affiliateId,
+        id: { in: incentiveIds },
+        associationId: associationId,
         status: 'APPROVED',
       },
     });
 
-    if (commissions.length === 0) {
-      return NextResponse.json({ error: 'No valid (approved) commissions found' }, { status: 404 });
+    if (incentives.length === 0) {
+      return NextResponse.json({ error: 'No valid (approved) incentives found' }, { status: 404 });
     }
 
-    if (commissions.length !== commissionIds.length) {
+    if (incentives.length !== incentiveIds.length) {
       // Check if some are still PENDING
-      const pCount = await prisma.commission.count({
-        where: { id: { in: commissionIds }, status: 'PENDING' }
+      const pCount = await prisma.incentive.count({
+        where: { id: { in: incentiveIds }, status: 'PENDING' }
       });
 
       if (pCount > 0) {
         return NextResponse.json({
-          error: `${pCount} commission(s) are still in the hold period and cannot be paid out yet.`
+          error: `${pCount} incentive(s) are still in the hold period and cannot be paid out yet.`
         }, { status: 400 });
       }
 
       return NextResponse.json(
-        { error: 'Some commissions are invalid, cancelled, or already paid.' },
+        { error: 'Some incentives are invalid, cancelled, or already paid.' },
         { status: 400 }
       );
     }
 
     // Calculate total amount
-    const totalAmountCents = commissions.reduce(
+    const totalAmountCents = incentives.reduce(
       (sum, c) => sum + c.amountCents,
       0
     );
@@ -196,9 +196,9 @@ export async function POST(request: NextRequest) {
     // Create payout record
     const payout = await (prisma as any).payout.create({
       data: {
-        affiliateId,
+        associationId,
         amountCents: totalAmountCents,
-        commissionCount: commissions.length,
+        incentiveCount: incentives.length,
         status: 'PENDING',
         method: method || 'Bank Transfer',
         notes: notes || null,
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       },
       include: {
-        affiliate: {
+        association: {
           select: {
             id: true,
             name: true,
@@ -223,13 +223,13 @@ export async function POST(request: NextRequest) {
       action: 'CREATE_PAYOUT',
       objectType: 'PAYOUT',
       objectId: payout.id,
-      payload: { amountCents: totalAmountCents, affiliateId }
+      payload: { amountCents: totalAmountCents, associationId }
     });
 
-    // Update commissions to mark as PAID and link to payout
-    await prisma.commission.updateMany({
+    // Update incentives to mark as PAID and link to payout
+    await prisma.incentive.updateMany({
       where: {
-        id: { in: commissionIds },
+        id: { in: incentiveIds },
       },
       data: {
         status: 'PAID',
@@ -239,20 +239,20 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email notification to affiliate
+    // Send email notification to association
     try {
-      const affiliateUser = await prisma.user.findFirst({
+      const associationUser = await prisma.user.findFirst({
         where: {
-          affiliate: { id: affiliateId }
+          association: { id: associationId }
         }
       });
 
-      if (affiliateUser?.email) {
+      if (associationUser?.email) {
         const { emailService } = await import('@/lib/email');
-        await emailService.sendPayoutCreatedEmail(affiliateUser.email, {
-          affiliateName: payout.affiliate.name || affiliateUser.name || 'Partner',
+        await emailService.sendPayoutCreatedEmail(associationUser.email, {
+          associationName: payout.association.name || associationUser.name || 'Partner',
           amountCents: totalAmountCents,
-          commissionCount: commissions.length,
+          incentiveCount: incentives.length,
           payoutId: payout.id,
           method: method || 'Bank Transfer'
         });
@@ -266,11 +266,11 @@ export async function POST(request: NextRequest) {
       success: true,
       payout: {
         id: payout.id,
-        affiliateId: payout.affiliateId,
-        affiliateName: payout.affiliate.name,
-        affiliateEmail: payout.affiliate.email,
+        associationId: payout.associationId,
+        associationName: payout.association.name,
+        associationEmail: payout.association.email,
         amountCents: payout.amountCents,
-        commissionCount: payout.commissionCount,
+        incentiveCount: payout.incentiveCount,
         status: payout.status,
         method: payout.method,
         notes: payout.notes,
@@ -326,7 +326,7 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: updateData,
       include: {
-        affiliate: {
+        association: {
           select: {
             name: true,
             email: true,
@@ -347,18 +347,18 @@ export async function PUT(request: NextRequest) {
     // Send email notification if status changed to COMPLETED
     if (status === 'COMPLETED') {
       try {
-        const affiliateUser = await prisma.user.findFirst({
+        const associationUser = await prisma.user.findFirst({
           where: {
-            affiliate: { id: payout.affiliateId }
+            association: { id: payout.associationId }
           }
         });
 
-        if (affiliateUser?.email) {
+        if (associationUser?.email) {
           const { emailService } = await import('@/lib/email');
-          await emailService.sendPayoutCompletedEmail(affiliateUser.email, {
-            affiliateName: payout.affiliate.name || affiliateUser.name || 'Partner',
+          await emailService.sendPayoutCompletedEmail(associationUser.email, {
+            associationName: payout.association.name || associationUser.name || 'Partner',
             amountCents: payout.amountCents,
-            commissionCount: payout.commissionCount,
+            incentiveCount: payout.incentiveCount,
             payoutId: payout.id,
             method: payout.method || 'Bank Transfer',
             processedAt: payout.processedAt?.toISOString() || new Date().toISOString()
@@ -374,11 +374,11 @@ export async function PUT(request: NextRequest) {
       success: true,
       payout: {
         id: payout.id,
-        affiliateId: payout.affiliateId,
-        affiliateName: payout.affiliate.name,
-        affiliateEmail: payout.affiliate.email,
+        associationId: payout.associationId,
+        associationName: payout.association.name,
+        associationEmail: payout.association.email,
         amountCents: payout.amountCents,
-        commissionCount: payout.commissionCount,
+        incentiveCount: payout.incentiveCount,
         status: payout.status,
         method: payout.method,
         notes: payout.notes,
