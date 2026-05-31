@@ -57,23 +57,10 @@ export default function RegisterPage() {
         return;
       }
 
-      // Step 2: Send OTP
-      const otpRes = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      const otpData = await otpRes.json();
-
-      if (otpRes.ok) {
-        setStep('otp');
-        setMessage('Account created! A verification code has been sent to your email.');
-      } else {
-        // Registration succeeded but OTP failed - still move to OTP step
-        setStep('otp');
-        setError(otpData.error || 'Failed to send code. Try resending.');
-      }
+      // Step 2: Skip OTP in development mode - move directly to OTP verification step
+      setStep('otp');
+      setMessage('Account created successfully! Click "Skip & Continue" to proceed or enter a code.');
+      
     } catch (_e) {
       setError('Something went wrong. Please try again.');
     } finally {
