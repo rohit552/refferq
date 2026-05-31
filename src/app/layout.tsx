@@ -1,6 +1,7 @@
 import React from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { db } from '@/lib/prisma';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 
 export const metadata = {
@@ -36,6 +37,7 @@ export default async function RootLayout({
       <body className="font-sans antialiased" style={dynamicStyles}>
         {children}
         <Toaster />
+        <SpeedInsights />
       </body>
     </html>
   );
