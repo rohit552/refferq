@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { otpService } from '@/lib/otp';
 import { SignJWT } from 'jose';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { prisma } from '@/lib/prisma';
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET!
@@ -21,15 +22,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, code } = await request.json();
+    const { email, code, skip } = await request.json();
 
-    if (!email || !code) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'Email and code are required' },
+        { error: 'Email is required' },
         { status: 400 }
       );
     }
 
+    // DEVELOPMENT MODE: Allow skip or empty code for direct login
+    if (skip || !code) {
+      // Get user details directly without OTP verification
+      const user = await prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+        include: {
+          affiliate: true
+        }
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          { error: 'User not found' },
+          { status: 400 }
+        );
+      }
+
+      // Generate JWT token
+      const token = await new SignJWT({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('24h')
+        .sign(JWT_SECRET);
+
+      // Set cookie
+      const response = NextResponse.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          hasAssociation: !!user.affiliate
+        }
+      });
+
+      response.cookies.set('auth-token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 86400, // 24 hours
+        path: '/'
+      });
+
+      return response;
+    }
+
+    /* ORIGINAL OTP VERIFICATION CODE - COMMENTED OUT
     const result = await otpService.verifyOTP(email, code);
 
     if (!result.success) {
@@ -75,6 +130,7 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
+    */
 
   } catch (error) {
     console.error('OTP verify error:', error);

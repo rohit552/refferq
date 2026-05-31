@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { otpService } from '@/lib/otp';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,6 +35,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // DEVELOPMENT MODE: Skip OTP verification and return success
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'No account found with this email address' },
+        { status: 400 }
+      );
+    }
+
+    // OTP verification is disabled - return success message
+    return NextResponse.json({
+      success: true,
+      message: 'OTP verification is disabled in development mode. Proceed to verify.'
+    });
+
+    /* ORIGINAL OTP CODE - COMMENTED OUT
     const result = await otpService.sendOTP(email);
 
     if (!result.success) {
@@ -47,6 +68,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: result.message
     });
+    */
 
   } catch (error) {
     console.error('OTP send error:', error);

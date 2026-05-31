@@ -8,6 +8,8 @@ export class OTPService {
   }
 
   // Generate and send OTP via email
+  // COMMENTED OUT - OTP verification disabled for development
+  /*
   async sendOTP(email: string): Promise<{ success: boolean; message: string }> {
     try {
       // Check if user exists
@@ -108,8 +110,11 @@ export class OTPService {
       };
     }
   }
+  */
 
   // Verify OTP and return user if valid
+  // COMMENTED OUT - OTP verification disabled for development
+  /*
   async verifyOTP(email: string, code: string): Promise<{
     success: boolean;
     user?: any;
@@ -197,6 +202,7 @@ export class OTPService {
       };
     }
   }
+  */
 
   // Clean up expired OTPs (should be run periodically)
   async cleanupExpiredOTPs(): Promise<void> {

@@ -121,6 +121,41 @@ export default function RegisterPage() {
     }
   };
 
+  const handleSkipOTP = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, skip: true }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStep('success');
+        // Redirect after a short delay
+        setTimeout(() => {
+          const user = data.user;
+          if (user.role === 'ADMIN') {
+            router.push('/admin');
+          } else {
+            router.push('/association');
+          }
+        }, 2000);
+      } else {
+        setError(data.error || 'Login failed');
+      }
+    } catch (_e) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResendOTP = async () => {
     setError('');
     setMessage('');
@@ -284,7 +319,7 @@ export default function RegisterPage() {
                     )}
                     {loading ? 'Verifying...' : 'Verify & Continue'}
                   </Button>
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full gap-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -301,12 +336,12 @@ export default function RegisterPage() {
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={handleResendOTP}
+                      onClick={handleSkipOTP}
                       disabled={loading}
                     >
-                      Resend code
+                      Skip & Continue
                     </Button>
                   </div>
                 </CardFooter>

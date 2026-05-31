@@ -98,25 +98,32 @@ export default function LoginPage() {
     }
   };
 
-  const handleResendOTP = async () => {
+  const handleSkipOTP = async () => {
     setError('');
-    setMessage('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/send-otp', {
+      const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        credentials: 'include',
+        body: JSON.stringify({ email, skip: true }),
       });
 
-      if (res.ok) {
-        setMessage('A new verification code has been sent.');
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        const user = data.user;
+        if (user.role === 'ADMIN') {
+          router.push('/admin');
+        } else {
+          router.push('/association');
+        }
       } else {
-        setError('Failed to resend code. Please try again.');
+        setError(data.error || 'Login failed');
       }
     } catch (_e) {
-      setError('Failed to resend code.');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -240,7 +247,7 @@ export default function LoginPage() {
                     )}
                     {loading ? 'Verifying...' : 'Verify & Sign in'}
                   </Button>
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full gap-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -257,12 +264,12 @@ export default function LoginPage() {
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={handleResendOTP}
+                      onClick={handleSkipOTP}
                       disabled={loading}
                     >
-                      Resend code
+                      Skip & Login
                     </Button>
                   </div>
                 </CardFooter>
