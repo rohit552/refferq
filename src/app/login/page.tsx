@@ -41,20 +41,17 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const otpRes = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      const otpData = await otpRes.json();
-
-      if (otpRes.ok && otpData.success) {
-        setStep('otp');
-        setMessage(otpData.message || 'A verification code has been sent to your email.');
-      } else {
-        setError(otpData.message || 'Failed to send verification code');
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setError('Please enter a valid email address');
+        setLoading(false);
+        return;
       }
+
+      // Development mode: Skip OTP sending, go directly to verification step
+      setStep('otp');
+      setMessage('Ready to sign in! Click "Skip & Login" to proceed or enter a code.');
     } catch (_e) {
       setError('Something went wrong. Please try again.');
     } finally {
