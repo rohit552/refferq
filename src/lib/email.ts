@@ -83,7 +83,7 @@ export interface CommissionNotificationData {
 }
 
 class EmailService {
-  private defaultFrom = process.env.RESEND_FROM_EMAIL || 'Refferq <noreply@refferq.com>';
+  private defaultFrom = process.env.RESEND_FROM_EMAIL || 'SkillHeed <noreply@refferq.com>';
 
   /** Escape HTML special characters to prevent XSS in email templates */
   private escapeHtml(str: string): string {
@@ -178,7 +178,7 @@ class EmailService {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Welcome to Refferq</title>
+      <title>Welcome to SkillHeed</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -189,7 +189,7 @@ class EmailService {
     </head>
     <body>
       <div class="header">
-        <h1>Welcome to Refferq! 🎉</h1>
+        <h1>Welcome to SkillHeed! 🎉</h1>
       </div>
       <div class="content">
         <h2>Hello ${this.escapeHtml(data.name)}!</h2>
@@ -229,11 +229,11 @@ class EmailService {
         
         <p>If you have any questions, please don't hesitate to contact our support team.</p>
         
-        <p>Best regards,<br>The Refferq Team</p>
+        <p>Best regards,<br>The SkillHeed Team</p>
       </div>
       <div class="footer">
         <p>This email was sent to ${this.escapeHtml(data.email)}</p>
-        <p>© ${new Date().getFullYear()} Refferq. All rights reserved.</p>
+        <p>© ${new Date().getFullYear()} SkillHeed. All rights reserved.</p>
       </div>
     </body>
     </html>
@@ -278,7 +278,7 @@ class EmailService {
         
         <p>Please review this referral in the admin dashboard and approve or reject it accordingly.</p>
         
-        <p>Best regards,<br>The Refferq System</p>
+        <p>Best regards,<br>The SkillHeed System</p>
       </div>
     </body>
     </html>
@@ -331,7 +331,7 @@ class EmailService {
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate" class="button">View Dashboard</a>
         </div>
         
-        <p>Best regards,<br>The Refferq Team</p>
+        <p>Best regards,<br>The SkillHeed Team</p>
       </div>
     </body>
     </html>
@@ -380,7 +380,7 @@ class EmailService {
         
         <p>Thank you for being a valued affiliate partner!</p>
         
-        <p>Best regards,<br>The Refferq Team</p>
+        <p>Best regards,<br>The SkillHeed Team</p>
       </div>
     </body>
     </html>
@@ -428,7 +428,7 @@ class EmailService {
         
         <p>Keep up the fantastic work!</p>
         
-        <p>Best regards,<br>The Refferq Team</p>
+        <p>Best regards,<br>The SkillHeed Team</p>
       </div>
     </body>
     </html>
@@ -506,7 +506,7 @@ class EmailService {
             Keep up the great work! Continue referring customers to earn more commissions.
           </p>
           
-          <p>Best regards,<br>The Refferq Team</p>
+          <p>Best regards,<br>The SkillHeed Team</p>
         </div>
       </body>
       </html>
@@ -517,7 +517,7 @@ class EmailService {
     return this.sendTemplatedEmail({
       to: data.email,
       templateType: 'WELCOME_EMAIL',
-      fallbackSubject: `Welcome to Refferq - ${data.role === 'affiliate' ? 'Affiliate' : 'Admin'} Account Created`,
+      fallbackSubject: `Welcome to SkillHeed - ${data.role === 'affiliate' ? 'Affiliate' : 'Admin'} Account Created`,
       variables: data,
       generateFallbackHtml: () => this.generateWelcomeEmailHTML(data),
     });
@@ -598,7 +598,7 @@ class EmailService {
     return this.sendTemplatedEmail({
       to: email,
       templateType: 'PASSWORD_RESET',
-      fallbackSubject: 'Password Reset Request - Refferq',
+      fallbackSubject: 'Password Reset Request - SkillHeed',
       variables: { resetUrl },
       generateFallbackHtml: () => `
       <!DOCTYPE html>
@@ -638,7 +638,7 @@ class EmailService {
           <p>If the button doesn't work, copy and paste this link into your browser:</p>
           <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 5px;">${resetUrl}</p>
           
-          <p>Best regards,<br>The Refferq Team</p>
+          <p>Best regards,<br>The SkillHeed Team</p>
         </div>
       </body>
       </html>
@@ -651,7 +651,7 @@ class EmailService {
     return this.sendTemplatedEmail({
       to: email,
       templateType: 'EMAIL_VERIFICATION',
-      fallbackSubject: 'Verify Your Email Address - Refferq',
+      fallbackSubject: 'Verify Your Email Address - SkillHeed',
       variables: { verificationUrl },
       generateFallbackHtml: () => `
       <!DOCTYPE html>
@@ -683,7 +683,7 @@ class EmailService {
           
           <p>This verification link will expire in 24 hours.</p>
           
-          <p>Best regards,<br>The Refferq Team</p>
+          <p>Best regards,<br>The SkillHeed Team</p>
         </div>
       </body>
       </html>
@@ -785,7 +785,7 @@ class EmailService {
             Thank you for being a valued partner! Continue referring customers to earn more.
           </p>
           
-          <p>Best regards,<br>The Refferq Team</p>
+          <p>Best regards,<br>The SkillHeed Team</p>
         </div>
       </body>
       </html>
@@ -872,7 +872,7 @@ class EmailService {
             Keep up the excellent work! Continue referring customers to earn more commissions.
           </p>
           
-          <p>Best regards,<br>The Refferq Team</p>
+          <p>Best regards,<br>The SkillHeed Team</p>
         </div>
       </body>
       </html>
@@ -904,12 +904,12 @@ class EmailService {
     const html = `
       <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
         <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
-          <h1 style="color: #ffffff; font-size: 22px; margin: 0;">Refferq Notification</h1>
+          <h1 style="color: #ffffff; font-size: 22px; margin: 0;">SkillHeed Notification</h1>
         </div>
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 16px 16px;">
           <p style="color: #374151; font-size: 15px; line-height: 1.6;">${this.escapeHtml(data.body)}</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
-          <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated notification from Refferq.</p>
+          <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated notification from SkillHeed.</p>
         </div>
       </div>
     `;

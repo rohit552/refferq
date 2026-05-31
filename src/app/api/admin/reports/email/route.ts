@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
         </p>
       </div>
       <div class="footer">
-        <p>This report was sent from Refferq by ${user.name} (${user.email})</p>
-        <p>© ${new Date().getFullYear()} Refferq. All rights reserved.</p>
+        <p>This report was sent from SkillHeed NEP Partner by ${user.name} (${user.email})</p>
+        <p>© ${new Date().getFullYear()} SkillHeed. All rights reserved.</p>
       </div>
     </body>
     </html>
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: fromEmail,
           to: email.trim(),
-          subject: `[Refferq] ${reportData.type || 'Report'} — ${reportDate}`,
+          subject: `[SkillHeed NEP] ${reportData.type || 'Report'} — ${reportDate}`,
           html,
         })
       )

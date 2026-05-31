@@ -4,9 +4,11 @@ import { db } from '@/lib/prisma';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 
+import { BRAND } from '@/lib/brand';
+
 export const metadata = {
-  title: 'Refferq - Modern Affiliate Marketing Platform',
-  description: 'Next-generation affiliate marketing platform with comprehensive tracking, commission management, and payout automation.',
+  title: `${BRAND.name} - ${BRAND.tagline}`,
+  description: BRAND.description,
 };
 
 export default async function RootLayout({

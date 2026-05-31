@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/input-otp';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Target, User, Mail, ShieldCheck, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { BRAND } from '@/lib/brand';
 
 type Step = 'details' | 'otp' | 'success';
 
@@ -152,9 +153,9 @@ export default function RegisterPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/25">
             <Target className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Refferq</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{BRAND.shortName}</h1>
           <p className="text-sm text-muted-foreground">
-            Affiliate Marketing Platform
+            {BRAND.tagline}
           </p>
         </div>
 

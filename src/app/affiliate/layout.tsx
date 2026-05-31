@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { BRAND } from '@/lib/brand';
 import {
   SidebarProvider,
   Sidebar,
@@ -72,7 +73,7 @@ function AffiliateSidebar({ brand }: { brand: BrandSettings }) {
   };
 
   const accentColor = brand.brandButtonColor || '#059669';
-  const brandName = brand.companyName || 'Refferq';
+  const brandName = brand.companyName || BRAND.shortName;
 
   return (
     <Sidebar variant="inset">
