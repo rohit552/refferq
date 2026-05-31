@@ -219,7 +219,7 @@ export default function PartnersPage() {
 
       if (data.success) {
         alert(
-          `Partner created successfully!\n\nName: ${data.association.name}\nEmail: ${data.association.email}\nReferral Code: ${data.association.referralCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
+          `Partner created successfully!\n\nName: ${data.affiliate.name}\nEmail: ${data.affiliate.email}\nReferral Code: ${data.affiliate.referralCode}\nPassword: ${data.password}\n\nPlease save and share this with the partner.`
         );
         setShowCreateModal(false);
         setNewPartner({

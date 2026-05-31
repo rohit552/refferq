@@ -58,14 +58,14 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Group by association for batch balance updates
-        const associationUpdates = new Map<string, number>();
+        // Group by affiliate for batch balance updates
+        const affiliateUpdates = new Map<string, number>();
         const maturedIds: string[] = [];
 
         for (const incentive of maturedIncentives) {
             maturedIds.push(incentive.id);
-            const current = associationUpdates.get(incentive.associationId) || 0;
-            associationUpdates.set(incentive.associationId, current + incentive.amountCents);
+            const current = affiliateUpdates.get(incentive.affiliateId) || 0;
+            affiliateUpdates.set(incentive.affiliateId, current + incentive.amountCents);
         }
 
         // Batch update: mark all as APPROVED
@@ -78,10 +78,10 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // Update each association's balance
-        for (const [associationId, totalCents] of associationUpdates.entries()) {
+        // Update each affiliate's balance
+        for (const [affiliateId, totalCents] of affiliateUpdates.entries()) {
             await prisma.affiliate.update({
-                where: { id: associationId },
+                where: { id: affiliateId },
                 data: {
                     balanceCents: { increment: totalCents },
                 },
@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
             objectId: 'batch',
             payload: {
                 count: maturedIds.length,
-                totalCents: Array.from(associationUpdates.values()).reduce((a, b) => a + b, 0),
-                associationCount: associationUpdates.size,
+                totalCents: Array.from(affiliateUpdates.values()).reduce((a, b) => a + b, 0),
+                affiliateCount: affiliateUpdates.size,
             },
         });
 
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
             success: true,
             message: `${maturedIds.length} incentive(s) matured and approved`,
             matured: maturedIds.length,
-            associationsUpdated: associationUpdates.size,
+            affiliatesUpdated: affiliateUpdates.size,
         });
     } catch (error) {
         console.error('Incentive maturation error:', error);

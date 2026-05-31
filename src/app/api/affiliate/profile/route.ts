@@ -189,7 +189,7 @@ export async function PUT(request: NextRequest) {
       if (paymentEmail) payoutDetails.paymentEmail = paymentEmail.trim();
 
       await prisma.affiliate.update({
-        where: { id: user.association.id },
+        where: { id: user.affiliate.id },
         data: {
           payoutDetails: payoutDetails
         }

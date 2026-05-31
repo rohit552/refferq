@@ -281,8 +281,8 @@ export default function CustomersPage() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <p className="font-medium">{referral.association.name}</p>
-                        <p className="text-xs text-muted-foreground">{referral.association.partnerGroup}</p>
+                        <p className="font-medium">{referral.affiliate.name}</p>
+                        <p className="text-xs text-muted-foreground">{referral.affiliate.partnerGroup}</p>
                       </div>
                     </TableCell>
                     <TableCell>

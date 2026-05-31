@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         school: m.school_name ? String(m.school_name) : null,
         state: m.state ? String(m.state) : null,
         district: m.district ? String(m.district) : null,
-        partner: r.association.user.name,
+        partner: r.affiliate.user.name,
         status: r.status,
         createdAt: r.createdAt,
       };

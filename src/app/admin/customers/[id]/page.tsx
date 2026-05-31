@@ -405,7 +405,7 @@ export default function CustomerDetailPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Incentive Rate</span>
-                <span className="font-semibold">{(referral.association.incentiveRate * 100).toFixed(0)}%</span>
+                <span className="font-semibold">{(referral.affiliate.incentiveRate * 100).toFixed(0)}%</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -430,12 +430,12 @@ export default function CustomerDetailPage() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
                   <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                    {referral.association.name?.charAt(0).toUpperCase()}
+                    {referral.affiliate.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{referral.association.name}</p>
-                  <p className="text-xs text-muted-foreground">{referral.association.email}</p>
+                  <p className="text-sm font-medium">{referral.affiliate.name}</p>
+                  <p className="text-xs text-muted-foreground">{referral.affiliate.email}</p>
                 </div>
               </div>
               <Separator />
@@ -443,12 +443,12 @@ export default function CustomerDetailPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Referral Code</span>
                   <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                    {referral.association.referralCode}
+                    {referral.affiliate.referralCode}
                   </code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Partner Group</span>
-                  <Badge variant="outline" className="text-xs">{referral.association.partnerGroup}</Badge>
+                  <Badge variant="outline" className="text-xs">{referral.affiliate.partnerGroup}</Badge>
                 </div>
               </div>
             </CardContent>

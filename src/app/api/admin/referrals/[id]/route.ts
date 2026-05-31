@@ -64,8 +64,8 @@ export async function PUT(
     // If approved, create conversion and incentive
     if (action === 'approve') {
       // Get incentive rate from partner group or use default 10%
-      const incentiveRate = referral.association.partnerGroup?.incentiveRate
-        ? referral.association.partnerGroup.incentiveRate / 100
+      const incentiveRate = referral.affiliate.partnerGroup?.incentiveRate
+        ? referral.affiliate.partnerGroup.incentiveRate / 100
         : 0.1;
 
       const conversion = await prisma.conversion.create({
@@ -84,7 +84,7 @@ export async function PUT(
         data: {
           associationId: referral.associationId,
           conversionId: conversion.id,
-          userId: referral.association.userId,
+          userId: referral.affiliate.userId,
           rate: incentiveRate,
           amountCents: incentiveAmount,
           status: 'PENDING'
@@ -159,8 +159,8 @@ export async function PATCH(
       if (action === 'approve') {
         const refMetadata = referral.metadata as Record<string, any> || {};
         const estValueCents = Number(refMetadata?.estimated_value) * 100 || 10000;
-        const incentiveRate = referral.association.partnerGroup?.incentiveRate
-          ? referral.association.partnerGroup.incentiveRate / 100
+        const incentiveRate = referral.affiliate.partnerGroup?.incentiveRate
+          ? referral.affiliate.partnerGroup.incentiveRate / 100
           : 0.1;
 
         const conversion = await prisma.conversion.create({
@@ -179,7 +179,7 @@ export async function PATCH(
           data: {
             associationId: referral.associationId,
             conversionId: conversion.id,
-            userId: referral.association.userId,
+            userId: referral.affiliate.userId,
             rate: incentiveRate,
             amountCents: incentiveAmount,
             status: 'PENDING'

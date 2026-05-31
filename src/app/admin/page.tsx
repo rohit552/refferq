@@ -119,7 +119,7 @@ export default function AdminDashboardPage() {
           id: ref.id,
           leadName: ref.leadName,
           leadEmail: ref.leadEmail,
-          associationName: ref.association.name,
+          associationName: ref.affiliate.name,
           amountPaid: 0,
           status: ref.status,
           createdAt: ref.createdAt,
@@ -359,25 +359,25 @@ export default function AdminDashboardPage() {
                 <div className="space-y-1">
                   {topAssociations.map((affiliate: any, index: number) => (
                     <div
-                      key={association.id}
+                      key={affiliate.id}
                       className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted/50 cursor-pointer"
-                      onClick={() => router.push(`/admin/partners/${association.id}`)}
+                      onClick={() => router.push(`/admin/partners/${affiliate.id}`)}
                     >
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                         {index + 1}
                       </span>
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                          {association.name.charAt(0).toUpperCase()}
+                          {affiliate.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{association.name}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{association.referralCode}</p>
+                        <p className="text-sm font-medium truncate">{affiliate.name}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{affiliate.referralCode}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-semibold">₹{(association.totalRevenue / 100).toFixed(2)}</p>
-                        <p className="text-[11px] text-muted-foreground">{association.totalReferrals} referrals</p>
+                        <p className="text-sm font-semibold">₹{(affiliate.totalRevenue / 100).toFixed(2)}</p>
+                        <p className="text-[11px] text-muted-foreground">{affiliate.totalReferrals} referrals</p>
                       </div>
                     </div>
                   ))}

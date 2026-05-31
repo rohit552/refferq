@@ -56,7 +56,7 @@ export async function GET(
       : websiteUrl || appUrl; // Fallback to program website or app URL
 
     // Find association by referral code using Prisma
-    const association = await prisma.association.findUnique({
+    const association = await prisma.affiliate.findUnique({
       where: { referralCode },
       include: { user: true }
     });

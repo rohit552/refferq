@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         discountValue,
         currency: currency || 'INR',
         maxUses: maxUses || null,
-        associationId: associationId || null,
+        affiliateId: affiliateId || null,
         startsAt: startsAt ? new Date(startsAt) : null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         createdBy: user.id,

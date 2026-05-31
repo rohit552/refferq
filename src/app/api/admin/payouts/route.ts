@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
     const formattedPayouts = payouts.map((payout: any) => ({
       id: payout.id,
       associationId: payout.associationId,
-      associationName: payout.association.name,
-      associationEmail: payout.association.email,
+      associationName: payout.affiliate.name,
+      associationEmail: payout.affiliate.email,
       amountCents: payout.amountCents,
       incentiveCount: payout.incentiveCount || 0,
       status: payout.status,
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
       if (associationUser?.email) {
         const { emailService } = await import('@/lib/email');
         await emailService.sendPayoutCreatedEmail(associationUser.email, {
-          associationName: payout.association.name || associationUser.name || 'Partner',
+          associationName: payout.affiliate.name || associationUser.name || 'Partner',
           amountCents: totalAmountCents,
           incentiveCount: incentives.length,
           payoutId: payout.id,
@@ -267,8 +267,8 @@ export async function POST(request: NextRequest) {
       payout: {
         id: payout.id,
         associationId: payout.associationId,
-        associationName: payout.association.name,
-        associationEmail: payout.association.email,
+        associationName: payout.affiliate.name,
+        associationEmail: payout.affiliate.email,
         amountCents: payout.amountCents,
         incentiveCount: payout.incentiveCount,
         status: payout.status,
@@ -356,7 +356,7 @@ export async function PUT(request: NextRequest) {
         if (associationUser?.email) {
           const { emailService } = await import('@/lib/email');
           await emailService.sendPayoutCompletedEmail(associationUser.email, {
-            associationName: payout.association.name || associationUser.name || 'Partner',
+            associationName: payout.affiliate.name || associationUser.name || 'Partner',
             amountCents: payout.amountCents,
             incentiveCount: payout.incentiveCount,
             payoutId: payout.id,
@@ -375,8 +375,8 @@ export async function PUT(request: NextRequest) {
       payout: {
         id: payout.id,
         associationId: payout.associationId,
-        associationName: payout.association.name,
-        associationEmail: payout.association.email,
+        associationName: payout.affiliate.name,
+        associationEmail: payout.affiliate.email,
         amountCents: payout.amountCents,
         incentiveCount: payout.incentiveCount,
         status: payout.status,

@@ -155,7 +155,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
         leadName: r.leadName,
         leadEmail: r.leadEmail,
         status: r.status,
-        affiliate: r.association.user.name,
+        affiliate: r.affiliate.user.name,
         submittedDate: r.createdAt.toISOString().slice(0, 10),
       })),
     };
@@ -170,7 +170,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     return {
       type: 'Incentives Report',
       data: incentives.map((c) => ({
-        affiliate: c.association.user.name,
+        affiliate: c.affiliate.user.name,
         amountCents: c.amountCents,
         rate: c.rate,
         status: c.status,
