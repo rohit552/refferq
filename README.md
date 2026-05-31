@@ -1,15 +1,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://opensource.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Buy Me a Coffee](https://img.shields.io/badge/☕-Buy%20me%20a%20coffee-ffdd00?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/refferq)
-# Refferq - Open Source Affiliate Management Platform
-[![Open Collective](https://img.shields.io/badge/OpenCollective-Support%20Us-3385FF?style=for-the-badge&logo=open-collective&logoColor=white)](https://opencollective.com/refferq)
+# SkillHeed NEP - Partner & School Onboarding Platform
 <p align="center">
-  <img src="./public/images/github-banner.svg" alt="Refferq Logo" width="200"/>
-</p>
-
-<p align="center">
-  <strong>A powerful, feature-rich affiliate marketing platform built with Next.js 15 and PostgreSQL</strong>
+  <strong>A comprehensive partner and school onboarding platform built with Next.js 15 and PostgreSQL</strong>
 </p>
 
 <p align="center">
@@ -25,16 +19,16 @@
 
 ## 📋 About
 
-**Refferq** is a comprehensive affiliate management platform designed to help businesses create, manage, and scale their affiliate programs. Built with modern web technologies, it provides a complete solution for tracking referrals, managing commissions, and engaging with affiliate partners.
+**SkillHeed NEP** is a comprehensive partner and school onboarding platform designed to help educational institutions implement the National Education Policy (NEP 2020). It provides a complete solution for tracking school registrations, managing partner hierarchies, and engaging with schools across National, State, and District levels.
 
 ### 🎯 Key Highlights
 
-- **Complete Affiliate Portal** - Full-featured dashboard for affiliates to track earnings, submit leads, and manage payouts
-- **Admin Control Panel** - Comprehensive admin dashboard for managing partners, referrals, and program settings
-- **Real-time Analytics** - Track conversions, commissions, and performance metrics in real-time
-- **Automated Workflows** - Automated commission calculations, payout processing, and email notifications
-- **Flexible Commission Rules** - Support for percentage-based and fixed commission structures
-- **White-Label Ready** - Customizable branding and subdomain support
+- **Complete Partner Portal** - Full-featured dashboard for partners to track school leads, earn incentives, and manage payouts
+- **School Onboarding** - Comprehensive school registration and tracking system for NEP implementation
+- **Admin Control Panel** - Complete admin dashboard for managing associations, schools, and program settings
+- **Real-time Analytics** - Track school onboardings, incentives, and performance metrics in real-time
+- **Automated Workflows** - Automated incentive calculations, payout processing, and email notifications
+- **Multi-tier Hierarchy** - Support for Master Partners, Sub Partners, and District Partners
 
 ---
 

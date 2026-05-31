@@ -52,7 +52,7 @@ interface BrandSettings {
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/association', icon: LayoutDashboard },
-  { title: 'Referrals', url: '/association/referrals', icon: Users },
+  { title: 'School Leads', url: '/association/referrals', icon: Users },
   { title: 'Payouts', url: '/association/payouts', icon: Wallet },
   { title: 'Resources', url: '/association/resources', icon: BookOpen },
   { title: 'Reports', url: '/association/reports', icon: BarChart3, badge: 'BETA' },
@@ -90,7 +90,7 @@ function AssociationSidebar({ brand }: { brand: BrandSettings }) {
               )}
               <div className="flex flex-col">
                 <span className="text-sm font-bold">{brandName}</span>
-                <span className="text-xs text-muted-foreground">Association Portal</span>
+                <span className="text-xs text-muted-foreground">NEP Partner Portal</span>
               </div>
             </div>
           </SidebarMenuItem>
