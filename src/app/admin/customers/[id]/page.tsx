@@ -57,7 +57,7 @@ interface Referral {
   createdAt: string;
   estimatedValue: number;
   company: string;
-  association: {
+  affiliate: {
     id: string;
     name: string;
     email: string;
@@ -204,7 +204,7 @@ export default function CustomerDetailPage() {
 
   const cfg = statusConfig[referral.status] || statusConfig.PENDING;
   const StatusIcon = cfg.icon;
-  const estimatedIncentive = Math.round(referral.estimatedValue * referral.association.incentiveRate);
+  const estimatedIncentive = Math.round(referral.estimatedValue * referral.affiliate.incentiveRate);
 
   return (
     <div className="space-y-6">

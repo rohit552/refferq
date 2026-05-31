@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     const payouts = await (prisma as any).payout.findMany({
       where,
       include: {
-        association: {
+        affiliate: {
           select: {
             id: true,
             name: true,
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch incentives for these IDs (must be APPROVED)
-    const incentives = await prisma.incentive.findMany({
+    const incentives = await prisma.commission.findMany({
       where: {
         id: { in: incentiveIds },
         associationId: associationId,
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
 
     if (incentives.length !== incentiveIds.length) {
       // Check if some are still PENDING
-      const pCount = await prisma.incentive.count({
+      const pCount = await prisma.commission.count({
         where: { id: { in: incentiveIds }, status: 'PENDING' }
       });
 
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       },
       include: {
-        association: {
+        affiliate: {
           select: {
             id: true,
             name: true,
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Update incentives to mark as PAID and link to payout
-    await prisma.incentive.updateMany({
+    await prisma.commission.updateMany({
       where: {
         id: { in: incentiveIds },
       },
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
     try {
       const associationUser = await prisma.user.findFirst({
         where: {
-          association: { id: associationId }
+          affiliate: { id: associationId }
         }
       });
 
@@ -326,7 +326,7 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: updateData,
       include: {
-        association: {
+        affiliate: {
           select: {
             name: true,
             email: true,
@@ -349,7 +349,7 @@ export async function PUT(request: NextRequest) {
       try {
         const associationUser = await prisma.user.findFirst({
           where: {
-            association: { id: payout.associationId }
+            affiliate: { id: payout.associationId }
           }
         });
 

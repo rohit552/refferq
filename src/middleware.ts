@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
 
-        if (isAssociationRoute && userRole !== 'ASSOCIATION' && userRole !== 'ADMIN') {
+        if (isAssociationRoute && userRole !== 'AFFILIATE' && userRole !== 'ADMIN') {
             if (pathname.startsWith('/api/')) {
                 return NextResponse.json(
                     { error: 'Forbidden: Association access required' },

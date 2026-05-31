@@ -34,7 +34,7 @@ export async function PUT(
     const referral = await prisma.referral.findUnique({
       where: { id: params.id },
       include: {
-        association: {
+        affiliate: {
           include: { partnerGroup: true }
         }
       }
@@ -80,7 +80,7 @@ export async function PUT(
 
       const incentiveAmount = Math.round(estimatedValueCents * incentiveRate);
 
-      await prisma.incentive.create({
+      await prisma.commission.create({
         data: {
           associationId: referral.associationId,
           conversionId: conversion.id,
@@ -133,7 +133,7 @@ export async function PATCH(
     // Check if referral exists
     const referral = await prisma.referral.findUnique({
       where: { id: params.id },
-      include: { association: { include: { partnerGroup: true } } }
+      include: { affiliate: { include: { partnerGroup: true } } }
     });
 
     if (!referral) {
@@ -175,7 +175,7 @@ export async function PATCH(
 
         const incentiveAmount = Math.round(estValueCents * incentiveRate);
         
-        await prisma.incentive.create({
+        await prisma.commission.create({
           data: {
             associationId: referral.associationId,
             conversionId: conversion.id,

@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         email,
-        role: 'ASSOCIATION',
+        role: 'AFFILIATE',
         status: 'ACTIVE',
         password: hashedPassword
       }
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Association created successfully',
-      association: {
+      affiliate: {
         id: association.id,
         userId: newUser.id,
         name: newUser.name,

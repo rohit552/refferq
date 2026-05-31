@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
                         id: { type: 'string' },
                         name: { type: 'string' },
                         email: { type: 'string' },
-                        role: { type: 'string', enum: ['ADMIN', 'ASSOCIATION'] },
+                        role: { type: 'string', enum: ['ADMIN', 'AFFILIATE'] },
                     },
                 },
                 ReferralRequest: {

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        association: true
+        affiliate: true
       }
     });
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'ASSOCIATION') {
+    if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
         { error: 'Access denied. Association role required.' },
         { status: 403 }
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
 
-    const incentives = await prisma.incentive.findMany({
+    const incentives = await prisma.commission.findMany({
       where: { associationId: association.id },
       orderBy: { createdAt: 'desc' }
     });
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         role: user.role
       },
-      association: association,
+      affiliate: association,
       stats,
       referrals: mappedReferrals,
       conversions,
@@ -132,7 +132,7 @@ export async function PUT(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        association: true
+        affiliate: true
       }
     });
 
@@ -143,7 +143,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'ASSOCIATION') {
+    if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
         { error: 'Access denied. Association role required.' },
         { status: 403 }

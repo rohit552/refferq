@@ -146,7 +146,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
   if (reportType === 'referrals') {
     const referrals = await prisma.referral.findMany({
       where: dateFilter,
-      include: { association: { include: { user: true } } },
+      include: { affiliate: { include: { user: true } } },
       orderBy: { createdAt: 'desc' },
     });
     return {
@@ -155,22 +155,22 @@ async function generateReportData(reportType: string, startDate?: string, endDat
         leadName: r.leadName,
         leadEmail: r.leadEmail,
         status: r.status,
-        association: r.association.user.name,
+        affiliate: r.association.user.name,
         submittedDate: r.createdAt.toISOString().slice(0, 10),
       })),
     };
   }
 
   if (reportType === 'incentives') {
-    const incentives = await prisma.incentive.findMany({
+    const incentives = await prisma.commission.findMany({
       where: dateFilter,
-      include: { association: { include: { user: true } }, conversion: true },
+      include: { affiliate: { include: { user: true } }, conversion: true },
       orderBy: { createdAt: 'desc' },
     });
     return {
       type: 'Incentives Report',
       data: incentives.map((c) => ({
-        association: c.association.user.name,
+        affiliate: c.association.user.name,
         amountCents: c.amountCents,
         rate: c.rate,
         status: c.status,
@@ -188,7 +188,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
     return {
       type: 'Payouts Report',
       data: payouts.map((p) => ({
-        association: p.user.name,
+        affiliate: p.user.name,
         amountCents: p.amountCents,
         method: p.method,
         status: p.status,
@@ -201,7 +201,7 @@ async function generateReportData(reportType: string, startDate?: string, endDat
   const totalAssociations = await prisma.affiliate.count();
   const totalReferrals = await prisma.referral.count({ where: dateFilter });
   const approvedReferrals = await prisma.referral.count({ where: { ...dateFilter, status: 'APPROVED' } });
-  const totalIncentives = await prisma.incentive.aggregate({
+  const totalIncentives = await prisma.commission.aggregate({
     where: dateFilter,
     _sum: { amountCents: true },
     _count: true,

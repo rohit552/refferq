@@ -28,7 +28,7 @@ export class DatabaseService {
     email: string;
     password: string; // Already hashed by the caller/AuthService
     name: string;
-    role: 'ADMIN' | 'ASSOCIATION';
+    role: 'ADMIN' | 'AFFILIATE';
   }) {
     const user = await prisma.user.create({
       data: {
@@ -47,7 +47,7 @@ export class DatabaseService {
     return await prisma.user.findUnique({
       where: { email },
       include: {
-        association: true,
+        affiliate: true,
       },
     });
   }
@@ -56,7 +56,7 @@ export class DatabaseService {
     return await prisma.user.findUnique({
       where: { id },
       include: {
-        association: true,
+        affiliate: true,
       },
     });
   }
@@ -142,7 +142,7 @@ export class DatabaseService {
     return await prisma.referral.findUnique({
       where: { id },
       include: {
-        association: {
+        affiliate: {
           include: {
             user: true,
           },
@@ -162,7 +162,7 @@ export class DatabaseService {
     return await prisma.referral.findMany({
       where: { status: 'PENDING' },
       include: {
-        association: {
+        affiliate: {
           include: {
             user: true,
           },
@@ -217,7 +217,7 @@ export class DatabaseService {
     rate: number;
     approvedBy?: string;
   }) {
-    return await prisma.incentive.create({
+    return await prisma.commission.create({
       data: {
         conversionId: incentiveData.conversionId,
         associationId: incentiveData.associationId,
@@ -232,7 +232,7 @@ export class DatabaseService {
   }
 
   async getIncentivesByAssociation(associationId: string) {
-    return await prisma.incentive.findMany({
+    return await prisma.commission.findMany({
       where: { associationId },
       include: {
         conversion: true,
@@ -242,10 +242,10 @@ export class DatabaseService {
   }
 
   async getPendingIncentives() {
-    return await prisma.incentive.findMany({
+    return await prisma.commission.findMany({
       where: { status: 'PENDING' },
       include: {
-        association: {
+        affiliate: {
           include: {
             user: true,
           },
@@ -256,8 +256,8 @@ export class DatabaseService {
     });
   }
 
-  async updateIncentive(id: string, updates: Parameters<typeof prisma.incentive.update>[0]['data']) {
-    return await prisma.incentive.update({
+  async updateIncentive(id: string, updates: Parameters<typeof prisma.commission.update>[0]['data']) {
+    return await prisma.commission.update({
       where: { id },
       data: updates,
     });
@@ -271,19 +271,19 @@ export class DatabaseService {
     conditions?: any;
     isDefault?: boolean;
   }) {
-    return await prisma.incentiveRule.create({
+    return await prisma.commissionRule.create({
       data: ruleData,
     });
   }
 
   async getIncentiveRules() {
-    return await prisma.incentiveRule.findMany({
+    return await prisma.commissionRule.findMany({
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async getDefaultIncentiveRule() {
-    return await prisma.incentiveRule.findFirst({
+    return await prisma.commissionRule.findFirst({
       where: { isDefault: true },
     });
   }
@@ -411,7 +411,7 @@ export class DatabaseService {
       prisma.conversion.count({
         where: { associationId: association.id },
       }),
-      prisma.incentive.findMany({
+      prisma.commission.findMany({
         where: { associationId: association.id },
       }),
     ]);
@@ -443,14 +443,14 @@ export class DatabaseService {
       totalIncentives,
       clicks,
     ] = await Promise.all([
-      prisma.user.count({ where: { role: 'ASSOCIATION' } }),
-      prisma.user.count({ where: { role: 'ASSOCIATION', status: 'ACTIVE' } }),
-      prisma.user.count({ where: { role: 'ASSOCIATION', status: 'INACTIVE' } }),
+      prisma.user.count({ where: { role: 'AFFILIATE' } }),
+      prisma.user.count({ where: { role: 'AFFILIATE', status: 'ACTIVE' } }),
+      prisma.user.count({ where: { role: 'AFFILIATE', status: 'INACTIVE' } }),
       prisma.referral.count(),
       prisma.referral.count({ where: { status: 'PENDING' } }),
       prisma.referral.count({ where: { status: 'APPROVED' } }),
       prisma.conversion.count(),
-      prisma.incentive.count(),
+      prisma.commission.count(),
       prisma.referralClick.count(),
     ]);
 
@@ -497,14 +497,14 @@ export class DatabaseService {
         email: 'sarah.johnson@example.com',
         password: 'password',
         name: 'Sarah Johnson',
-        role: 'ASSOCIATION',
+        role: 'AFFILIATE',
       });
 
       const association2User = await this.createUser({
         email: 'david.lee@example.com',
         password: 'password',
         name: 'David Lee',
-        role: 'ASSOCIATION',
+        role: 'AFFILIATE',
       });
 
       // Update association users to active

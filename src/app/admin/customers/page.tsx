@@ -54,7 +54,7 @@ interface Referral {
   createdAt: string;
   estimatedValue: number;
   company: string;
-  association: {
+  affiliate: {
     id: string;
     name: string;
     email: string;

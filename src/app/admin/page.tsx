@@ -357,7 +357,7 @@ export default function AdminDashboardPage() {
             <CardContent className="pt-4">
               {topAssociations.length > 0 ? (
                 <div className="space-y-1">
-                  {topAssociations.map((association: any, index: number) => (
+                  {topAssociations.map((affiliate: any, index: number) => (
                     <div
                       key={association.id}
                       className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted/50 cursor-pointer"

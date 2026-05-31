@@ -40,13 +40,13 @@ export async function POST(request: NextRequest) {
         const now = new Date();
 
         // Find all PENDING incentives that have matured
-        const maturedIncentives = await prisma.incentive.findMany({
+        const maturedIncentives = await prisma.commission.findMany({
             where: {
                 status: 'PENDING',
                 maturesAt: { lte: now },
             },
             include: {
-                association: true,
+                affiliate: true,
             },
         });
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Batch update: mark all as APPROVED
-        await prisma.incentive.updateMany({
+        await prisma.commission.updateMany({
             where: { id: { in: maturedIds } },
             data: {
                 status: 'APPROVED',

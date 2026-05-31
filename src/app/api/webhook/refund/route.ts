@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
             },
             include: {
                 incentives: true,
-                association: true,
+                affiliate: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
                 if (incentive.status === 'PENDING') {
                     // ── Case 1: Still in hold period → simply cancel (no balance impact)
-                    await prisma.incentive.update({
+                    await prisma.commission.update({
                         where: { id: incentive.id },
                         data: {
                             status: 'CANCELLED',
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
 
                 } else if (incentive.status === 'APPROVED') {
                     // ── Case 2: Already approved (in balance) → cancel + deduct from balance
-                    await prisma.incentive.update({
+                    await prisma.commission.update({
                         where: { id: incentive.id },
                         data: {
                             status: 'CANCELLED',
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
 
                 } else if (incentive.status === 'PAID') {
                     // ── Case 3: Already paid out → create negative balance (clawback for next payout)
-                    await prisma.incentive.update({
+                    await prisma.commission.update({
                         where: { id: incentive.id },
                         data: {
                             status: 'CLAWBACK',
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
             const affectedAssociationIds = [...new Set(conversions.map(c => c.associationId))];
             for (const affId of affectedAssociationIds) {
                 const associationUser = await prisma.user.findFirst({
-                    where: { association: { id: affId } },
+                    where: { affiliate: { id: affId } },
                 });
                 if (associationUser?.email) {
                     const { emailService } = await import('@/lib/email');

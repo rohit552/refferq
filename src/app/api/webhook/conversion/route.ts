@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     maturesAt.setDate(maturesAt.getDate() + holdDays);
 
     // Create incentive record with maturesAt (status stays PENDING until maturation)
-    const incentive = await prisma.incentive.create({
+    const incentive = await prisma.commission.create({
       data: {
         conversionId: conversion.id,
         associationId: association.id,

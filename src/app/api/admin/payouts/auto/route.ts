@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
       take: 10,
       include: {
-        association: {
+        affiliate: {
           include: { user: { select: { name: true, email: true } } },
         },
       },

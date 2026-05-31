@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     // Calculate ESTIMATED revenue from referrals (leads)
     const referrals = await prisma.referral.findMany({
       include: {
-        association: true
+        affiliate: true
       }
     });
     

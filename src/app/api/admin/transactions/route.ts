@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         referral: true,
-        association: {
+        affiliate: {
           include: {
             user: true,
             partnerGroup: true
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
             leadEmail: txn.referral.leadEmail,
             status: txn.referral.status
           },
-          association: {
+          affiliate: {
             id: association.id,
             name: association.user.name,
             email: association.user.email,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     const referral = await prisma.referral.findUnique({
       where: { id: referralId },
       include: {
-        association: true
+        affiliate: true
       }
     });
 

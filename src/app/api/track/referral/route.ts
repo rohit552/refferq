@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Referral tracked successfully',
-      association: {
+      affiliate: {
         name: association.user.name,
         code: association.referralCode,
       },

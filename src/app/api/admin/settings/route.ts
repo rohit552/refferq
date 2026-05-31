@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all incentive rules
-    const incentiveRules = await prisma.incentiveRule.findMany({
+    const incentiveRules = await prisma.commissionRule.findMany({
       orderBy: {
         createdAt: 'desc'
       }
@@ -183,13 +183,13 @@ export async function POST(request: NextRequest) {
 
       // If setting as default, unset other defaults
       if (isDefault) {
-        await prisma.incentiveRule.updateMany({
+        await prisma.commissionRule.updateMany({
           where: { isDefault: true },
           data: { isDefault: false }
         });
       }
 
-      const newRule = await prisma.incentiveRule.create({
+      const newRule = await prisma.commissionRule.create({
         data: {
           name,
           type,
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
 
       // If setting as default, unset other defaults
       if (updates.isDefault) {
-        await prisma.incentiveRule.updateMany({
+        await prisma.commissionRule.updateMany({
           where: {
             id: { not: id },
             isDefault: true
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      const updatedRule = await prisma.incentiveRule.update({
+      const updatedRule = await prisma.commissionRule.update({
         where: { id },
         data: updates
       });
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await prisma.incentiveRule.delete({
+      await prisma.commissionRule.delete({
         where: { id }
       });
 

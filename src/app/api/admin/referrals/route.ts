@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Get all referrals with association information
     const referrals = await prisma.referral.findMany({
       include: {
-        association: {
+        affiliate: {
           include: {
             user: true
           }
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
           createdAt: referral.createdAt,
           estimatedValue: Number(metadata?.estimated_value) || 0,
           company: metadata?.company || '',
-          association: {
+          affiliate: {
             id: association.id,
             name: association.user.name,
             email: association.user.email,

@@ -172,7 +172,7 @@ export class OTPService {
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
         include: {
-          association: true
+          affiliate: true
         }
       });
 

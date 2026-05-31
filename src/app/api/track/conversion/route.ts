@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
         amount: amountCents / 100,
         currency: conversion.currency,
       },
-      association: {
+      affiliate: {
         name: association.user.name,
         code: association.referralCode,
       },

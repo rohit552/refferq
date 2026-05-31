@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        association: true
+        affiliate: true
       }
     });
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (user.role !== 'ASSOCIATION') {
+    if (user.role !== 'AFFILIATE') {
       return NextResponse.json(
         { success: false, error: 'Access denied. Association role required.' },
         { status: 403 }

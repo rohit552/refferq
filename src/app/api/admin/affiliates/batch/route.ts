@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           data: {
             actorId: user.id,
             action: 'BATCH_UPDATE_ASSOCIATION_STATUS',
-            objectType: 'ASSOCIATION',
+            objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
               associationIds,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
           data: {
             actorId: user.id,
             action: 'BATCH_UPDATE_ASSOCIATION_GROUP',
-            objectType: 'ASSOCIATION',
+            objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
               associationIds,
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
           data: {
             actorId: user.id,
             action: 'BATCH_DELETE_ASSOCIATIONS',
-            objectType: 'ASSOCIATION',
+            objectType: 'AFFILIATE',
             objectId: 'BATCH',
             payload: {
               associationIds,

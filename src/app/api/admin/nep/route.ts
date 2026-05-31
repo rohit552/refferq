@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     // ── NEP leads / school onboarding (Referral with source 'nep_landing') ──
     const nepLeads = await prisma.referral.findMany({
       where: { metadata: { path: ['source'], equals: 'nep_landing' } },
-      include: { association: { include: { user: { select: { name: true } } } } },
+      include: { affiliate: { include: { user: { select: { name: true } } } } },
       orderBy: { createdAt: 'desc' },
     });
 

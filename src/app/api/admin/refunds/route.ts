@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Get transaction
     const transaction = await (prisma as any).transaction.findUnique({
       where: { id: transactionId },
-      include: { association: true },
+      include: { affiliate: true },
     });
 
     if (!transaction) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find associated incentives for this association that are pending/approved
-    const incentives = await prisma.incentive.findMany({
+    const incentives = await prisma.commission.findMany({
       where: {
         associationId: transaction.associationId,
         status: { in: ['PENDING', 'APPROVED'] },
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     // 2. Reverse associated incentive (mark as CANCELLED)
     if (incentives.length > 0) {
       const matchingIncentive = incentives[0]; // Take most recent matching
-      await prisma.incentive.update({
+      await prisma.commission.update({
         where: { id: matchingIncentive.id },
         data: { status: 'CANCELLED' },
       });
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
   try {
     const transactions = await (prisma as any).transaction.findMany({
       where: { status: 'REFUNDED' },
-      include: { association: { include: { user: { select: { name: true, email: true } } } } },
+      include: { affiliate: { include: { user: { select: { name: true, email: true } } } } },
       orderBy: { updatedAt: 'desc' },
       take: 100,
     });

@@ -68,7 +68,7 @@ export async function PATCH(
       data: {
         actorId: user.id,
         action: 'UPDATE_ASSOCIATION_STATUS',
-        objectType: 'ASSOCIATION',
+        objectType: 'AFFILIATE',
         objectId: params.id,
         payload: {
           oldStatus: association.user.status,
@@ -82,7 +82,7 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       message: `Association status updated to ${status}`,
-      association: {
+      affiliate: {
         id: association.id,
         userId: updatedUser.id,
         status: updatedUser.status
@@ -141,7 +141,7 @@ export async function DELETE(
       data: {
         actorId: user.id,
         action: 'DELETE_ASSOCIATION',
-        objectType: 'ASSOCIATION',
+        objectType: 'AFFILIATE',
         objectId: params.id,
         payload: {
           associationName: association.user.name,

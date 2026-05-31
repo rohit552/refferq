@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       const referrals = await prisma.referral.findMany({
         where: dateFilter,
         include: {
-          association: {
+          affiliate: {
             include: {
               user: true
             }
@@ -100,10 +100,10 @@ export async function GET(request: NextRequest) {
       };
     } else if (reportType === 'incentives') {
       // Incentives Report
-      const incentives = await prisma.incentive.findMany({
+      const incentives = await prisma.commission.findMany({
         where: dateFilter,
         include: {
-          association: {
+          affiliate: {
             include: {
               user: true
             }
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
           user: true,
           incentives: {
             include: {
-              association: {
+              affiliate: {
                 include: {
                   user: true
                 }
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
       const approvedReferrals = await prisma.referral.count({ 
         where: { ...dateFilter, status: 'APPROVED' } 
       });
-      const totalIncentives = await prisma.incentive.aggregate({
+      const totalIncentives = await prisma.commission.aggregate({
         where: dateFilter,
         _sum: { amountCents: true },
         _count: true

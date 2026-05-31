@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
       where: { id: userId },
     });
 
-    if (!user || user.role !== 'ASSOCIATION') {
+    if (!user || user.role !== 'AFFILIATE') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       where: { id: userId },
     });
 
-    if (!user || user.role !== 'ASSOCIATION') {
+    if (!user || user.role !== 'AFFILIATE') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 

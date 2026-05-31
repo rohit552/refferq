@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
             status: 'APPROVED'
           }
         },
-        incentives: {
+        commissions: {
           where: {
             status: 'APPROVED'
           }
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Incentive statistics
-    const totalIncentives = await prisma.incentive.aggregate({
+    const totalIncentives = await prisma.commission.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const paidIncentives = await prisma.incentive.aggregate({
+    const paidIncentives = await prisma.commission.aggregate({
       _sum: { amountCents: true },
       _count: true,
       where: {
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         referralCode: association.referralCode,
         totalReferrals: association.referrals.length,
         totalEarnings: association.balanceCents,
-        totalIncentives: association.incentives.length
+        totalIncentives: association.commissions.length
       })),
       referralsByStatus: referralsByStatus.map(item => ({
         status: item.status,

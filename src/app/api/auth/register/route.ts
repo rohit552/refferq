@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // SECURITY: Never allow self-registration as admin
-    const userRole = 'ASSOCIATION';
+    const userRole = 'AFFILIATE';
 
     // Generate a cryptographically secure random password
     const crypto = await import('crypto');
